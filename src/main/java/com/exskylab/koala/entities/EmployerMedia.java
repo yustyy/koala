@@ -1,20 +1,19 @@
 package com.exskylab.koala.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Builder
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "job_required_skills")
-public class JobRequiredSkill extends BaseEntity{
-
+@Table(name = "employer_media")
+public class EmployerMedia extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -23,16 +22,15 @@ public class JobRequiredSkill extends BaseEntity{
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_id", nullable = false)
-    private Job job;
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skill_id", nullable = false)
-    private Skill skill;
+    @JoinColumn(name = "media_file_id", nullable = false)
+    private MediaFile mediaFile;
 
-    @Column(name = "minimum_proficiency", nullable = false)
-    private Integer minimumProficiency;
-
+    @Enumerated(EnumType.STRING)
+    private FileType fileType;
 
 
 }

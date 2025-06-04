@@ -9,20 +9,20 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "required_documents")
-public class RequiredDocument extends BaseEntity{
+@Builder
+@Table(name = "conversations")
+public class Conversation extends BaseEntity{
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "name", nullable = false)
-    private String name;
-
+    @Column(name = "subject", nullable = false)
+    private String subject;
 
 
 }

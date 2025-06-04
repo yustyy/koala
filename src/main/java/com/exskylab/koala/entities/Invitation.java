@@ -1,6 +1,5 @@
 package com.exskylab.koala.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,8 +11,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "job_payment_methods")
-public class JobPaymentMethod extends BaseEntity{
+@Table(name = "invitations")
+public class Invitation extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,13 +20,21 @@ public class JobPaymentMethod extends BaseEntity{
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_method_id", nullable = false)
-    private PaymentMethod paymentMethod;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
+    @Column(name = "message", columnDefinition = "TEXT")
+    private String message;
 
-
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private InvitationStatus status;
 }

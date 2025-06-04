@@ -1,20 +1,19 @@
 package com.exskylab.koala.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.UUID;
 
+@Entity
 @Getter
 @Setter
-@Entity
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "job_category_links")
-public class JobCategoryLink extends BaseEntity{
-
+@Builder
+@Table(name = "job_tags", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"job_id", "tag_id"})})
+public class JobTag extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,9 +25,6 @@ public class JobCategoryLink extends BaseEntity{
     private Job job;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_category_id", nullable = false)
-    private JobCategory jobCategory;
-
-
-
+    @JoinColumn(name = "tag_id", nullable = false)
+    private Tag tag;
 }

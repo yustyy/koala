@@ -1,6 +1,5 @@
 package com.exskylab.koala.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,9 +11,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "company_contacts")
-public class CompanyContact extends BaseEntity{
-
+@Table(name = "notification_channels")
+public class NotificationChannel extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,14 +20,13 @@ public class CompanyContact extends BaseEntity{
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id", nullable = false)
-    private Company company;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private CompanyContactRole role;
+    @Column(name = "channel_type", nullable = false)
+    private NotificationChannelType channelType;
 
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive;
 }

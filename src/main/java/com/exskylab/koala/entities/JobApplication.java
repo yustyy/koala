@@ -44,8 +44,8 @@ public class JobApplication extends BaseEntity {
     @Column(name = "employer_confirmation")
     private Boolean employerConfirmation;
 
-    @Column(name = "payment_status")
-    private String paymentStatus;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 
     @Column(name = "notes")
     private String notes;
