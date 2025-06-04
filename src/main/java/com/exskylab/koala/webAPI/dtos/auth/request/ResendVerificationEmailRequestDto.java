@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class ResendVerificationEmailRequestDto {
 
 
-    @NotBlank(message = "Email cannot be blank")
+    @NotBlank(message = "Email boş olamaz!")
     private String email;
 
 
