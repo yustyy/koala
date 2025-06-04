@@ -2,6 +2,7 @@ package com.exskylab.koala.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Date;
 import java.util.Set;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Table(name = "users")
-public class User extends BaseEntity{
+public class User extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
