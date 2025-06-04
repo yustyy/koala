@@ -2,6 +2,7 @@ package com.exskylab.koala.business.concretes;
 
 import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.business.abstracts.VerificationService;
+import com.exskylab.koala.core.constants.messages.UserMessages;
 import com.exskylab.koala.core.constants.messages.VerificationMessages;
 import com.exskylab.koala.core.utilities.exceptions.*;
 import com.exskylab.koala.dataAccess.VerificationDao;
@@ -15,7 +16,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class VerificationManager implements VerificationService {
@@ -32,31 +34,49 @@ public class VerificationManager implements VerificationService {
 
     @Transactional
     @Override
-    public Verification createVerification(User user, VerificationType verificationType) {
-        var verification = verificationDao.findByUserAndVerificationType(user, verificationType);
+    public Verification createVerification(UUID userId, VerificationType verificationType) {
+        var verification = verificationDao.findByUser_IdAndVerificationType(userId, verificationType);
+        var user = userService.findById(userId);
 
-      if (verification.isPresent()){
+        if (user == null) {
+                throw new UserNotFoundException(UserMessages.USER_NOT_FOUND);
+        }
 
-          if (verification.get().getStatus() == VerificationStatus.APPROVED) {
+      if (!verification.isEmpty()){
+
+          var lastVerification = verification.get(0);
+
+          if (lastVerification.getStatus() == VerificationStatus.APPROVED) {
               throw new VerificationAlreadyApprovedException(VerificationMessages.VERIFICATION_ALREADY_APPROVED);
           }
 
-          if (verification.get().getStatus() == VerificationStatus.PENDING && verification.get().getExpiryDate().isAfter(LocalDateTime.now())) {
+          if (lastVerification.getStatus() == VerificationStatus.PENDING && lastVerification.getExpiryDate().isAfter(LocalDateTime.now())) {
               throw new VerificationAlreadyPendingException(VerificationMessages.VERIFICATION_ALREADY_PENDING);
           }
 
-          if (verification.get().getStatus() == VerificationStatus.PENDING && verification.get().getExpiryDate().isBefore(LocalDateTime.now())) {
-              verification.get().setUsed(false);
-              verification.get().setStatus(VerificationStatus.EXPIRED);
-              verificationDao.save(verification.get());
+          if (lastVerification.getStatus() == VerificationStatus.PENDING && lastVerification.getExpiryDate().isBefore(LocalDateTime.now())) {
+              lastVerification.setUsed(false);
+              lastVerification.setStatus(VerificationStatus.EXPIRED);
+              verificationDao.save(lastVerification);
           }
       }
+
+        String sentTo = null;
+        switch (verificationType) {
+            case EMAIL:
+                sentTo = user.getEmail();
+                break;
+            case PHONE:
+                sentTo = user.getPhoneNumber();
+                break;
+        }
 
        var newVerification = Verification.builder()
                .user(user)
                .verificationType(verificationType)
                .used(false)
                .verifiedAt(null)
+               .sentTo(sentTo)
                .status(VerificationStatus.PENDING)
                .token(generateRandomToken(verificationType))
                .expiryDate(LocalDateTime.now().plusMinutes(15))
@@ -74,7 +94,7 @@ public class VerificationManager implements VerificationService {
             throw new VerificationTokenNotFoundException(VerificationMessages.VERIFICATION_TOKEN_NOT_FOUND);
         }
 
-        if (verification.get().isUsed()) {
+        if (verification.get().isUsed() || verification.get().getStatus() == VerificationStatus.INVALIDATED) {
             throw new VerificationTokenAlreadyUsedException(VerificationMessages.VERIFICATION_TOKEN_ALREADY_USED);
         }
 
@@ -83,6 +103,8 @@ public class VerificationManager implements VerificationService {
             verificationDao.save(verification.get());
             throw new VerificationTokenExpiredException(VerificationMessages.VERIFICATION_TOKEN_EXPIRED);
         }
+
+
 
         verification.get().setUsed(true);
         verification.get().setStatus(VerificationStatus.APPROVED);
@@ -107,21 +129,23 @@ public class VerificationManager implements VerificationService {
 
     @Override
     public boolean isVerified(User user, VerificationType verificationType) {
-        var verification = verificationDao.findByUserAndVerificationType(user, verificationType);
+        List<Verification> verifications = verificationDao.findByUser_IdAndVerificationTypeAndStatusOrderByCreatedAtDesc(
+                user.getId(), verificationType, VerificationStatus.APPROVED);
 
-        if (verification.isEmpty()) {
-            return false;
+        if (verifications.isEmpty()) {
+            throw new VerificationNotFoundException(VerificationMessages.VERIFICATION_NOT_FOUND);
         }
 
-        if (verification.get().getStatus() == VerificationStatus.APPROVED) {
-            return true;
-        }
+        Verification lastApproved = verifications.get(0);
 
-        if (verification.get().getStatus() == VerificationStatus.PENDING && verification.get().getExpiryDate().isAfter(LocalDateTime.now())) {
-            return false;
+        switch (verificationType) {
+            case EMAIL:
+                return user.getEmail().equals(lastApproved.getSentTo());
+            case PHONE:
+                return user.getPhoneNumber().equals(lastApproved.getSentTo());
+            default:
+                return true;
         }
-
-        return false;
     }
 
     @Override
@@ -132,9 +156,10 @@ public class VerificationManager implements VerificationService {
             throw new VerificationTokenNotFoundException(VerificationMessages.VERIFICATION_TOKEN_NOT_FOUND);
         }
 
-        if (verification.get().isUsed()) {
+        if (verification.get().isUsed() || verification.get().getStatus() == VerificationStatus.INVALIDATED) {
             throw new VerificationTokenAlreadyUsedException(VerificationMessages.VERIFICATION_TOKEN_ALREADY_USED);
         }
+
 
         if (verification.get().getExpiryDate().isBefore(LocalDateTime.now())) {
             verification.get().setStatus(VerificationStatus.EXPIRED);
@@ -163,9 +188,11 @@ public class VerificationManager implements VerificationService {
             throw new VerificationTokenNotFoundException(VerificationMessages.VERIFICATION_TOKEN_NOT_FOUND);
         }
 
-        if (verification.get().isUsed()) {
+        if (verification.get().isUsed() || verification.get().getStatus() == VerificationStatus.INVALIDATED) {
             throw new VerificationTokenAlreadyUsedException(VerificationMessages.VERIFICATION_TOKEN_ALREADY_USED);
         }
+
+
 
         if (verification.get().getExpiryDate().isBefore(LocalDateTime.now())) {
             verification.get().setStatus(VerificationStatus.EXPIRED);
@@ -178,6 +205,33 @@ public class VerificationManager implements VerificationService {
         verification.get().setStatus(VerificationStatus.APPROVED);
         verificationDao.save(verification.get());
         return true;
+    }
+
+    @Override
+    public List<Verification> getVerificationsByUserIdAndType(UUID userId, VerificationType verificationType) {
+        var verifications = verificationDao.findByUser_IdAndVerificationType(userId, verificationType);
+
+        if (verifications.isEmpty()) {
+            throw new VerificationNotFoundException(VerificationMessages.VERIFICATION_NOT_FOUND);
+        }
+
+        return verifications.stream().toList();
+    }
+
+    @Override
+    public boolean invalidateVerification(UUID id) {
+        var verification = verificationDao.findById(id);
+
+        if (verification.isEmpty()) {
+            throw new VerificationNotFoundException(VerificationMessages.VERIFICATION_NOT_FOUND);
+        }
+
+        verification.get().setStatus(VerificationStatus.INVALIDATED);
+        verification.get().setUsed(true);
+
+        verificationDao.save(verification.get());
+        return true;
+
     }
 
 

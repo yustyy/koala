@@ -13,4 +13,5 @@ public class UserMessages {
     public static final String RESET_PASSWORD_SUCCESS =  "Kullanıcı şifre sıfırlama işlemi başarılı.";
     public static final String VERIFY_RESET_TOKEN_SUCCESS = "Kullanıcı şifre sıfırlama işlemi hala geçerli.";
     public static final String VERIFY_EMAIL_SUCCESS = "Kullanıcı e-posta doğrulama işlemi başarılı.";
+    public static final String RESEND_VERIFICATION_EMAIL_SUCCESS = "Kullanıcı e-posta doğrulama işlemi için e-posta gönderildi.";
 }

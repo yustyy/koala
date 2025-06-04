@@ -28,6 +28,9 @@ public class Verification extends BaseEntity {
     @Column(name = "verification_type", nullable = false)
     private VerificationType verificationType;
 
+    @Column(name = "sent_to", nullable = false)
+    private String sentTo;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private VerificationStatus status;

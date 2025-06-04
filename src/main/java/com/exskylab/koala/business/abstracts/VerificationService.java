@@ -2,12 +2,16 @@ package com.exskylab.koala.business.abstracts;
 
 import com.exskylab.koala.entities.User;
 import com.exskylab.koala.entities.Verification;
+import com.exskylab.koala.entities.VerificationStatus;
 import com.exskylab.koala.entities.VerificationType;
+
+import java.util.List;
+import java.util.UUID;
 
 public interface VerificationService {
 
 
-    Verification createVerification(User user, VerificationType verificationType);
+    Verification createVerification(UUID userId, VerificationType verificationType);
 
     boolean verifyToken(String token);
 
@@ -19,5 +23,7 @@ public interface VerificationService {
 
     boolean useVerificationToken(String token);
 
+    List<Verification> getVerificationsByUserIdAndType(UUID userId, VerificationType verificationType);
 
+    boolean invalidateVerification(UUID id);
 }

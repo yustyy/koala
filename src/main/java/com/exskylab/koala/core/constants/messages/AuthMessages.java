@@ -18,4 +18,6 @@ public class AuthMessages {
     public static final String INVALID_VERIFICATION_TYPE = "Şifre sıfırlamak için geçersiz doğrulama türü, lütfen tekrar deneyiniz!";
     public static final String CONFIRM_PASSWORD_REQUIRED = "Lütfen şifrenizi onaylayınız!";
     public static final String PASSWORDS_DO_NOT_MATCH = "Şifreler eşleşmiyor, lütfen tekrar deneyiniz!";
+    public static final String EMAIL_ALREADY_VERIFIED = "Email adresiniz zaten doğrulanmış, lütfen tekrar deneyiniz!";
+    public static final String TOO_MANY_REQUESTS = "Çok fazla istek, lütfen daha sonra tekrar deneyiniz!";
 }

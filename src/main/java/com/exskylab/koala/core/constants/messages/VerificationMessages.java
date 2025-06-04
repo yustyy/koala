@@ -6,4 +6,6 @@ public class VerificationMessages {
     public static final String VERIFICATION_TOKEN_EXPIRED =  "Doğrulama süresi dolmuş, lütfen yeni bir doğrulama isteğinde bulunun.";
     public static final String VERIFICATION_TOKEN_NOT_FOUND =  "Doğrulama token'ı bulunamadı, lütfen yeni bir doğrulama isteğinde bulunun.";
     public static final String VERIFICATION_TOKEN_ALREADY_USED =  "Doğrulama token'ı zaten kullanıldı, lütfen yeni bir doğrulama isteğinde bulunun.";
+    public static final String VERIFICATION_NOT_FOUND =  "Doğrulama bulunamadı, lütfen yeni bir doğrulama isteğinde bulunun.";
+    public static final String VERIFICATION_TYPE_NOT_FOUND = "Doğrulama türü bulunamadı, lütfen geçerli bir doğrulama türü kullanın.";
 }

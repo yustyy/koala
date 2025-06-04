@@ -30,4 +30,7 @@ public interface AuthService {
     boolean verifyResetToken(String token);
 
     boolean verifyEmailWithToken(String token);
+
+    boolean resendVerificationEmail(String email);
+
 }

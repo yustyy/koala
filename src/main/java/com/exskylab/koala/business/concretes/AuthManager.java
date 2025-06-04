@@ -70,7 +70,7 @@ public class AuthManager implements AuthService {
         userToSave.setPassword(passwordEncoder.encode(userToSave.getPassword()));
 
         var savedUser = userService.save(userToSave);
-        var emailVerification = verificationService.createVerification(savedUser, VerificationType.EMAIL);
+        var emailVerification = verificationService.createVerification(savedUser.getId(), VerificationType.EMAIL);
 
         emailService.sendMail(userToSave.getEmail(), "isKoala email doğrulama",
                     "Merhaba " + savedUser.getFirstName() + ",\n\n" +
@@ -197,7 +197,7 @@ public class AuthManager implements AuthService {
             throw new EmailNotVerifiedException(AuthMessages.EMAIL_NOT_VERIFIED_TO_RESET_PASSWORD);
         }
 
-        var verification = verificationService.createVerification(user, VerificationType.PASSWORD_RESET);
+        var verification = verificationService.createVerification(user.getId(), VerificationType.PASSWORD_RESET);
 
         emailService.sendMail(user.getEmail(), "isKoala Şifre Sıfırlama",
                 "Merhaba " + user.getFirstName() + ",\n\n" +
@@ -308,6 +308,49 @@ public class AuthManager implements AuthService {
         verificationService.verifyToken(token);
 
         log.info("Email verification successful for user: {}", verification.getUser().getEmail());
+        return true;
+    }
+
+    @Override
+    public boolean resendVerificationEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new RequiredFieldException(AuthMessages.EMAIL_REQUIRED);
+        }
+
+        var user = userService.findByEmail(email);
+        if (user == null) {
+            throw new UserNotFoundException(UserMessages.USER_NOT_FOUND);
+        }
+
+        if (user.isEmailVerified()) {
+            throw new EmailAlreadyVerifiedException(AuthMessages.EMAIL_ALREADY_VERIFIED);
+        }
+
+        var recentVerifications = verificationService.getVerificationsByUserIdAndType(user.getId(), VerificationType.EMAIL);
+
+        LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(5);
+        boolean hasRecentPendingVerification = recentVerifications.stream()
+                .anyMatch(v -> !v.isUsed() && v.getCreatedAt().isAfter(fiveMinutesAgo));
+
+        if (hasRecentPendingVerification) {
+            throw new TooManyRequestsException(AuthMessages.TOO_MANY_REQUESTS);
+        }
+
+        recentVerifications.stream()
+                .filter(v -> !v.isUsed() && v.getExpiryDate().isAfter(LocalDateTime.now()))
+                .forEach(v -> verificationService.invalidateVerification(v.getId()));
+
+        var verificationToResend = verificationService.createVerification(user.getId(), VerificationType.EMAIL);
+
+        emailService.sendMail(user.getEmail(), "isKoala E-posta Doğrulama",
+                "Merhaba " + user.getFirstName() + ",\n\n" +
+                "Lütfen e-posta adresinizi doğrulamak için aşağıdaki bağlantıya tıklayın:\n" +
+                "http://localhost:8080/api/verification/email?token=" + verificationToResend.getToken() + "\n\n" +
+                "Bu bağlantı 15 dakika sonra geçerliliğini yitirecektir.\n\n" +
+                "Teşekkürler,\n" +
+                "isKoala Ekibi"
+        );
+
         return true;
     }
 }

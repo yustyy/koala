@@ -77,11 +77,18 @@ public class AuthController {
         return ResponseEntity.ok().body(new SuccessResult(UserMessages.VERIFY_RESET_TOKEN_SUCCESS, HttpStatus.OK, request.getRequestURI()));
     }
 
+    @PostMapping("/resend-verification-email")
+    public ResponseEntity<Result> resendVerificationEmail(@Valid @RequestBody ResendVerificationEmailRequestDto resendVerificationEmailRequestDto, HttpServletRequest request) {
+        authService.resendVerificationEmail(resendVerificationEmailRequestDto.getEmail());
+        return ResponseEntity.ok().body(new SuccessResult(UserMessages.RESEND_VERIFICATION_EMAIL_SUCCESS, HttpStatus.OK, request.getRequestURI()));
+    }
+
     @GetMapping("/verify-email")
     public ResponseEntity<Result> verifyEmail(@RequestParam @NotBlank(message = AuthMessages.TOKEN_REQUIRED) String token, HttpServletRequest request) {
         authService.verifyEmailWithToken(token);
         return ResponseEntity.ok().body(new SuccessResult(UserMessages.VERIFY_EMAIL_SUCCESS, HttpStatus.OK, request.getRequestURI()));
     }
+
 
 
 
