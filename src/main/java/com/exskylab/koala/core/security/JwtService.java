@@ -1,11 +1,20 @@
 package com.exskylab.koala.core.security;
 
 import com.exskylab.koala.entities.User;
-import lombok.Value;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -13,16 +22,38 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String SECRET;
 
+    @Value("${jwt.refresh.expiration}")
+    private Long REFRESH_TOKEN_EXPIRATION;
+
+    @Value("${jwt.expiration}")
+    private Long TOKEN_EXPIRATION;
+
+
+    public String generateRefreshToken(User user){
+        return Jwts.builder()
+                .subject(user.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis()+ REFRESH_TOKEN_EXPIRATION))
+                .signWith(getSignKey())
+                .compact();
+    }
+
+    public String generateTokenFromRefreshToken(String refreshToken){
+        if (!isTokenValid(refreshToken)){
+            throw new IllegalArgumentException("Geçersiz refresh token veya süresi dolmuş.");
+        }
+
+        String username = extractUser(refreshToken);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", username);
+        return createToken(claims, username);
+
+    }
+
+
     public String generateToken(User user){
         Map<String, Object> claims = new HashMap<>();
-
-        claims.put("firstName", user.getFirstName());
-        claims.put("lastName", user.getLastName());
-        claims.put("email", user.getEmail());
-        claims.put("authorities", user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()));
-
         return createToken(claims, user.getUsername());
     }
 
@@ -31,7 +62,8 @@ public class JwtService {
         Date expirationDate = extractExpiration(token);
         return userDetails.getUsername().equals(email) && !expirationDate.before(new Date());
     }
-    private Date extractExpiration(String token) {
+
+    public Date extractExpiration(String token) {
         Claims claims = Jwts
                 .parser()
                 .verifyWith(getSignKey())
@@ -54,7 +86,7 @@ public class JwtService {
                 .claims(claims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+ 1000 * 60 * 60 * 12)) //token 12 saat boyunca gecerli
+                .expiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION))
                 .signWith(getSignKey())
                 .compact();
         return result;
@@ -62,5 +94,14 @@ public class JwtService {
     private SecretKey getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public boolean isTokenValid(String refreshToken) {
+        try {
+            extractExpiration(refreshToken);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

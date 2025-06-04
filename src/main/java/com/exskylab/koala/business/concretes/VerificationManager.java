@@ -3,6 +3,7 @@ package com.exskylab.koala.business.concretes;
 import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.business.abstracts.VerificationService;
 import com.exskylab.koala.core.constants.messages.VerificationMessages;
+import com.exskylab.koala.core.utilities.exceptions.*;
 import com.exskylab.koala.dataAccess.VerificationDao;
 import com.exskylab.koala.entities.User;
 import com.exskylab.koala.entities.Verification;
@@ -36,11 +37,11 @@ public class VerificationManager implements VerificationService {
       if (verification.isPresent()){
 
           if (verification.get().getStatus() == VerificationStatus.APPROVED) {
-              throw new IllegalStateException(VerificationMessages.VERIFICATION_ALREADY_APPROVED);
+              throw new VerificationAlreadyApprovedException(VerificationMessages.VERIFICATION_ALREADY_APPROVED);
           }
 
           if (verification.get().getStatus() == VerificationStatus.PENDING && verification.get().getExpiryDate().isAfter(LocalDateTime.now())) {
-              throw new IllegalStateException(VerificationMessages.VERIFICATION_ALREADY_PENDING);
+              throw new VerificationAlreadyPendingException(VerificationMessages.VERIFICATION_ALREADY_PENDING);
           }
 
           if (verification.get().getStatus() == VerificationStatus.PENDING && verification.get().getExpiryDate().isBefore(LocalDateTime.now())) {
@@ -69,17 +70,17 @@ public class VerificationManager implements VerificationService {
         var verification = verificationDao.findByToken(token);
 
         if (verification.isEmpty()) {
-            throw new IllegalArgumentException(VerificationMessages.VERIFICATION_TOKEN_NOT_FOUND);
+            throw new VerificationTokenNotFoundException(VerificationMessages.VERIFICATION_TOKEN_NOT_FOUND);
         }
 
         if (verification.get().isUsed()) {
-            throw new IllegalStateException(VerificationMessages.VERIFICATION_TOKEN_ALREADY_USED);
+            throw new VerificationTokenAlreadyUsedException(VerificationMessages.VERIFICATION_TOKEN_ALREADY_USED);
         }
 
         if (verification.get().getExpiryDate().isBefore(LocalDateTime.now()) || verification.get().getStatus() == VerificationStatus.EXPIRED) {
             verification.get().setStatus(VerificationStatus.EXPIRED);
             verificationDao.save(verification.get());
-            throw new IllegalStateException(VerificationMessages.VERIFICATION_TOKEN_EXPIRED);
+            throw new VerificationTokenExpiredException(VerificationMessages.VERIFICATION_TOKEN_EXPIRED);
         }
 
         verification.get().setUsed(true);

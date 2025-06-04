@@ -2,6 +2,9 @@ package com.exskylab.koala.business.concretes;
 
 import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.core.constants.messages.UserMessages;
+import com.exskylab.koala.core.utilities.exceptions.UserNotFoundException;
+import com.exskylab.koala.core.utilities.exceptions.VerificationTypeInvalidException;
+import com.exskylab.koala.core.utilities.exceptions.VerificationTypeNotFoundException;
 import com.exskylab.koala.dataAccess.UserDao;
 import com.exskylab.koala.entities.User;
 import com.exskylab.koala.entities.VerificationType;
@@ -68,10 +71,10 @@ public class UserManager implements UserService {
 
     @Override
     public boolean changeVerificationStatus(UUID id, VerificationType verificationType, boolean status) {
-       User user = userDao.findById(id).orElseThrow(()-> new IllegalArgumentException(UserMessages.USER_NOT_FOUND));
+       User user = userDao.findById(id).orElseThrow(()-> new UserNotFoundException(UserMessages.USER_NOT_FOUND));
 
        if(verificationType == null){
-              throw new IllegalArgumentException(UserMessages.VERIFICATION_TYPE_NOT_FOUND);
+              throw new VerificationTypeNotFoundException(UserMessages.VERIFICATION_TYPE_NOT_FOUND);
        }
 
          if(verificationType == VerificationType.EMAIL){
@@ -81,7 +84,7 @@ public class UserManager implements UserService {
          } else if(verificationType == VerificationType.IDENTITY){
                 user.setIdentityVerified(status);
          } else {
-             throw new IllegalArgumentException(UserMessages.VERIFICATION_TYPE_NOT_FOUND);
+             throw new VerificationTypeInvalidException(UserMessages.VERIFICATION_TYPE_INVALID);
          }
 
          userDao.save(user);
