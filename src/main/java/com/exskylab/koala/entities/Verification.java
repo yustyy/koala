@@ -12,8 +12,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "verification_tokens")
-public class VerificationToken extends BaseEntity {
+@Table(name = "verifications")
+public class Verification extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -24,15 +24,23 @@ public class VerificationToken extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "verification_type", nullable = false)
+    private VerificationType verificationType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private VerificationStatus status;
+
     @Column(name = "token", nullable = false, unique = true)
     private String token;
 
     @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;
 
+    @Column(name = "verified_at")
+    private LocalDateTime verifiedAt;
+
     @Column(name = "used", nullable = false)
     private boolean used;
-
-
-
 }

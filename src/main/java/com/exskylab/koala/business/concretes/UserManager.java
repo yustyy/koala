@@ -1,8 +1,10 @@
 package com.exskylab.koala.business.concretes;
 
 import com.exskylab.koala.business.abstracts.UserService;
+import com.exskylab.koala.core.constants.messages.UserMessages;
 import com.exskylab.koala.dataAccess.UserDao;
 import com.exskylab.koala.entities.User;
+import com.exskylab.koala.entities.VerificationType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -62,6 +64,29 @@ public class UserManager implements UserService {
     @Override
     public List<User> findAll() {
         return List.of();
+    }
+
+    @Override
+    public boolean changeVerificationStatus(UUID id, VerificationType verificationType, boolean status) {
+       User user = userDao.findById(id).orElseThrow(()-> new IllegalArgumentException(UserMessages.USER_NOT_FOUND));
+
+       if(verificationType == null){
+              throw new IllegalArgumentException(UserMessages.VERIFICATION_TYPE_NOT_FOUND);
+       }
+
+         if(verificationType == VerificationType.EMAIL){
+              user.setEmailVerified(status);
+         } else if(verificationType == VerificationType.PHONE){
+              user.setPhoneVerified(status);
+         } else if(verificationType == VerificationType.IDENTITY){
+                user.setIdentityVerified(status);
+         } else {
+             throw new IllegalArgumentException(UserMessages.VERIFICATION_TYPE_NOT_FOUND);
+         }
+
+         userDao.save(user);
+         return true;
+
     }
 
     @Override

@@ -70,6 +70,15 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "manual_address")
     private String manualAddress;
 
+    @Column(name = "is_email_verified")
+    private boolean emailVerified;
+
+    @Column(name = "is_phone_verified")
+    private boolean phoneVerified;
+
+    @Column(name = "is_identity_verified")
+    private boolean identityVerified;
+
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @JoinTable(name = "authorities", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role", nullable = false)

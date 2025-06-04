@@ -2,6 +2,7 @@ package com.exskylab.koala.business.abstracts;
 
 
 import com.exskylab.koala.entities.User;
+import com.exskylab.koala.entities.VerificationType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public interface UserService extends UserDetailsService {
     void delete(UUID id);
 
     List<User> findAll();
+
+    boolean changeVerificationStatus(UUID id, VerificationType verificationType, boolean status);
 
 
 
