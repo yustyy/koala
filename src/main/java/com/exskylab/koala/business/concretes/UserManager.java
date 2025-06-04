@@ -10,6 +10,7 @@ import com.exskylab.koala.entities.User;
 import com.exskylab.koala.entities.VerificationType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,9 +20,11 @@ import java.util.UUID;
 public class UserManager implements UserService {
 
     private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserManager(UserDao userDao) {
+    public UserManager(UserDao userDao, PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -89,7 +92,14 @@ public class UserManager implements UserService {
 
          userDao.save(user);
          return true;
+    }
 
+    @Override
+    public boolean changePassword(UUID id, String newUnencodedPassword) {
+        User user = userDao.findById(id).orElseThrow(() -> new UserNotFoundException(UserMessages.USER_NOT_FOUND));
+        user.setPassword(passwordEncoder.encode(newUnencodedPassword));
+        userDao.save(user);
+        return true;
     }
 
     @Override

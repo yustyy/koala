@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Service
 public class VerificationManager implements VerificationService {
@@ -57,7 +58,7 @@ public class VerificationManager implements VerificationService {
                .used(false)
                .verifiedAt(null)
                .status(VerificationStatus.PENDING)
-               .token(generateRandomToken())
+               .token(generateRandomToken(verificationType))
                .expiryDate(LocalDateTime.now().plusMinutes(15))
                .build();
 
@@ -123,9 +124,74 @@ public class VerificationManager implements VerificationService {
         return false;
     }
 
+    @Override
+    public boolean isValid(String token) {
+        var verification = verificationDao.findByToken(token);
 
-    private String generateRandomToken(){
+        if (verification.isEmpty()) {
+            throw new VerificationTokenNotFoundException(VerificationMessages.VERIFICATION_TOKEN_NOT_FOUND);
+        }
+
+        if (verification.get().isUsed()) {
+            throw new VerificationTokenAlreadyUsedException(VerificationMessages.VERIFICATION_TOKEN_ALREADY_USED);
+        }
+
+        if (verification.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+            verification.get().setStatus(VerificationStatus.EXPIRED);
+            verificationDao.save(verification.get());
+            throw new VerificationTokenExpiredException(VerificationMessages.VERIFICATION_TOKEN_EXPIRED);
+        }
+
+        return true;
+    }
+
+    @Override
+    public Verification getVerificationByToken(String token) {
+        var verification = verificationDao.findByToken(token);
+        if (verification.isEmpty()) {
+            throw new VerificationTokenNotFoundException(VerificationMessages.VERIFICATION_TOKEN_NOT_FOUND);
+        }
+
+        return verification.get();
+    }
+
+    @Override
+    public boolean useVerificationToken(String token) {
+        var verification = verificationDao.findByToken(token);
+
+        if (verification.isEmpty()) {
+            throw new VerificationTokenNotFoundException(VerificationMessages.VERIFICATION_TOKEN_NOT_FOUND);
+        }
+
+        if (verification.get().isUsed()) {
+            throw new VerificationTokenAlreadyUsedException(VerificationMessages.VERIFICATION_TOKEN_ALREADY_USED);
+        }
+
+        if (verification.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+            verification.get().setStatus(VerificationStatus.EXPIRED);
+            verificationDao.save(verification.get());
+            throw new VerificationTokenExpiredException(VerificationMessages.VERIFICATION_TOKEN_EXPIRED);
+        }
+
+        verification.get().setUsed(true);
+        verification.get().setVerifiedAt(LocalDateTime.now());
+        verification.get().setStatus(VerificationStatus.APPROVED);
+        verificationDao.save(verification.get());
+        return true;
+    }
+
+
+    private String generateRandomToken(VerificationType verificationType){
+
         SecureRandom random = new SecureRandom();
+
+        if (verificationType == VerificationType.PASSWORD_RESET) {
+            byte[] bytes = new byte[16];
+            random.nextBytes(bytes);
+            return new BigInteger(1, bytes).toString(16).toUpperCase();
+        }
+
+
         int randomNumber = 10000000 + random.nextInt(90000000);
         return String.valueOf(randomNumber);
     }

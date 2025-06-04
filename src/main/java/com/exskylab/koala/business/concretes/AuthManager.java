@@ -13,6 +13,7 @@ import com.exskylab.koala.entities.VerificationType;
 import com.exskylab.koala.webAPI.dtos.auth.request.AuthLoginRequestDto;
 import com.exskylab.koala.webAPI.dtos.auth.request.AuthRegisterRequestDto;
 import com.exskylab.koala.webAPI.dtos.auth.request.RefreshTokenRequestDto;
+import com.exskylab.koala.webAPI.dtos.auth.request.ResetPasswordRequestDto;
 import com.exskylab.koala.webAPI.dtos.auth.response.AuthLoginResponseDto;
 import com.exskylab.koala.webAPI.dtos.auth.response.AuthRegisterResponseDto;
 import com.exskylab.koala.webAPI.dtos.auth.response.TokenResponseDto;
@@ -23,6 +24,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Slf4j
 @Service
@@ -153,7 +158,7 @@ public class AuthManager implements AuthService {
     }
 
     @Override
-    public Boolean validateToken(String token) {
+    public boolean validateToken(String token) {
         try{
 
             if (token == null || token.isEmpty()){
@@ -177,5 +182,132 @@ public class AuthManager implements AuthService {
         }
 
 
+    }
+
+    @Transactional
+    @Override
+    public boolean forgotPassword(String email) {
+        var user = userService.findByEmail(email);
+
+        if (user == null) {
+            throw new UserNotFoundException(UserMessages.USER_NOT_FOUND);
+        }
+
+        if (!user.isEmailVerified()) {
+            throw new EmailNotVerifiedException(AuthMessages.EMAIL_NOT_VERIFIED_TO_RESET_PASSWORD);
+        }
+
+        var verification = verificationService.createVerification(user, VerificationType.PASSWORD_RESET);
+
+        emailService.sendMail(user.getEmail(), "isKoala Şifre Sıfırlama",
+                "Merhaba " + user.getFirstName() + ",\n\n" +
+                "Şifrenizi sıfırlamak için lütfen aşağıdaki bağlantıya tıklayın:\n" +
+                "http://localhost:8080/api/verification/password-reset?token=" + verification.getToken() + "\n\n" +
+                "Bu bağlantı 15 dakika sonra geçerliliğini yitirecektir.\n\n" +
+                "Teşekkürler,\n" +
+                "isKoala Ekibi"
+        );
+
+        return true;
+    }
+
+    @Transactional
+    @Override
+    public boolean resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) {
+
+        if (resetPasswordRequestDto.getToken() == null || resetPasswordRequestDto.getToken().isEmpty()){
+            throw new RequiredFieldException(AuthMessages.TOKEN_REQUIRED);
+        }
+
+        if (resetPasswordRequestDto.getNewPassword() == null || resetPasswordRequestDto.getNewPassword().isEmpty()){
+            throw new RequiredFieldException(AuthMessages.NEW_PASSWORD_REQUIRED);
+        }
+
+        if (resetPasswordRequestDto.getConfirmPassword() == null || resetPasswordRequestDto.getConfirmPassword().isEmpty()){
+            throw new RequiredFieldException(AuthMessages.CONFIRM_PASSWORD_REQUIRED);
+        }
+
+        if (!resetPasswordRequestDto.getNewPassword().equals(resetPasswordRequestDto.getConfirmPassword())){
+            throw new PasswordsDoNotMatchException(AuthMessages.PASSWORDS_DO_NOT_MATCH);
+        }
+
+        var verification = verificationService.getVerificationByToken(resetPasswordRequestDto.getToken());
+        if (verification == null) {
+            throw new VerificationTokenNotFoundException(AuthMessages.VERIFICATION_NOT_FOUND);
+        }
+
+        if (verification.getVerificationType() != VerificationType.PASSWORD_RESET) {
+            throw new VerificationTypeInvalidException(AuthMessages.INVALID_VERIFICATION_TYPE);
+        }
+
+        if (verification.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new VerificationTokenExpiredException(AuthMessages.VERIFICATION_EXPIRED);
+        }
+
+        if (verification.isUsed()) {
+            throw new VerificationTokenAlreadyUsedException(AuthMessages.VERIFICATION_ALREADY_USED);
+        }
+
+        var user = verification.getUser();
+        if (user == null) {
+            throw new UserNotFoundException(UserMessages.USER_NOT_FOUND);
+        }
+
+        userService.changePassword(user.getId(), resetPasswordRequestDto.getNewPassword());
+
+        verificationService.useVerificationToken(verification.getToken());
+        log.info("Password reset successful for user: {}", user.getEmail());
+
+        emailService.sendMail(user.getEmail(), "isKoala Şifre Sıfırlama Başarılı",
+                "Merhaba " + user.getFirstName() + ",\n\n" +
+                "Şifreniz başarıyla sıfırlandı.\n\n" +
+                "Teşekkürler,\n" +
+                "isKoala Ekibi"
+        );
+
+        return true;
+    }
+
+    @Override
+    public boolean verifyResetToken(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new RequiredFieldException(AuthMessages.TOKEN_REQUIRED);
+        }
+
+        var verification = verificationService.getVerificationByToken(token);
+        if (verification == null) {
+            throw new VerificationTokenNotFoundException(AuthMessages.VERIFICATION_NOT_FOUND);
+        }
+
+        if (verification.getVerificationType() != VerificationType.PASSWORD_RESET) {
+            throw new VerificationTypeInvalidException(AuthMessages.INVALID_VERIFICATION_TYPE);
+        }
+
+        return verificationService.isValid(token);
+
+    }
+
+    @Override
+    public boolean verifyEmailWithToken(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new RequiredFieldException(AuthMessages.TOKEN_REQUIRED);
+        }
+
+        var verification = verificationService.getVerificationByToken(token);
+        if (verification == null) {
+            throw new VerificationTokenNotFoundException(AuthMessages.VERIFICATION_NOT_FOUND);
+        }
+
+        if (verification.getVerificationType() != VerificationType.EMAIL) {
+            throw new VerificationTypeInvalidException(AuthMessages.INVALID_VERIFICATION_TYPE);
+        }
+
+        if (!verificationService.isValid(token)) {
+            return false;
+        }
+        verificationService.verifyToken(token);
+
+        log.info("Email verification successful for user: {}", verification.getUser().getEmail());
+        return true;
     }
 }

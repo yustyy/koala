@@ -31,6 +31,8 @@ public interface UserService extends UserDetailsService {
 
     boolean changeVerificationStatus(UUID id, VerificationType verificationType, boolean status);
 
+    boolean changePassword(UUID id, String newUnencodedPassword);
+
 
 
 }

@@ -4,5 +4,6 @@ public enum VerificationType {
     EMAIL,
     PHONE,
     IDENTITY,
+    PASSWORD_RESET,
     DOCUMENT
 }

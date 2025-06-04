@@ -13,5 +13,11 @@ public interface VerificationService {
 
     boolean isVerified(User user, VerificationType verificationType);
 
+    boolean isValid(String token);
+
+    Verification getVerificationByToken(String token);
+
+    boolean useVerificationToken(String token);
+
 
 }

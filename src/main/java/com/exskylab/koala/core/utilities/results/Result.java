@@ -6,6 +6,7 @@ public class Result {
     private boolean success;
     private String message;
     private HttpStatus httpStatus;
+    private String path;
 
     public boolean isSuccess() {
         return success;
@@ -19,14 +20,20 @@ public class Result {
         return httpStatus;
     }
 
-    public Result(boolean success, String message, HttpStatus httpStatus) {
+    public String getPath() {
+        return path;
+    }
+
+    public Result(boolean success, String message, HttpStatus httpStatus, String path) {
         this.success = success;
         this.message = message;
         this.httpStatus = httpStatus;
+        this.path = path;
     }
 
-    public Result(boolean success, HttpStatus httpStatus) {
+    public Result(boolean success, HttpStatus httpStatus, String path) {
         this.success = success;
         this.httpStatus = httpStatus;
+        this.path = path;
     }
 }
