@@ -1,49 +1,81 @@
 package com.exskylab.koala.business.concretes;
 
+
 import com.exskylab.koala.business.abstracts.UserService;
-import com.exskylab.koala.core.constants.messages.UserMessages;
-import com.exskylab.koala.core.utilities.exceptions.UserNotFoundException;
-import com.exskylab.koala.core.utilities.exceptions.VerificationTypeInvalidException;
-import com.exskylab.koala.core.utilities.exceptions.VerificationTypeNotFoundException;
+
+import com.exskylab.koala.core.dtos.user.CreateUserDto;
+import com.exskylab.koala.core.dtos.user.UpdateUserDto;
+import com.exskylab.koala.core.exceptions.UserNotFoundException;
 import com.exskylab.koala.dataAccess.UserDao;
 import com.exskylab.koala.entities.User;
-import com.exskylab.koala.entities.VerificationType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+
 @Service
 public class UserManager implements UserService {
 
     private final UserDao userDao;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserManager(UserDao userDao, PasswordEncoder passwordEncoder) {
+    public UserManager(UserDao userDao) {
         this.userDao = userDao;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public User findByEmail(String email) {
+    public User getByEmail(String email) {
+        return userDao.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("{user.not.found.by.email}"));
+    }
+
+    @Override
+    public User getByPhoneNumber(String phoneNumber) {
         return null;
     }
 
     @Override
-    public User findByPhoneNumber(String phoneNumber) {
+    public User getById(UUID id) {
         return null;
     }
 
     @Override
-    public User findById(UUID id) {
-        return null;
+    public List<User> getAll() {
+        return List.of();
+    }
+
+    @Override
+    public User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new UserNotFoundException("{user.not.authenticated}");
+        }
+
+        return (User) authentication.getPrincipal();
     }
 
     @Override
     public User save(User user) {
+        return userDao.save(user);
+    }
+
+    @Override
+    public User updateOwnUser(UpdateUserDto updateUserDto) {
+        return null;
+    }
+
+    @Override
+    public User updateUserProfile(UUID userId, UpdateUserDto updateUserDto) {
+        return null;
+    }
+
+    @Override
+    public User delete(UUID id) {
         return null;
     }
 
@@ -58,48 +90,21 @@ public class UserManager implements UserService {
     }
 
     @Override
-    public List<User> searchByName(String name) {
-        return List.of();
+    public boolean existsById(UUID id) {
+        return false;
     }
 
     @Override
-    public void delete(UUID id) {
+    public void changePassword(UUID id, String newUnencodedPassword) {
 
     }
 
     @Override
-    public List<User> findAll() {
-        return List.of();
-    }
+    public User getSystemUser() {
+        UUID systemUserId = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
-    @Override
-    public boolean changeVerificationStatus(UUID id, VerificationType verificationType, boolean status) {
-       User user = userDao.findById(id).orElseThrow(()-> new UserNotFoundException(UserMessages.USER_NOT_FOUND));
-
-       if(verificationType == null){
-              throw new VerificationTypeNotFoundException(UserMessages.VERIFICATION_TYPE_NOT_FOUND);
-       }
-
-         if(verificationType == VerificationType.EMAIL){
-              user.setEmailVerified(status);
-         } else if(verificationType == VerificationType.PHONE){
-              user.setPhoneVerified(status);
-         } else if(verificationType == VerificationType.IDENTITY){
-                user.setIdentityVerified(status);
-         } else {
-             throw new VerificationTypeInvalidException(UserMessages.VERIFICATION_TYPE_INVALID);
-         }
-
-         userDao.save(user);
-         return true;
-    }
-
-    @Override
-    public boolean changePassword(UUID id, String newUnencodedPassword) {
-        User user = userDao.findById(id).orElseThrow(() -> new UserNotFoundException(UserMessages.USER_NOT_FOUND));
-        user.setPassword(passwordEncoder.encode(newUnencodedPassword));
-        userDao.save(user);
-        return true;
+        return userDao.findById(systemUserId).orElseThrow( () ->
+                new UserNotFoundException("{system.user.not.found}"));
     }
 
     @Override

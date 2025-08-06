@@ -1,356 +1,262 @@
 package com.exskylab.koala.business.concretes;
 
-import com.exskylab.koala.business.abstracts.AuthService;
-import com.exskylab.koala.business.abstracts.UserService;
-import com.exskylab.koala.business.abstracts.VerificationService;
-import com.exskylab.koala.core.constants.messages.AuthMessages;
-import com.exskylab.koala.core.constants.messages.UserMessages;
+
+import com.exskylab.koala.business.abstracts.*;
+import com.exskylab.koala.core.configs.AppProperties;
+import com.exskylab.koala.core.constants.AuthMessages;
+import com.exskylab.koala.core.dtos.auth.request.AuthCompleteRegistrationDto;
+import com.exskylab.koala.core.dtos.auth.request.AuthLoginDto;
+import com.exskylab.koala.core.dtos.auth.request.AuthStartRegistrationDto;
+import com.exskylab.koala.core.dtos.auth.request.AuthVerifyRegistrationTokenDto;
+import com.exskylab.koala.core.dtos.auth.response.AuthSetPasswordDto;
+import com.exskylab.koala.core.dtos.auth.response.TokenResponseDto;
+import com.exskylab.koala.core.dtos.notification.request.SendEmailDto;
+import com.exskylab.koala.core.dtos.session.response.CreatedSessionInfo;
+import com.exskylab.koala.core.dtos.user.CreateUserDto;
+import com.exskylab.koala.core.exceptions.EmailOrPasswordMismatchException;
+import com.exskylab.koala.core.exceptions.TokenExpiredException;
+import com.exskylab.koala.core.exceptions.UserAlreadyExistsException;
 import com.exskylab.koala.core.security.JwtService;
-import com.exskylab.koala.core.utilities.exceptions.*;
-import com.exskylab.koala.core.utilities.mail.EmailService;
-import com.exskylab.koala.dataAccess.UserDao;
-import com.exskylab.koala.entities.VerificationType;
-import com.exskylab.koala.webAPI.dtos.auth.request.AuthLoginRequestDto;
-import com.exskylab.koala.webAPI.dtos.auth.request.AuthRegisterRequestDto;
-import com.exskylab.koala.webAPI.dtos.auth.request.RefreshTokenRequestDto;
-import com.exskylab.koala.webAPI.dtos.auth.request.ResetPasswordRequestDto;
-import com.exskylab.koala.webAPI.dtos.auth.response.AuthLoginResponseDto;
-import com.exskylab.koala.webAPI.dtos.auth.response.AuthRegisterResponseDto;
-import com.exskylab.koala.webAPI.dtos.auth.response.TokenResponseDto;
-import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import com.exskylab.koala.entities.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-@Slf4j
+
 @Service
 public class AuthManager implements AuthService {
 
-    private final AuthenticationManager authenticationManager;
-
+    private final AppProperties appProperties;
     private final UserService userService;
-
+    private final PendingRegistrationService pendingRegistrationService;
+    private final NotificationService notificationService;
     private final JwtService jwtService;
-
     private final PasswordEncoder passwordEncoder;
+    private final DeviceService deviceService;
+    private final SessionService sessionService;
+    private final LoginAttemptService loginAttemptService;
 
-    private final VerificationService verificationService;
+    private Logger logger = LoggerFactory.getLogger(AuthManager.class);
 
-    private final EmailService emailService;
-
-
-    public AuthManager(AuthenticationManager authenticationManager, UserService userService, JwtService jwtService, PasswordEncoder passwordEncoder, VerificationService verificationService, EmailService emailService) {
-        this.authenticationManager = authenticationManager;
+    public AuthManager(UserService userService,
+                       PendingRegistrationService pendingRegistrationService,
+                       NotificationService notificationService,
+                       AppProperties appProperties,
+                       JwtService jwtService,
+                       PasswordEncoder passwordEncoder,
+                       DeviceService deviceService,
+                       SessionService sessionService,
+                       LoginAttemptService loginAttemptService) {
         this.userService = userService;
+        this.pendingRegistrationService = pendingRegistrationService;
+        this.notificationService = notificationService;
+        this.appProperties = appProperties;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
-        this.verificationService = verificationService;
-        this.emailService = emailService;
+        this.deviceService = deviceService;
+        this.sessionService = sessionService;
+        this.loginAttemptService = loginAttemptService;
     }
 
+    @Override
     @Transactional
-    @Override
-    public AuthRegisterResponseDto register(AuthRegisterRequestDto registerRequest) {
-        var userToSave = registerRequest.toUser();
-        if (userService.existsByEmail(userToSave.getEmail())){
-            throw new EmailAlreadyExistsException(AuthMessages.EMAIL_ALREADY_EXISTS);
+    public void startRegistration(AuthStartRegistrationDto authStartRegistrationDto) {
+        logger.info("Starting registration for email: {}", authStartRegistrationDto.getEmail());
+
+        //checking if user alrdy exists
+        if (userService.existsByEmail(authStartRegistrationDto.getEmail())){
+            logger.warn("User with email {} already exists", authStartRegistrationDto.getEmail());
+            throw new UserAlreadyExistsException(AuthMessages.USER_ALREADY_EXISTS_WITH_THIS_EMAIL);
         }
 
-        if (userService.existsByPhoneNumber(userToSave.getPhoneNumber())){
-            throw new PhoneNumberAlreadyExistsException(AuthMessages.PHONE_NUMBER_ALREADY_EXISTS);
-        }
-
-        userToSave.setPassword(passwordEncoder.encode(userToSave.getPassword()));
-
-        var savedUser = userService.save(userToSave);
-        var emailVerification = verificationService.createVerification(savedUser.getId(), VerificationType.EMAIL);
-
-        emailService.sendMail(userToSave.getEmail(), "isKoala email doğrulama",
-                    "Merhaba " + savedUser.getFirstName() + ",\n\n" +
-                    "Lütfen e-posta adresinizi doğrulamak için aşağıdaki bağlantıya tıklayın:\n" +
-                    "http://localhost:8080/api/verification/email?token=" + emailVerification.getToken() + "\n\n" +
-                    "Bu bağlantı 15 dakika sonra geçerliliğini yitirecektir.\n\n" +
-                    "Teşekkürler,\n" +
-                    "isKoala Ekibi"
-                );
-
-
-        var token = jwtService.generateToken(savedUser);
-
-        return new AuthRegisterResponseDto(
-                savedUser.getId(),
-                savedUser.getFirstName(),
-                savedUser.getLastName(),
-                savedUser.getEmail(),
-                token
-        );
-
-    }
-
-    @Override
-    public AuthLoginResponseDto login(AuthLoginRequestDto loginRequest) {
-        if (loginRequest.getEmail() == null || loginRequest.getEmail().isEmpty()){
-            throw new RequiredFieldException(AuthMessages.EMAIL_REQUIRED);
-        }
-
-        if (loginRequest.getPassword() == null || loginRequest.getPassword().isEmpty()){
-            throw new RequiredFieldException(AuthMessages.PASSWORD_REQUIRED);
-        }
-
-
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmail(),
-                loginRequest.getPassword()
-        ));
-
-        if (!authentication.isAuthenticated()){
-            throw new InvalidCredentialsException(AuthMessages.INVALID_CREDENTIALS);
-        }
-
-        var user = userService.findByEmail(loginRequest.getEmail());
-        if (user == null){
-            throw new UserNotFoundException(UserMessages.USER_NOT_FOUND);
-        }
-
-        if (!user.isEmailVerified()) {
-            throw new EmailNotVerifiedException(AuthMessages.EMAIL_NOT_VERIFIED);
-        }
-
-        var token = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        var tokenExpirationDate = jwtService.extractExpiration(token);
-
-        return new AuthLoginResponseDto(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), token, refreshToken, tokenExpirationDate.toInstant());
-    }
-
-    @Override
-    public TokenResponseDto refreshToken(RefreshTokenRequestDto refreshTokenRequest) {
-
-        String refreshToken = refreshTokenRequest.getRefreshToken();
-
-        if (!jwtService.isTokenValid(refreshToken)) {
-            throw new InvalidTokenException(AuthMessages.INVALID_REFRESH_TOKEN);
-        }
-
-        String username = jwtService.extractUser(refreshToken);
-        var user = userService.findByEmail(username);
-
-        if (user == null){
-            throw new UserNotFoundException(UserMessages.USER_NOT_FOUND);
-        }
-
-        String newAccessToken = jwtService.generateToken(user);
-        var tokenExpirationDate = jwtService.extractExpiration(newAccessToken).toInstant();
-
-        return new TokenResponseDto(newAccessToken, refreshToken, tokenExpirationDate);
-    }
-
-    @Override
-    public void logout(String token) {
-        //TODO: Implement logout functionality
-    }
-
-    @Override
-    public boolean validateToken(String token) {
+        //creating pending registration
+        PendingRegistration pendingRegistration = null;
         try{
-
-            if (token == null || token.isEmpty()){
-                return false;
-            }
-
-            String username = jwtService.extractUser(token);
-            if (username == null || username.isEmpty()){
-                return false;
-            }
-
-            var user = userService.findByEmail(username);
-            if (user == null) {
-                return false;
-            }
-
-            return jwtService.isTokenValid(token);
-
-        } catch (Exception e){
-            throw new InvalidTokenException(AuthMessages.INVALID_TOKEN);
+            pendingRegistration = pendingRegistrationService.getByEmail(authStartRegistrationDto.getEmail());
+        }catch (Exception e){
+            logger.info("No pending registration found for email: {}, creating a new one.", authStartRegistrationDto.getEmail());
         }
 
+        if (pendingRegistration != null && pendingRegistration.getExpiresAt().isBefore(LocalDateTime.now())){
+            logger.info("user already has a pending registration, but it has expired. Deleting the old one. email: {}", authStartRegistrationDto.getEmail());
+            pendingRegistrationService.deleteById(pendingRegistration.getId());
+        }
+        if (pendingRegistration != null && pendingRegistration.getExpiresAt().isAfter(LocalDateTime.now())){
+            logger.info("User already has a pending registration, no need to create a new one. email: {}", authStartRegistrationDto.getEmail());
+            throw new UserAlreadyExistsException(AuthMessages.PENDING_REGISTRATION_ALREADY_EXISTS);
+        }
 
+        pendingRegistration = pendingRegistrationService.createPendingRegistration(authStartRegistrationDto);
+        logger.info("Pending registration created for email: {}", authStartRegistrationDto.getEmail());
+
+        String verificationLink = appProperties.frontendUrl()+ "/complete-registration?token=" + pendingRegistration.getToken();
+
+        Map<String, Object> emailParams = Map.of(
+                "firstName", authStartRegistrationDto.getFirstName(),
+                "lastName", authStartRegistrationDto.getLastName(),
+                "verificationLink", verificationLink
+        );
+
+        SendEmailDto sendEmailDto = new SendEmailDto();
+        sendEmailDto.setCategory(NotificationCategory.ACCOUNT_SECURITY);
+        sendEmailDto.setDestinationEmail(authStartRegistrationDto.getEmail());
+        sendEmailDto.setTemplateName("registration-verification-template");
+        sendEmailDto.setTemplateParameters(emailParams);
+        sendEmailDto.setSubject("Koala kayıt işlemi için e-posta doğrulaması");
+
+        notificationService.sendEmail(sendEmailDto, DispatchPriority.CRITICAL, true);
+        logger.info("Verification email sent to: {}", authStartRegistrationDto.getEmail());
+
+        logger.info("Registration process started successfully for email: {}", authStartRegistrationDto.getEmail());
     }
 
+    @Override
+    public AuthSetPasswordDto verifyRegistrationToken(AuthVerifyRegistrationTokenDto authVerifyRegistrationTokenDto) {
+        logger.info("Verifying registration token for id: {}", authVerifyRegistrationTokenDto.getRegistrationToken());
+
+        PendingRegistration pendingRegistration = pendingRegistrationService.getByToken(authVerifyRegistrationTokenDto.getRegistrationToken());
+
+        if (pendingRegistration.getExpiresAt().isBefore(LocalDateTime.now())){
+            pendingRegistrationService.deleteById(pendingRegistration.getId());
+            logger.warn("Registration token for email: {} has expired", pendingRegistration.getEmail());
+            throw new TokenExpiredException(AuthMessages.REGISTRATION_TOKEN_EXPIRED);
+        }
+
+        String passwordSetToken = jwtService.generatePasswordSetToken(pendingRegistration.getId());
+        logger.info("Token verified successfully for email: {}", pendingRegistration.getEmail());
+
+        return new AuthSetPasswordDto(passwordSetToken);
+    }
+
+    @Override
     @Transactional
-    @Override
-    public boolean forgotPassword(String email) {
-        var user = userService.findByEmail(email);
+    public TokenResponseDto completeRegistration(AuthCompleteRegistrationDto authCompleteRegistrationDto,
+                                                 String ipAddress, String userAgent) {
+        UUID pendingRegistrationId = jwtService.extractPendingRegistrationId(authCompleteRegistrationDto.getSetPasswordToken());
 
-        if (user == null) {
-            throw new UserNotFoundException(UserMessages.USER_NOT_FOUND);
-        }
+        PendingRegistration pendingRegistration = pendingRegistrationService.getById(pendingRegistrationId);
 
-        if (!user.isEmailVerified()) {
-            throw new EmailNotVerifiedException(AuthMessages.EMAIL_NOT_VERIFIED_TO_RESET_PASSWORD);
-        }
+        logger.info("Completing registration for email: {}", pendingRegistration.getEmail());
 
-        var verification = verificationService.createVerification(user.getId(), VerificationType.PASSWORD_RESET);
 
-        emailService.sendMail(user.getEmail(), "isKoala Şifre Sıfırlama",
-                "Merhaba " + user.getFirstName() + ",\n\n" +
-                "Şifrenizi sıfırlamak için lütfen aşağıdaki bağlantıya tıklayın:\n" +
-                "http://localhost:8080/api/verification/password-reset?token=" + verification.getToken() + "\n\n" +
-                "Bu bağlantı 15 dakika sonra geçerliliğini yitirecektir.\n\n" +
-                "Teşekkürler,\n" +
-                "isKoala Ekibi"
+        User newUser = new User();
+        newUser.setFirstName(pendingRegistration.getFirstName());
+        newUser.setLastName(pendingRegistration.getLastName());
+        newUser.setEmail(pendingRegistration.getEmail());
+        newUser.setPassword(passwordEncoder.encode(authCompleteRegistrationDto.getPassword()));
+        newUser.setAuthorities(Set.of(Role.ROLE_USER));
+
+        newUser.setEmailVerified(true);
+        newUser.setPhoneVerified(false);
+        newUser.setIdentityVerified(false);
+        newUser.setCreatedBy(userService.getSystemUser());
+
+        User savedUser = userService.save(newUser);
+
+        logger.info("User created successfully with ID: {}", savedUser.getId());
+
+        pendingRegistrationService.deleteById(pendingRegistrationId);
+
+        Device device = deviceService.findOrCreateDevice(
+                savedUser,
+                ipAddress,
+                userAgent
         );
 
-        return true;
-    }
+        logger.info("Device created or found for user ID: {}", savedUser.getId());
 
-    @Transactional
-    @Override
-    public boolean resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) {
+        CreatedSessionInfo createdSessionInfo = sessionService.createSession(device, ipAddress);
+        logger.info("Session created for user ID: {}, session ID: {}", savedUser.getId(), createdSessionInfo.session().getId());
 
-        if (resetPasswordRequestDto.getToken() == null || resetPasswordRequestDto.getToken().isEmpty()){
-            throw new RequiredFieldException(AuthMessages.TOKEN_REQUIRED);
-        }
+        LoginAttempt attempt = new LoginAttempt();
+        attempt.setUser(savedUser);
+        attempt.setEmailAttempted(savedUser.getEmail());
+        attempt.setSuccess(true);
+        attempt.setIpAddress(ipAddress);
+        attempt.setDeviceName(device.getName());
+        loginAttemptService.save(attempt);
 
-        if (resetPasswordRequestDto.getNewPassword() == null || resetPasswordRequestDto.getNewPassword().isEmpty()){
-            throw new RequiredFieldException(AuthMessages.NEW_PASSWORD_REQUIRED);
-        }
+        sendWelcomeEmail(savedUser);
 
-        if (resetPasswordRequestDto.getConfirmPassword() == null || resetPasswordRequestDto.getConfirmPassword().isEmpty()){
-            throw new RequiredFieldException(AuthMessages.CONFIRM_PASSWORD_REQUIRED);
-        }
-
-        if (!resetPasswordRequestDto.getNewPassword().equals(resetPasswordRequestDto.getConfirmPassword())){
-            throw new PasswordsDoNotMatchException(AuthMessages.PASSWORDS_DO_NOT_MATCH);
-        }
-
-        var verification = verificationService.getVerificationByToken(resetPasswordRequestDto.getToken());
-        if (verification == null) {
-            throw new VerificationTokenNotFoundException(AuthMessages.VERIFICATION_NOT_FOUND);
-        }
-
-        if (verification.getVerificationType() != VerificationType.PASSWORD_RESET) {
-            throw new VerificationTypeInvalidException(AuthMessages.INVALID_VERIFICATION_TYPE);
-        }
-
-        if (verification.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new VerificationTokenExpiredException(AuthMessages.VERIFICATION_EXPIRED);
-        }
-
-        if (verification.isUsed()) {
-            throw new VerificationTokenAlreadyUsedException(AuthMessages.VERIFICATION_ALREADY_USED);
-        }
-
-        var user = verification.getUser();
-        if (user == null) {
-            throw new UserNotFoundException(UserMessages.USER_NOT_FOUND);
-        }
-
-        userService.changePassword(user.getId(), resetPasswordRequestDto.getNewPassword());
-
-        verificationService.useVerificationToken(verification.getToken());
-        log.info("Password reset successful for user: {}", user.getEmail());
-
-        emailService.sendMail(user.getEmail(), "isKoala Şifre Sıfırlama Başarılı",
-                "Merhaba " + user.getFirstName() + ",\n\n" +
-                "Şifreniz başarıyla sıfırlandı.\n\n" +
-                "Teşekkürler,\n" +
-                "isKoala Ekibi"
+        return new TokenResponseDto(
+                createdSessionInfo.originalToken(),
+                createdSessionInfo.originalRefreshToken(),
+                createdSessionInfo.session().getExpiresAt()
         );
 
-        return true;
     }
 
     @Override
-    public boolean verifyResetToken(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new RequiredFieldException(AuthMessages.TOKEN_REQUIRED);
+    public TokenResponseDto login(AuthLoginDto authLoginDto, String ipAddress, String userAgent) {
+        logger.info("Logging in user with email: {}", authLoginDto.getEmail());
+
+        var user = userService.getByEmail(authLoginDto.getEmail());
+
+        //no need to check if user exists, because it is already checked in UserService.getByEmail() if its not then it will throw exception
+        if (!passwordEncoder.matches(authLoginDto.getPassword(), user.getPassword())){
+            LoginAttempt loginAttempt = new LoginAttempt();
+            loginAttempt.setEmailAttempted(authLoginDto.getEmail());
+            loginAttempt.setSuccess(false);
+            loginAttempt.setFailureReason("Invalid email or password");
+            loginAttempt.setIpAddress(ipAddress);
+            loginAttempt.setDeviceName(userAgent);
+            loginAttempt.setUser(user);
+            loginAttemptService.save(loginAttempt);
+
+            throw new EmailOrPasswordMismatchException(AuthMessages.EMAIL_OR_PASSWORD_MISMATCH);
         }
 
-        var verification = verificationService.getVerificationByToken(token);
-        if (verification == null) {
-            throw new VerificationTokenNotFoundException(AuthMessages.VERIFICATION_NOT_FOUND);
-        }
-
-        if (verification.getVerificationType() != VerificationType.PASSWORD_RESET) {
-            throw new VerificationTypeInvalidException(AuthMessages.INVALID_VERIFICATION_TYPE);
-        }
-
-        return verificationService.isValid(token);
-
-    }
-
-    @Override
-    public boolean verifyEmailWithToken(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new RequiredFieldException(AuthMessages.TOKEN_REQUIRED);
-        }
-
-        var verification = verificationService.getVerificationByToken(token);
-        if (verification == null) {
-            throw new VerificationTokenNotFoundException(AuthMessages.VERIFICATION_NOT_FOUND);
-        }
-
-        if (verification.getVerificationType() != VerificationType.EMAIL) {
-            throw new VerificationTypeInvalidException(AuthMessages.INVALID_VERIFICATION_TYPE);
-        }
-
-        if (!verificationService.isValid(token)) {
-            return false;
-        }
-        verificationService.verifyToken(token);
-
-        log.info("Email verification successful for user: {}", verification.getUser().getEmail());
-        return true;
-    }
-
-    @Override
-    public boolean resendVerificationEmail(String email) {
-        if (email == null || email.isEmpty()) {
-            throw new RequiredFieldException(AuthMessages.EMAIL_REQUIRED);
-        }
-
-        var user = userService.findByEmail(email);
-        if (user == null) {
-            throw new UserNotFoundException(UserMessages.USER_NOT_FOUND);
-        }
-
-        if (user.isEmailVerified()) {
-            throw new EmailAlreadyVerifiedException(AuthMessages.EMAIL_ALREADY_VERIFIED);
-        }
-
-        var recentVerifications = verificationService.getVerificationsByUserIdAndType(user.getId(), VerificationType.EMAIL);
-
-        LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(5);
-        boolean hasRecentPendingVerification = recentVerifications.stream()
-                .anyMatch(v -> !v.isUsed() && v.getCreatedAt().isAfter(fiveMinutesAgo));
-
-        if (hasRecentPendingVerification) {
-            throw new TooManyRequestsException(AuthMessages.TOO_MANY_REQUESTS);
-        }
-
-        recentVerifications.stream()
-                .filter(v -> !v.isUsed() && v.getExpiryDate().isAfter(LocalDateTime.now()))
-                .forEach(v -> verificationService.invalidateVerification(v.getId()));
-
-        var verificationToResend = verificationService.createVerification(user.getId(), VerificationType.EMAIL);
-
-        emailService.sendMail(user.getEmail(), "isKoala E-posta Doğrulama",
-                "Merhaba " + user.getFirstName() + ",\n\n" +
-                "Lütfen e-posta adresinizi doğrulamak için aşağıdaki bağlantıya tıklayın:\n" +
-                "http://localhost:8080/api/verification/email?token=" + verificationToResend.getToken() + "\n\n" +
-                "Bu bağlantı 15 dakika sonra geçerliliğini yitirecektir.\n\n" +
-                "Teşekkürler,\n" +
-                "isKoala Ekibi"
+        Device device = deviceService.findOrCreateDevice(
+                user,
+                ipAddress,
+                userAgent
         );
 
-        return true;
+        logger.info("Device found or created for user ID: {}", user.getId());
+
+
+        LoginAttempt loginAttempt = new LoginAttempt();
+        loginAttempt.setUser(user);
+        loginAttempt.setEmailAttempted(user.getEmail());
+        loginAttempt.setSuccess(true);
+        loginAttempt.setIpAddress(ipAddress);
+        loginAttempt.setDeviceName(device.getName());
+        loginAttemptService.save(loginAttempt);
+
+        CreatedSessionInfo createdSessionInfo = sessionService.createSession(device, ipAddress);
+
+
+        logger.info("Session created for user ID: {}, session ID: {}", user.getId(), createdSessionInfo.session().getId());
+        return new TokenResponseDto(
+                createdSessionInfo.originalToken(),
+                createdSessionInfo.originalRefreshToken(),
+                createdSessionInfo.session().getExpiresAt()
+        );
+
     }
+
+    private void sendWelcomeEmail(User savedUser) {
+        logger.debug("Sending welcome email to user with ID: {}", savedUser.getId());
+
+            SendEmailDto sendEmailDto = new SendEmailDto();
+            sendEmailDto.setRecipientId(savedUser.getId());
+            sendEmailDto.setCategory(NotificationCategory.ACCOUNT_SECURITY);
+            sendEmailDto.setDestinationEmail(savedUser.getEmail());
+            sendEmailDto.setSubject("Koala'ya Hoş Geldin "+ savedUser.getFirstName()+ "!");
+            sendEmailDto.setTemplateName("welcome-email-template");
+            sendEmailDto.setTemplateParameters(Map.of(
+                    "firstName", savedUser.getFirstName(),
+                    "lastName", savedUser.getLastName(),
+                    "email", savedUser.getEmail()));
+
+            notificationService.sendEmail(sendEmailDto, DispatchPriority.NORMAL, true);
+    }
+
 }

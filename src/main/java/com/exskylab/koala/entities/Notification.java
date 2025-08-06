@@ -1,38 +1,72 @@
 package com.exskylab.koala.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "notifications")
-public class Notification extends BaseEntity {
+public class Notification extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", updatable = false, nullable = false)
+    @Column(name = "id")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "recipient_id")
+    private User recipient;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id")
+    private User sender;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    private NotificationType type;
+    private NotificationChannel channel;
 
-    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
-    private String content;
+    @Enumerated(EnumType.STRING)
+    private NotificationCategory category;
 
-    @Column(name = "is_read", nullable = false)
-    private boolean isRead;
+    @Column(name = "destination_phone_number")
+    private String destinationPhoneNumber;
 
-    @Column(name = "related_id")
-    private UUID relatedId;
+    @Column(name = "destination_email")
+    private String destinationEmail;
+
+    @Column(name = "destination_push_token")
+    private String destinationPushToken;
+
+    @Column(name = "subject")
+    private String subject;
+
+    @Column(name = "template_name")
+    private String templateName;
+
+    @Column(name = "template_parameters")
+    private String templateParameters;
+
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus status;
+
+    @Column(name = "sent_at")
+    private LocalDateTime sentAt;
+
+    @Column(name = "processed_at")
+    private LocalDateTime processedAt;
+
+    @Column(name = "external_id")
+    private String externalId;
+
+    @Column(name = "failure_reason")
+    private String failureReason;
+
 }

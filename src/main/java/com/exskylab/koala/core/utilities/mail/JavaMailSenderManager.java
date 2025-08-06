@@ -1,8 +1,7 @@
 package com.exskylab.koala.core.utilities.mail;
 
-import com.exskylab.koala.core.constants.messages.EmailMessages;
+import com.exskylab.koala.core.constants.EmailMessages;
 import com.exskylab.koala.core.exceptions.EmailSendException;
-import com.exskylab.koala.core.utilities.mail.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public class JavaMailSenderManager implements EmailService {
             return true;
         }catch (Exception e){
             logger.error("E-posta gönderimi başarısız oldu: {} - Hata: {}", to, e.getMessage(), e);
-            throw new EmailSendException(EmailMessages.EMAIL_SEND_FAILED, e);
+            throw new EmailSendException(EmailMessages.EMAIL_SEND_FAILED);
         }
 
 

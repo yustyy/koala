@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="1.0.1-1-insert-system-user" author="yustyy">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM users WHERE id = '00000000-0000-0000-0000-000000000001';
+            </sqlCheck>
+        </preConditions>
+
+        <sql>
+            INSERT INTO users (
+                id, username, email, password, first_name, last_name,
+                email_verified, phone_verified, identity_verified, preferred_language,
+                created_at, updated_at, created_by_id, updated_by_id
+            )
+            VALUES (
+                       '00000000-0000-0000-0000-000000000001',
+                       'SYSTEM',
+                       'admin@iskoala.com',
+                       'N/A_PASSWORD',
+                       'SYSTEM',
+                       'SYSTEM',
+                       true,
+                       true,
+                       true,
+                       'tr-TR',
+                       CURRENT_TIMESTAMP,
+                       CURRENT_TIMESTAMP,
+                       '00000000-0000-0000-0000-000000000001',
+                       '00000000-0000-0000-0000-000000000001'
+                   );
+        </sql>
+    </changeSet>
+
+
+    <changeSet id="1.0.1-2-insert-system-user-role" author="yustyy">
+
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM authorities WHERE user_id = '00000000-0000-0000-0000-000000000001' AND role = 'ROLE_ADMIN';
+            </sqlCheck>
+        </preConditions>
+
+        <sql>
+            INSERT INTO authorities (user_id, role)
+            VALUES (
+                       '00000000-0000-0000-0000-000000000001',
+                       'ROLE_ADMIN'
+                   );
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

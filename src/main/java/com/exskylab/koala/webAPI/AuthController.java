@@ -1,26 +1,21 @@
 package com.exskylab.koala.webAPI;
 
-
 import com.exskylab.koala.business.abstracts.AuthService;
-import com.exskylab.koala.core.constants.messages.AuthMessages;
-import com.exskylab.koala.core.constants.messages.UserMessages;
-import com.exskylab.koala.core.utilities.results.DataResult;
-import com.exskylab.koala.core.utilities.results.Result;
+import com.exskylab.koala.core.constants.AuthMessages;
+import com.exskylab.koala.core.dtos.auth.request.AuthCompleteRegistrationDto;
+import com.exskylab.koala.core.dtos.auth.request.AuthLoginDto;
+import com.exskylab.koala.core.dtos.auth.request.AuthStartRegistrationDto;
+import com.exskylab.koala.core.dtos.auth.request.AuthVerifyRegistrationTokenDto;
+import com.exskylab.koala.core.dtos.auth.response.AuthSetPasswordDto;
+import com.exskylab.koala.core.dtos.auth.response.TokenResponseDto;
 import com.exskylab.koala.core.utilities.results.SuccessDataResult;
 import com.exskylab.koala.core.utilities.results.SuccessResult;
-import com.exskylab.koala.webAPI.dtos.auth.request.*;
-import com.exskylab.koala.webAPI.dtos.auth.response.AuthLoginResponseDto;
-import com.exskylab.koala.webAPI.dtos.auth.response.AuthRegisterResponseDto;
-import com.exskylab.koala.webAPI.dtos.auth.response.TokenResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
 
 @Validated
 @RestController
@@ -34,64 +29,86 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @PostMapping("/startRegistration")
+    public ResponseEntity<SuccessResult> startRegistration(@RequestBody @Valid AuthStartRegistrationDto authStartRegistrationDto,
+                                                    HttpServletRequest request){
+        authService.startRegistration(authStartRegistrationDto);
 
-    @PostMapping("/register")
-    public ResponseEntity<DataResult<AuthRegisterResponseDto>> register(@Valid @RequestBody AuthRegisterRequestDto authRegisterRequestDto, HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(new SuccessResult(AuthMessages.START_REGISTRATION_SUCCESS,
+                HttpStatus.OK, request.getRequestURI()));
 
-        var resultDto = authService.register(authRegisterRequestDto);
-        return ResponseEntity.status(201).body(
-                new SuccessDataResult<>(resultDto, UserMessages.REGISTER_SUCCESS, HttpStatus.CREATED, request.getRequestURI()));
+    }
+
+    @PostMapping("/verifyRegistrationToken")
+    public ResponseEntity<SuccessDataResult<AuthSetPasswordDto>>
+                            verifyRegistrationToken(@RequestBody @Valid AuthVerifyRegistrationTokenDto authVerifyRegistrationTokenDto,
+                                                    HttpServletRequest request){
+
+
+        var response = authService.verifyRegistrationToken(authVerifyRegistrationTokenDto);
+        return ResponseEntity.status(HttpStatus.OK).body(new SuccessDataResult<>(response,
+                AuthMessages.VERIFY_REGISTRATION_TOKEN_SUCCESS, HttpStatus.OK, request.getRequestURI()));
+
+
+
+    }
+
+    @PostMapping("/completeRegistration")
+    public ResponseEntity<SuccessDataResult<TokenResponseDto>> completeRegistration(@RequestBody @Valid AuthCompleteRegistrationDto authCompleteRegistrationDto,
+                                                                                    HttpServletRequest request){
+
+        String userAgent = request.getHeader("User-Agent");
+        String ipAddress = getClientIpAddress(request);
+
+        var response = authService.completeRegistration(authCompleteRegistrationDto, ipAddress, userAgent);
+
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                new SuccessDataResult<>(
+                        response,
+                        AuthMessages.COMPLETE_REGISTRATION_SUCCESS,
+                        HttpStatus.CREATED,
+                        request.getRequestURI()
+            )
+        );
+
 
     }
 
     @PostMapping("/login")
-    public ResponseEntity<DataResult<AuthLoginResponseDto>> login(@Valid @RequestBody AuthLoginRequestDto authLoginRequestDto, HttpServletRequest request) {
-        var resultDto = authService.login(authLoginRequestDto);
-        return ResponseEntity.ok(
-                new SuccessDataResult<>(resultDto, UserMessages.LOGIN_SUCCESS, HttpStatus.OK, request.getRequestURI()));
-    }
+    public ResponseEntity<SuccessDataResult<TokenResponseDto>> login(@RequestBody @Valid AuthLoginDto authLoginDto, HttpServletRequest request){
 
-    @PostMapping("/refresh-token")
-    public ResponseEntity<DataResult<TokenResponseDto>>  refreshToken(@Valid @RequestBody RefreshTokenRequestDto refreshToken, HttpServletRequest request) {
-        var resultDto = authService.refreshToken(refreshToken);
-        return ResponseEntity.ok(
-                new SuccessDataResult<>(resultDto, UserMessages.REFRESH_TOKEN_SUCCESS, HttpStatus.OK, request.getRequestURI()));
-    }
+        String ipAddress = getClientIpAddress(request);
+        String userAgent = request.getHeader("User-Agent");
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<Result> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDto forgotPasswordRequestDto, HttpServletRequest request) {
-        authService.forgotPassword(forgotPasswordRequestDto.getEmail());
-        return ResponseEntity.ok(
-                new SuccessResult(UserMessages.FORGOT_PASSWORD_SUCCESS, HttpStatus.OK, request.getRequestURI()));
-    }
+        var response = authService.login(authLoginDto, ipAddress, userAgent);
 
-    @PostMapping("/reset-password")
-    public ResponseEntity<Result> resetPassword(@Valid @RequestBody ResetPasswordRequestDto resetPasswordRequestDto, HttpServletRequest request){
-        authService.resetPassword(resetPasswordRequestDto);
-        return ResponseEntity.ok().body(new SuccessResult(UserMessages.RESET_PASSWORD_SUCCESS, HttpStatus.OK, request.getRequestURI()));
-    }
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new SuccessDataResult<>(
+                        response,
+                        AuthMessages.LOGIN_SUCCESS,
+                        HttpStatus.OK,
+                        request.getRequestURI()
+                )
+        );
 
-    @PostMapping("/verify-reset-token")
-    public ResponseEntity<Result> verifyResetToken(@RequestParam @NotBlank(message = AuthMessages.TOKEN_REQUIRED) String token, HttpServletRequest request) {
-        authService.verifyResetToken(token);
-        return ResponseEntity.ok().body(new SuccessResult(UserMessages.VERIFY_RESET_TOKEN_SUCCESS, HttpStatus.OK, request.getRequestURI()));
-    }
-
-    @PostMapping("/resend-verification-email")
-    public ResponseEntity<Result> resendVerificationEmail(@Valid @RequestBody ResendVerificationEmailRequestDto resendVerificationEmailRequestDto, HttpServletRequest request) {
-        authService.resendVerificationEmail(resendVerificationEmailRequestDto.getEmail());
-        return ResponseEntity.ok().body(new SuccessResult(UserMessages.RESEND_VERIFICATION_EMAIL_SUCCESS, HttpStatus.OK, request.getRequestURI()));
-    }
-
-    @GetMapping("/verify-email")
-    public ResponseEntity<Result> verifyEmail(@RequestParam @NotBlank(message = AuthMessages.TOKEN_REQUIRED) String token, HttpServletRequest request) {
-        authService.verifyEmailWithToken(token);
-        return ResponseEntity.ok().body(new SuccessResult(UserMessages.VERIFY_EMAIL_SUCCESS, HttpStatus.OK, request.getRequestURI()));
     }
 
 
 
 
+    private String getClientIpAddress(HttpServletRequest request) {
+        String remoteAddr = "";
+        if(request != null){
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)){
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+
+        return  remoteAddr;
+
+    }
 
 
 }

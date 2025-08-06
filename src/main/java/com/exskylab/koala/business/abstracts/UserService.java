@@ -1,38 +1,35 @@
 package com.exskylab.koala.business.abstracts;
 
 
+import com.exskylab.koala.core.dtos.user.UpdateUserDto;
 import com.exskylab.koala.entities.User;
-import com.exskylab.koala.entities.VerificationType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService extends UserDetailsService {
 
-    User findByEmail(String email);
-
-    User findByPhoneNumber(String phoneNumber);
-
-    User findById(UUID id);
+    User getByEmail(String email);
+    User getByPhoneNumber(String phoneNumber);
+    User getById(UUID id);
+    List<User> getAll();
+    User getAuthenticatedUser();
 
     User save(User user);
+    User updateOwnUser(UpdateUserDto updateUserDto);
+    User updateUserProfile(UUID userId, UpdateUserDto updateUserDto);
+
+
+    User delete(UUID id);
 
     boolean existsByEmail(String email);
-
     boolean existsByPhoneNumber(String phoneNumber);
+    boolean existsById(UUID id);
 
-    List<User> searchByName(String name);
-
-    void delete(UUID id);
-
-    List<User> findAll();
-
-    boolean changeVerificationStatus(UUID id, VerificationType verificationType, boolean status);
-
-    boolean changePassword(UUID id, String newUnencodedPassword);
+    void changePassword(UUID id, String newUnencodedPassword);
 
 
 
+    User getSystemUser();
 }

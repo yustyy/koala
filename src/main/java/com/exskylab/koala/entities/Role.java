@@ -3,9 +3,9 @@ package com.exskylab.koala.entities;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum Role implements GrantedAuthority {
+    ROLE_USER("USER"),
+    ROLE_ADMIN("ADMIN");
 
-    ROLE_ADMIN("ADMIN"),
-    ROLE_USER("USER");
 
     private String value;
 
@@ -13,7 +13,7 @@ public enum Role implements GrantedAuthority {
         this.value = value;
     }
 
-    public String getValue(){
+    public String getValue() {
         return value;
     }
 
@@ -22,3 +22,4 @@ public enum Role implements GrantedAuthority {
         return name();
     }
 }
+
