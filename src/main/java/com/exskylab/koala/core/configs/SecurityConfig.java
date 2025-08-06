@@ -39,7 +39,13 @@ public class SecurityConfig {
                         .accessDeniedHandler(securityExceptionConfig))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
+                        //auth endpoints
+                        .requestMatchers("/api/auth/startRegistration").permitAll()
+                        .requestMatchers("/api/auth/verifyRegistrationToken").permitAll()
+                        .requestMatchers("/api/auth/completeRegistration").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/refreshToken").authenticated()
+                        .requestMatchers("/api/auth/logout").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

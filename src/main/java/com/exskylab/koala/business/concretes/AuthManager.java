@@ -9,10 +9,7 @@ import com.exskylab.koala.core.dtos.auth.response.AuthSetPasswordDto;
 import com.exskylab.koala.core.dtos.auth.response.TokenResponseDto;
 import com.exskylab.koala.core.dtos.notification.request.SendEmailDto;
 import com.exskylab.koala.core.dtos.session.response.CreatedSessionInfo;
-import com.exskylab.koala.core.exceptions.EmailOrPasswordMismatchException;
-import com.exskylab.koala.core.exceptions.RefreshTokenMismatchException;
-import com.exskylab.koala.core.exceptions.TokenExpiredException;
-import com.exskylab.koala.core.exceptions.UserAlreadyExistsException;
+import com.exskylab.koala.core.exceptions.*;
 import com.exskylab.koala.core.security.JwtService;
 import com.exskylab.koala.entities.*;
 import org.slf4j.Logger;
@@ -271,6 +268,20 @@ public class AuthManager implements AuthService {
         String newAccessToken = jwtService.generateAccessToken(session.getDevice().getUser(), session.getId());
         logger.info("Access token refreshed successfully for session ID: {}", sessionId);
         return new TokenResponseDto(newAccessToken, refreshTokenDto.getRefreshToken(), session.getRefreshExpiresAt());
+    }
+
+    @Override
+    public void logout(UUID sessionId) {
+        logger.info("Logging out session ID: {}", sessionId);
+        var session = sessionService.findActiveSessionById(sessionId);
+        if (session == null) {
+            logger.warn("Session with ID: {} not found or already inactive", sessionId);
+            throw new SessionNotFoundException(AuthMessages.SESSION_NOT_FOUND_OR_INACTIVE);
+        }
+        session.setActive(false);
+
+        sessionService.save(session);
+        logger.info("Session ID: {} logged out successfully", sessionId);
     }
 
     private void sendWelcomeEmail(User savedUser) {

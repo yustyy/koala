@@ -20,4 +20,6 @@ public interface AuthService {
 
     TokenResponseDto refreshToken(RefreshTokenDto refreshTokenDto, UUID sessionId, String ipAddress, String userAgent);
 
+    void logout(UUID sessionId);
+
 }

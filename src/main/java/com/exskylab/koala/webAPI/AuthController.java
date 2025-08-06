@@ -118,6 +118,19 @@ public class AuthController {
     }
 
 
+    @PostMapping("/logout")
+    public ResponseEntity<SuccessResult> logout(HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        String token = authHeader.substring(7);
+        UUID sessionId = jwtService.extractSessionId(token);
+
+        authService.logout(sessionId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new SuccessResult(AuthMessages.LOGOUT_SUCCESS, HttpStatus.OK, request.getRequestURI())
+        );
+    }
+
 
 
     private String getClientIpAddress(HttpServletRequest request) {
