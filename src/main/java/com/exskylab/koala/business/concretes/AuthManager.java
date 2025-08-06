@@ -4,16 +4,13 @@ package com.exskylab.koala.business.concretes;
 import com.exskylab.koala.business.abstracts.*;
 import com.exskylab.koala.core.configs.AppProperties;
 import com.exskylab.koala.core.constants.AuthMessages;
-import com.exskylab.koala.core.dtos.auth.request.AuthCompleteRegistrationDto;
-import com.exskylab.koala.core.dtos.auth.request.AuthLoginDto;
-import com.exskylab.koala.core.dtos.auth.request.AuthStartRegistrationDto;
-import com.exskylab.koala.core.dtos.auth.request.AuthVerifyRegistrationTokenDto;
+import com.exskylab.koala.core.dtos.auth.request.*;
 import com.exskylab.koala.core.dtos.auth.response.AuthSetPasswordDto;
 import com.exskylab.koala.core.dtos.auth.response.TokenResponseDto;
 import com.exskylab.koala.core.dtos.notification.request.SendEmailDto;
 import com.exskylab.koala.core.dtos.session.response.CreatedSessionInfo;
-import com.exskylab.koala.core.dtos.user.CreateUserDto;
 import com.exskylab.koala.core.exceptions.EmailOrPasswordMismatchException;
+import com.exskylab.koala.core.exceptions.RefreshTokenMismatchException;
 import com.exskylab.koala.core.exceptions.TokenExpiredException;
 import com.exskylab.koala.core.exceptions.UserAlreadyExistsException;
 import com.exskylab.koala.core.security.JwtService;
@@ -240,6 +237,40 @@ public class AuthManager implements AuthService {
                 createdSessionInfo.session().getRefreshExpiresAt()
         );
 
+    }
+
+    @Override
+    public TokenResponseDto refreshToken(RefreshTokenDto refreshTokenDto, UUID sessionId, String ipAddress, String userAgent) {
+        logger.info("Refreshing token for session ID: {}", sessionId);
+        var session = sessionService.findActiveSessionById(sessionId);
+
+        if (!passwordEncoder.matches(refreshTokenDto.getRefreshToken(), session.getRefreshTokenHash())){
+            logger.error("Refresh token does not match for session ID: {}", sessionId);
+            throw new RefreshTokenMismatchException(AuthMessages.REFRESH_TOKEN_AND_SESSION_MISMATCH);
+        }
+
+        if (session.getRefreshExpiresAt().isBefore(LocalDateTime.now())){
+            logger.error("Refresh token has expired for session ID: {}", sessionId);
+            session.setActive(false);
+            sessionService.save(session);
+            throw new TokenExpiredException(AuthMessages.REFRESH_TOKEN_EXPIRED);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime currentRefreshExpiresAt = session.getRefreshExpiresAt();
+
+        if (currentRefreshExpiresAt.isBefore(now.plusDays(7))){
+            session.setRefreshExpiresAt(now.plusDays(30));
+            logger.info("Refresh token will expire in 30 days for session ID: {}", sessionId);
+        }
+
+        session.setLastAccessedAt(LocalDateTime.now());
+        session.setIpAddress(ipAddress);
+        sessionService.save(session);
+
+        String newAccessToken = jwtService.generateAccessToken(session.getDevice().getUser(), session.getId());
+        logger.info("Access token refreshed successfully for session ID: {}", sessionId);
+        return new TokenResponseDto(newAccessToken, refreshTokenDto.getRefreshToken(), session.getRefreshExpiresAt());
     }
 
     private void sendWelcomeEmail(User savedUser) {

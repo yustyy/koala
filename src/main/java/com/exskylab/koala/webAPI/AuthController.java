@@ -2,12 +2,10 @@ package com.exskylab.koala.webAPI;
 
 import com.exskylab.koala.business.abstracts.AuthService;
 import com.exskylab.koala.core.constants.AuthMessages;
-import com.exskylab.koala.core.dtos.auth.request.AuthCompleteRegistrationDto;
-import com.exskylab.koala.core.dtos.auth.request.AuthLoginDto;
-import com.exskylab.koala.core.dtos.auth.request.AuthStartRegistrationDto;
-import com.exskylab.koala.core.dtos.auth.request.AuthVerifyRegistrationTokenDto;
+import com.exskylab.koala.core.dtos.auth.request.*;
 import com.exskylab.koala.core.dtos.auth.response.AuthSetPasswordDto;
 import com.exskylab.koala.core.dtos.auth.response.TokenResponseDto;
+import com.exskylab.koala.core.security.JwtService;
 import com.exskylab.koala.core.utilities.results.SuccessDataResult;
 import com.exskylab.koala.core.utilities.results.SuccessResult;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,16 +15,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @Validated
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
 
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JwtService jwtService) {
         this.authService = authService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/startRegistration")
@@ -92,6 +94,27 @@ public class AuthController {
                 )
         );
 
+    }
+
+
+    @PostMapping("/refreshToken")
+    public ResponseEntity<SuccessDataResult<TokenResponseDto>> refreshToken(@RequestBody @Valid RefreshTokenDto refreshTokenDto, HttpServletRequest request){
+        String ipAddress = getClientIpAddress(request);
+        String userAgent = request.getHeader("User-Agent");
+        String authHeader = request.getHeader("Authorization");
+        String expiredToken = authHeader.substring(7);
+        UUID sessionId = jwtService.extractSessionId(expiredToken);
+
+        var response = authService.refreshToken(refreshTokenDto, sessionId, ipAddress, userAgent);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new SuccessDataResult<>(
+                        response,
+                        AuthMessages.REFRESH_TOKEN_SUCCESS,
+                        HttpStatus.OK,
+                        request.getRequestURI()
+                )
+        );
     }
 
 

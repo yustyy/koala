@@ -15,4 +15,8 @@ public class AuthMessages {
     public static final String LOGIN_SUCCESS = "{auth.login.success}";
     public static final String EMAIL_OR_PASSWORD_MISMATCH = "{auth.email.or.password.mismatch}";
     public static final String PENDING_REGISTRATION_ALREADY_EXISTS = "{auth.pending.registration.already.exists}";
+    public static final String REFRESH_TOKEN_NOT_NULL = "{auth.refresh.token.not.null}";
+    public static final String REFRESH_TOKEN_AND_SESSION_MISMATCH = "{auth.refresh.token.and.session.mismatch}";
+    public static final String REFRESH_TOKEN_EXPIRED = "{auth.refresh.token.expired}";
+    public static final String REFRESH_TOKEN_SUCCESS = "{auth.refresh.token.success}";
 }

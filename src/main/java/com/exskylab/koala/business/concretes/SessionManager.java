@@ -69,6 +69,12 @@ public class SessionManager implements SessionService {
                 .orElseThrow(() -> new SessionNotFoundException(SessionMessages.SESSION_NOT_FOUND));
     }
 
+    @Override
+    public Session save(Session session) {
+        logger.info("Saving session with id: {}", session.getId());
+        return sessionDao.save(session);
+    }
+
     private String generateSecureRandomToken() {
         SecureRandom secureRandom = new SecureRandom();
         byte[] randomBytes = new byte[32];

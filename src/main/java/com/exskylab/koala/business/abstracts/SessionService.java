@@ -10,4 +10,7 @@ public interface SessionService {
     CreatedSessionInfo createSession(Device device, String ipAddress);
 
     Session findActiveSessionById(UUID sessionId);
+
+    Session save(Session session);
+
 }
