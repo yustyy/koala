@@ -188,7 +188,7 @@ public class AuthManager implements AuthService {
         return new TokenResponseDto(
                 createdSessionInfo.originalToken(),
                 createdSessionInfo.originalRefreshToken(),
-                createdSessionInfo.session().getExpiresAt()
+                createdSessionInfo.session().getRefreshExpiresAt()
         );
 
     }
@@ -237,7 +237,7 @@ public class AuthManager implements AuthService {
         return new TokenResponseDto(
                 createdSessionInfo.originalToken(),
                 createdSessionInfo.originalRefreshToken(),
-                createdSessionInfo.session().getExpiresAt()
+                createdSessionInfo.session().getRefreshExpiresAt()
         );
 
     }

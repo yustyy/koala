@@ -40,12 +40,13 @@ public class UserManager implements UserService {
 
     @Override
     public User getById(UUID id) {
-        return null;
+        return userDao.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("{user.not.found.by.id}"));
     }
 
     @Override
     public List<User> getAll() {
-        return List.of();
+        return userDao.findAll();
     }
 
     @Override

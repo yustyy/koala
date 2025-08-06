@@ -12,5 +12,5 @@ import java.time.LocalDateTime;
 public class TokenResponseDto {
     private String token;
     private String refreshToken;
-    private LocalDateTime expiresAt;
+    private LocalDateTime refreshExpiresAt;
 }

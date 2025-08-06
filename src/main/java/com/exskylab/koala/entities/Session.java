@@ -28,14 +28,8 @@ public class Session extends BaseEntity{
     @JoinColumn(name = "device_id")
     private Device device;
 
-    @Column(name = "token", length = 512)
-    private String token;
-
-    @Column(name = "refresh_token", length = 512)
-    private String refreshToken;
-
-    @Column(name = "expires_at")
-    private LocalDateTime expiresAt;
+    @Column(name = "refresh_token_hash", length = 512)
+    private String refreshTokenHash;
 
     @Column(name = "refresh_expires_at")
     private LocalDateTime refreshExpiresAt;
@@ -50,7 +44,7 @@ public class Session extends BaseEntity{
     private LocalDateTime lastAccessedAt;
 
     @Column(name = "is_active")
-    private boolean isActive;
+    private boolean isActive = true;
 
 
 }

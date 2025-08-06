@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1754513919392-42" author="yusssss">
+        <addColumn tableName="sessions">
+            <column name="refresh_token_hash" type="VARCHAR(512)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1754513919392-43" author="yusssss">
+        <addUniqueConstraint columnNames="verification_document_id"
+                             constraintName="uc_user_verıfıcatıons_verıfıcatıon_document"
+                             tableName="user_verifications"/>
+    </changeSet>
+    <changeSet id="1754513919392-44" author="yusssss">
+        <addUniqueConstraint columnNames="profile_picture_id" constraintName="uc_users_profıle_pıcture"
+                             tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-45" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="addresses"
+                                 constraintName="FK_ADDRESSES_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-46" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="addresses"
+                                 constraintName="FK_ADDRESSES_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-47" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="cities"
+                                 constraintName="FK_CITIES_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-48" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="cities"
+                                 constraintName="FK_CITIES_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-49" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="countries"
+                                 constraintName="FK_COUNTRIES_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-50" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="countries"
+                                 constraintName="FK_COUNTRIES_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-51" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="login_attempts"
+                                 constraintName="FK_LOGIN_ATTEMPTS_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-52" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="login_attempts"
+                                 constraintName="FK_LOGIN_ATTEMPTS_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-53" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="media"
+                                 constraintName="FK_MEDIA_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-54" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="media"
+                                 constraintName="FK_MEDIA_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-55" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="notifications"
+                                 constraintName="FK_NOTIFICATIONS_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-56" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="notifications"
+                                 constraintName="FK_NOTIFICATIONS_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-57" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="pending_registrations"
+                                 constraintName="FK_PENDING_REGISTRATIONS_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-58" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="pending_registrations"
+                                 constraintName="FK_PENDING_REGISTRATIONS_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-59" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="user_communication_preferences"
+                                 constraintName="FK_USER_COMMUNICATION_PREFERENCES_ON_CREATED_BY"
+                                 referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-60" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="user_communication_preferences"
+                                 constraintName="FK_USER_COMMUNICATION_PREFERENCES_ON_UPDATED_BY"
+                                 referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-61" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="user_verifications"
+                                 constraintName="FK_USER_VERIFICATIONS_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-62" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="user_verifications"
+                                 constraintName="FK_USER_VERIFICATIONS_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-64" author="yusssss">
+        <dropPrimaryKey constraintName="authorities_pkey" tableName="authorities"/>
+    </changeSet>
+    <changeSet id="1754513919392-65" author="yusssss">
+        <dropColumn columnName="expires_at" tableName="sessions"/>
+
+        <dropColumn columnName="refresh_token" tableName="sessions"/>
+
+        <dropColumn columnName="token" tableName="sessions"/>
+    </changeSet>
+    <changeSet id="1754513919392-1" author="yusssss">
+        <modifyDataType columnName="about" newDataType="VARCHAR(255)" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-2" author="yusssss">
+        <modifyDataType columnName="category" newDataType="VARCHAR(255)" tableName="notifications"/>
+    </changeSet>
+    <changeSet id="1754513919392-3" author="yusssss">
+        <modifyDataType columnName="category" newDataType="VARCHAR(255)" tableName="user_communication_preferences"/>
+    </changeSet>
+    <changeSet id="1754513919392-4" author="yusssss">
+        <modifyDataType columnName="channel" newDataType="VARCHAR(255)" tableName="notifications"/>
+    </changeSet>
+    <changeSet id="1754513919392-5" author="yusssss">
+        <modifyDataType columnName="code" newDataType="VARCHAR(255)" tableName="countries"/>
+    </changeSet>
+    <changeSet id="1754513919392-6" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="addresses" validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-7" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="cities" validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-8" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="countries" validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-9" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="devices" validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-10" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="login_attempts"
+                              validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-11" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="media" validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-12" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="notifications"
+                              validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-13" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="pending_registrations"
+                              validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-14" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="sessions" validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-15" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at"
+                              tableName="user_communication_preferences" validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-16" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="user_verifications"
+                              validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-17" author="yusssss">
+        <addNotNullConstraint columnDataType="DATETIME" columnName="created_at" tableName="users" validate="true"/>
+    </changeSet>
+    <changeSet id="1754513919392-18" author="yusssss">
+        <modifyDataType columnName="destination_phone_number" newDataType="VARCHAR(255)" tableName="notifications"/>
+    </changeSet>
+    <changeSet id="1754513919392-19" author="yusssss">
+        <modifyDataType columnName="destination_push_token" newDataType="VARCHAR(255)" tableName="notifications"/>
+    </changeSet>
+    <changeSet id="1754513919392-20" author="yusssss">
+        <dropNotNullConstraint columnDataType="uuid" columnName="device_id" tableName="sessions"/>
+    </changeSet>
+    <changeSet id="1754513919392-21" author="yusssss">
+        <dropNotNullConstraint columnDataType="varchar(255)" columnName="email" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-22" author="yusssss">
+        <dropNotNullConstraint columnDataType="boolean" columnName="email_verified" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-23" author="yusssss">
+        <modifyDataType columnName="experiences" newDataType="VARCHAR(255)" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-24" author="yusssss">
+        <modifyDataType columnName="failure_reason" newDataType="VARCHAR(255)" tableName="notifications"/>
+    </changeSet>
+    <changeSet id="1754513919392-25" author="yusssss">
+        <modifyDataType columnName="file_type" newDataType="VARCHAR(255)" tableName="media"/>
+    </changeSet>
+    <changeSet id="1754513919392-26" author="yusssss">
+        <modifyDataType columnName="file_url" newDataType="VARCHAR(255)" tableName="media"/>
+    </changeSet>
+    <changeSet id="1754513919392-27" author="yusssss">
+        <modifyDataType columnName="gender" newDataType="VARCHAR(255)" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-28" author="yusssss">
+        <dropNotNullConstraint columnDataType="boolean" columnName="identity_verified" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-29" author="yusssss">
+        <modifyDataType columnName="interests" newDataType="VARCHAR(255)" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-30" author="yusssss">
+        <dropNotNullConstraint columnDataType="varchar(31)" columnName="media_type" tableName="media"/>
+    </changeSet>
+    <changeSet id="1754513919392-31" author="yusssss">
+        <dropNotNullConstraint columnDataType="boolean" columnName="phone_verified" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-32" author="yusssss">
+        <modifyDataType columnName="preferred_language" newDataType="VARCHAR(255)" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-33" author="yusssss">
+        <modifyDataType columnName="qualifications" newDataType="VARCHAR(255)" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-34" author="yusssss">
+        <modifyDataType columnName="role" newDataType="VARCHAR(255)" tableName="authorities"/>
+    </changeSet>
+    <changeSet id="1754513919392-35" author="yusssss">
+        <modifyDataType columnName="status" newDataType="VARCHAR(255)" tableName="notifications"/>
+    </changeSet>
+    <changeSet id="1754513919392-36" author="yusssss">
+        <modifyDataType columnName="tc_identity_number" newDataType="VARCHAR(255)" tableName="user_verifications"/>
+    </changeSet>
+    <changeSet id="1754513919392-37" author="yusssss">
+        <modifyDataType columnName="tc_identity_number" newDataType="VARCHAR(255)" tableName="users"/>
+    </changeSet>
+    <changeSet id="1754513919392-38" author="yusssss">
+        <modifyDataType columnName="template_parameters" newDataType="VARCHAR(255)" tableName="notifications"/>
+    </changeSet>
+    <changeSet id="1754513919392-39" author="yusssss">
+        <modifyDataType columnName="type" newDataType="VARCHAR(255)" tableName="devices"/>
+    </changeSet>
+    <changeSet id="1754513919392-40" author="yusssss">
+        <dropNotNullConstraint columnDataType="uuid" columnName="user_id" tableName="user_communication_preferences"/>
+    </changeSet>
+    <changeSet id="1754513919392-41" author="yusssss">
+        <dropNotNullConstraint columnDataType="varchar(31)" columnName="verification_type"
+                               tableName="user_verifications"/>
+    </changeSet>
+
+</databaseChangeLog>

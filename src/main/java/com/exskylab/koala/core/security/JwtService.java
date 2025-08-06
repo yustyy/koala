@@ -6,14 +6,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -26,6 +23,9 @@ public class JwtService {
 
     @Value("${jwt.password-reset.expiration-ms}")
     private Long PASSWORD_RESET_EXPIRATION_MS;
+
+    @Value("${jwt.access-token.expiration-ms}")
+    private Long ACCESS_TOKEN_EXPIRATION_MS;
 
 
     public String generatePasswordSetToken(UUID id) {
@@ -86,4 +86,30 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
+    public String generateAccessToken(User user, UUID sessionId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime()+ ACCESS_TOKEN_EXPIRATION_MS);
+
+        return Jwts.builder()
+                .subject(user.getId().toString())
+                .id(sessionId.toString())
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .issuer("iskoala.com")
+                .signWith(getSignKey(), Jwts.SIG.HS256)
+                .compact();
+    }
+
+    public UUID extractSessionId(String token){
+        String jti = extractClaim(token, Claims::getId);
+        return UUID.fromString(jti);
+    }
+
+    public UUID extractUserId(String token) {
+        String subject = extractClaim(token, Claims::getSubject);
+        return UUID.fromString(subject);
+    }
+
+
 }
