@@ -12,4 +12,5 @@ public class NotificationMessages {
     public static final String USER_ID_CANNOT_BE_NULL = "{notification.user.id.cannot.be.null}";
     public static final String INVALID_NOTIFICATION_DTO_TYPE = "{notification.invalid.dto.type}";
     public static final String TEMPLATE_OR_CONTENT_NOT_PROVIDED = "{notification.template.or.content.not.provided}";
+    public static final String NOTIFICATION_NOT_FOUND_WITH_ID = "{notification.not.found.with.id}";
 }

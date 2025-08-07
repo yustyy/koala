@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!-- 1. Adım: Thymeleaf'in çalışması için bu satırı ekliyoruz -->
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koala'ya Hoş Geldiniz!</title>
+    <style>
+        /* CSS stilleri tamamen aynı kalır */
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #7CB342, #8BC34A); padding: 40px 20px; text-align: center; color: white; }
+        .logo { max-width: 200px; height: auto; margin-bottom: 20px; }
+        .content { padding: 40px 30px; color: #333333; }
+        .welcome-title { font-size: 28px; font-weight: bold; color: #2E7D32; margin-bottom: 20px; text-align: center; }
+        .user-info { background-color: #E8F5E8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #7CB342; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, #7CB342, #8BC34A); color: white !important; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; transition: transform 0.2s; }
+        .cta-button:hover { transform: translateY(-2px); }
+        .features { margin: 30px 0; }
+        .feature-item { display: flex; align-items: center; margin: 15px 0; padding: 10px; }
+        .feature-icon { width: 24px; height: 24px; background-color: #7CB342; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .footer { background-color: #f8f8f8; padding: 30px; text-align: center; color: #666666; font-size: 14px; }
+        .social-links { margin: 20px 0; }
+        .social-links a { color: #7CB342; text-decoration: none; margin: 0 10px; }
+        @media (max-width: 600px) { .content { padding: 20px 15px; } .welcome-title { font-size: 24px; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/koala-WXCGPO5pAIHDqa0Y0Zd5i008uFuQKw.jpeg" alt="Koala Logo" class="logo">
+        <h1 style="margin: 0; font-size: 24px;">İş Dünyasına Hoş Geldiniz!</h1>
+    </div>
+    <!-- Main Content -->
+    <div class="content">
+        <!-- 2. Adım: th:text ve |...| kullanımı -->
+        <h2 class="welcome-title" th:text="|Merhaba ${firstName}! 🎉|">Merhaba ${firstName}! 🎉</h2>
+
+        <p style="font-size: 18px; text-align: center; color: #555;">
+            Koala ailesine katıldığınız için çok mutluyuz! Kariyerinizde yeni bir sayfa açmaya hazır mısınız?
+        </p>
+
+        <div class="user-info">
+            <h3 style="margin-top: 0; color: #2E7D32;">Kayıt Bilgileriniz:</h3>
+            <!-- 3. Adım: Değişkenleri span içinde basma -->
+            <p><strong>Ad Soyad:</strong> <span th:text="${firstName} + ' ' + ${lastName}">Yusuf Açmacı</span></p>
+            <p><strong>E-posta:</strong> <span th:text="${email}">ornek@mail.com</span></p>
+            <p style="margin-bottom: 0;"><strong>Kayıt Tarihi:</strong> Bugün</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <!-- 4. Adım: Linki th:href ile dinamik yapma -->
+            <a th:href="${appUrl}" href="https://iskoala.com" class="cta-button">
+                🚀 Hemen İş Aramaya Başla
+            </a>
+        </div>
+
+        <div class="features">
+            <h3 style="color: #2E7D32; margin-bottom: 20px;">Koala ile Neler Yapabilirsiniz?</h3>
+            <div class="feature-item"><div class="feature-icon">💼</div><div><strong>Binlerce İş İlanı:</strong> Size uygun pozisyonları keşfedin ve hemen başvurun.</div></div>
+            <div class="feature-item"><div class="feature-icon">🎯</div><div><strong>Akıllı Eşleştirme:</strong> Yeteneklerinize uygun işler otomatik olarak size önerilir.</div></div>
+            <div class="feature-item"><div class="feature-icon">📊</div><div><strong>Kariyer Takibi:</strong> Başvurularınızı takip edin ve ilerlemenizi görün.</div></div>
+            <div class="feature-item"><div class="feature-icon">🤝</div><div><strong>Profesyonel Ağ:</strong> Sektörünüzdeki profesyonellerle bağlantı kurun.</div></div>
+        </div>
+
+        <div style="background-color: #FFF3E0; padding: 20px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #FF9800;">
+            <h4 style="margin-top: 0; color: #E65100;">💡 İpucu:</h4>
+            <p style="margin-bottom: 0;">
+                Profilinizi tamamlayarak daha fazla iş fırsatına ulaşabilir ve işverenlerin dikkatini çekebilirsiniz.
+                Hemen <a th:href="${profileUrl}" href="https://iskoala.com/profile" style="color: #7CB342;">profilinizi düzenleyin</a>!
+            </p>
+        </div>
+
+        <p style="text-align: center; font-size: 16px; color: #555;">
+            Herhangi bir sorunuz varsa, destek ekibimiz size yardımcı olmaktan mutluluk duyar.<br>
+            <a href="mailto:info@iskoala.com" style="color: #7CB342;">info@iskoala.com</a>
+        </p>
+    </div>
+    <!-- Footer -->
+    <div class="footer">
+        <p style="margin-top: 0;"><strong>Koala - İş Bulma Platformu</strong><br>Hayalinizdeki işe bir adım daha yakın</p>
+        <div class="social-links">
+            <a href="https://iskoala.com">Web Sitesi</a> | <a href="https://iskoala.com/about">Hakkımızda</a> | <a href="https://iskoala.com/contact">İletişim</a> | <a href="https://iskoala.com/privacy">Gizlilik</a>
+        </div>
+        <p style="font-size: 12px; color: #999; margin-bottom: 0;">
+            Bu e-posta <span th:text="${email}">ornek@mail.com</span> adresine gönderilmiştir.<br>
+            E-posta almak istemiyorsanız, <a th:href="${unsubscribeLink}" href="#" style="color: #7CB342;">buradan</a> abonelikten çıkabilirsiniz.
+        </p>
+    </div>
+</div>
+</body>
+</html>
