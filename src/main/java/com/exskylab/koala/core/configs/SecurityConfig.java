@@ -1,11 +1,8 @@
 package com.exskylab.koala.core.configs;
 
-import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.core.security.SessionAuthFilter;
-import com.exskylab.koala.entities.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

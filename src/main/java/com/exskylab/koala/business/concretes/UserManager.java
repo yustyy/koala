@@ -82,7 +82,7 @@ public class UserManager implements UserService {
 
     @Override
     public boolean existsByEmail(String email) {
-        return false;
+        return userDao.existsByEmail(email);
     }
 
     @Override

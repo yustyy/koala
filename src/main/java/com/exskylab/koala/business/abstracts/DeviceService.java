@@ -10,4 +10,6 @@ public interface DeviceService {
     List<Device> getDevicesByUserIdAndPushTokenNotNull(UUID id);
 
     Device findOrCreateDevice(User user, String ipAddress, String userAgent);
+
+    Device findDeviceByUserAndUserAgent(User user, String userAgent);
 }

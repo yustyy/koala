@@ -215,6 +215,10 @@ public class AuthManager implements AuthService {
 
         logger.info("Device found or created for user ID: {}", user.getId());
 
+        // Invalidate all active sessions for the device
+        sessionService.invalidateActiveSessionsForDevice(device.getId());
+        logger.info("Invalidated all active sessions for device ID: {}", device.getId());
+
 
         LoginAttempt loginAttempt = new LoginAttempt();
         loginAttempt.setUser(user);
@@ -246,22 +250,45 @@ public class AuthManager implements AuthService {
             throw new RefreshTokenMismatchException(AuthMessages.REFRESH_TOKEN_AND_SESSION_MISMATCH);
         }
 
-        if (session.getRefreshExpiresAt().isBefore(LocalDateTime.now())){
+        LocalDateTime now = LocalDateTime.now();
+
+        if (session.getRefreshExpiresAt().isBefore(now)){
             logger.error("Refresh token has expired for session ID: {}", sessionId);
             session.setActive(false);
             sessionService.save(session);
             throw new TokenExpiredException(AuthMessages.REFRESH_TOKEN_EXPIRED);
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        Device currentDevice;
+        try{
+            currentDevice = deviceService.findDeviceByUserAndUserAgent(
+                    session.getDevice().getUser(),
+                    userAgent
+            );
+        }catch (Exception e){
+            currentDevice = null;
+            logger.warn("Device not found for session ID: {}, user agent: {}", sessionId, userAgent);
+        }
+
+        if (currentDevice == null || !session.getDevice().getId().equals(currentDevice.getId())){
+            session.setActive(false);
+            session.setLastAccessedAt(now);
+            sessionService.save(session);
+            logger.error("SECURITY ALERT: Session ID: {} is not associated with the current device. Session has been deactivated.", sessionId);
+            throw new DeviceDoesntMatchException(AuthMessages.SESSION_NOT_MATCHING_CURRENT_DEVICE);
+        }
+
+
         LocalDateTime currentRefreshExpiresAt = session.getRefreshExpiresAt();
+
 
         if (currentRefreshExpiresAt.isBefore(now.plusDays(7))){
             session.setRefreshExpiresAt(now.plusDays(30));
             logger.info("Refresh token will expire in 30 days for session ID: {}", sessionId);
         }
 
-        session.setLastAccessedAt(LocalDateTime.now());
+        session.setLastAccessedAt(now);
+        session.getDevice().setLastSeenAt(now);
         session.setIpAddress(ipAddress);
         sessionService.save(session);
 
@@ -279,6 +306,7 @@ public class AuthManager implements AuthService {
             throw new SessionNotFoundException(AuthMessages.SESSION_NOT_FOUND_OR_INACTIVE);
         }
         session.setActive(false);
+        session.getDevice().setLastSeenAt(LocalDateTime.now());
 
         sessionService.save(session);
         logger.info("Session ID: {} logged out successfully", sessionId);

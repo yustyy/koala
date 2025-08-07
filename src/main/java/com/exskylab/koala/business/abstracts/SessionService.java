@@ -13,4 +13,6 @@ public interface SessionService {
 
     Session save(Session session);
 
+    public void invalidateActiveSessionsForDevice(UUID deviceId);
+
 }

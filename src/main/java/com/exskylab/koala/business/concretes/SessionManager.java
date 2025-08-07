@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -34,6 +35,7 @@ public class SessionManager implements SessionService {
     }
 
     @Override
+    @Transactional
     public CreatedSessionInfo createSession(Device device, String ipAddress) {
         logger.info("Creating session for device: {}", device.getId());
 
@@ -73,6 +75,22 @@ public class SessionManager implements SessionService {
     public Session save(Session session) {
         logger.info("Saving session with id: {}", session.getId());
         return sessionDao.save(session);
+    }
+
+    @Override
+    @Transactional
+    public void invalidateActiveSessionsForDevice(UUID deviceId) {
+        logger.info("Invalidating active sessions for device with id: {}", deviceId);
+
+        var activeSessions = sessionDao.findAllByDeviceIdAndIsActive(deviceId, true);
+
+        for (Session session : activeSessions){
+            session.setActive(false);
+        }
+
+
+        sessionDao.saveAll(activeSessions);
+        logger.info("Invalidated {} active sessions for device with id: {}", activeSessions.size(), deviceId);
     }
 
     private String generateSecureRandomToken() {
