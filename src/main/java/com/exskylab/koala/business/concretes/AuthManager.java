@@ -2,7 +2,7 @@ package com.exskylab.koala.business.concretes;
 
 
 import com.exskylab.koala.business.abstracts.*;
-import com.exskylab.koala.core.configs.AppProperties;
+import com.exskylab.koala.core.properties.AppProperties;
 import com.exskylab.koala.core.constants.AuthMessages;
 import com.exskylab.koala.core.dtos.auth.request.*;
 import com.exskylab.koala.core.dtos.auth.response.AuthSetPasswordDto;

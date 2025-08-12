@@ -1,4 +1,4 @@
-package com.exskylab.koala.core.configs;
+package com.exskylab.koala.core.properties;
 
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
