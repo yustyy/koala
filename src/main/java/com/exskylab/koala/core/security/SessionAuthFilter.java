@@ -2,15 +2,12 @@ package com.exskylab.koala.core.security;
 
 import com.exskylab.koala.business.abstracts.DeviceService;
 import com.exskylab.koala.business.abstracts.SessionService;
-import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.core.constants.AuthMessages;
 import com.exskylab.koala.core.exceptions.DeviceDoesntMatchException;
-import com.exskylab.koala.core.exceptions.NotValidAuthorizationHeaderException;
 import com.exskylab.koala.core.exceptions.SessionDoesntMatch;
 import com.exskylab.koala.core.exceptions.SessionNotFoundException;
 import com.exskylab.koala.entities.Device;
 import io.jsonwebtoken.JwtException;
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

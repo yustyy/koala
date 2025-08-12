@@ -1,5 +1,6 @@
 package com.exskylab.koala.core.utilities.results;
 
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ public class Result {
     private HttpStatus httpStatus;
     private String path;
     private LocalDateTime timeStamp = LocalDateTime.now();
+    private String correlationId;
 
     public boolean isSuccess() {
         return success;
@@ -31,16 +33,22 @@ public class Result {
         return timeStamp;
     }
 
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
     public Result(boolean success, String message, HttpStatus httpStatus, String path) {
         this.success = success;
         this.message = message;
         this.httpStatus = httpStatus;
         this.path = path;
+        this.correlationId = MDC.get("correlationId");
     }
 
     public Result(boolean success, HttpStatus httpStatus, String path) {
         this.success = success;
         this.httpStatus = httpStatus;
         this.path = path;
+        this.correlationId = MDC.get("correlationId");
     }
 }
