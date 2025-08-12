@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-posta Adresinizi Doğrulayın - Koala</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #7CB342, #8BC34A); padding: 40px 20px; text-align: center; color: white; }
+        .logo { max-width: 200px; height: auto; margin-bottom: 20px; }
+        .content { padding: 40px 30px; color: #333333; }
+        .verification-title { font-size: 28px; font-weight: bold; color: #2E7D32; margin-bottom: 20px; text-align: center; }
+        .user-info { background-color: #E8F5E8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #7CB342; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, #7CB342, #8BC34A); color: white !important; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; transition: transform 0.2s; font-size: 16px; }
+        .cta-button:hover { transform: translateY(-2px); }
+        .verification-box { background-color: #FFF3E0; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #FF9800; text-align: center; }
+        .security-note { background-color: #E3F2FD; padding: 20px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #2196F3; }
+        .footer { background-color: #f8f8f8; padding: 30px; text-align: center; color: #666666; font-size: 14px; }
+        .social-links { margin: 20px 0; }
+        .social-links a { color: #7CB342; text-decoration: none; margin: 0 10px; }
+        @media (max-width: 600px) {
+            .content { padding: 20px 15px; }
+            .verification-title { font-size: 24px; }
+            .cta-button { padding: 12px 25px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/koala-WXCGPO5pAIHDqa0Y0Zd5i008uFuQKw.jpeg" alt="Koala Logo" class="logo">
+        <h1 style="margin: 0; font-size: 24px;">E-posta Doğrulama</h1>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h2 class="verification-title" th:text="|Merhaba ${firstName}! ✉️|">Merhaba ${firstName}! ✉️</h2>
+
+        <p style="font-size: 18px; text-align: center; color: #555;">
+            Koala'ya kaydolduğunuz için teşekkür ederiz! Hesabınızı aktifleştirmek için e-posta adresinizi doğrulamanız gerekmektedir.
+        </p>
+
+        <div class="user-info">
+            <h3 style="margin-top: 0; color: #2E7D32;">Kayıt Bilgileriniz:</h3>
+            <p><strong>Ad Soyad:</strong> <span th:text="${firstName} + ' ' + ${lastName}">Ad Soyad</span></p>
+            <p style="margin-bottom: 0;"><strong>Durum:</strong> E-posta doğrulama bekleniyor</p>
+        </div>
+
+        <div class="verification-box">
+            <h3 style="margin-top: 0; color: #E65100;">🔐 E-posta Adresinizi Doğrulayın</h3>
+            <p style="margin-bottom: 25px; font-size: 16px;">
+                Hesabınızı aktifleştirmek ve Koala'nın tüm özelliklerinden yararlanmak için aşağıdaki butona tıklayın:
+            </p>
+            <div style="text-align: center;">
+                <a th:href="${verificationLink}" href="#" class="cta-button">
+                    ✅ E-posta Adresimi Doğrula
+                </a>
+            </div>
+        </div>
+
+        <div class="security-note">
+            <h4 style="margin-top: 0; color: #1976D2;">🛡️ Güvenlik Notu:</h4>
+            <ul style="margin-bottom: 0; text-align: left;">
+                <li>Bu doğrulama linki sadece 24 saat geçerlidir</li>
+                <li>Link sadece bir kez kullanılabilir</li>
+                <li>Bu e-postayı siz talep etmediyseniz, güvenle silebilirsiniz</li>
+                <li>Şüpheli bir durum fark ederseniz, hemen bizimle iletişime geçin</li>
+            </ul>
+        </div>
+
+        <div style="background-color: #F3E5F5; padding: 20px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #9C27B0;">
+            <h4 style="margin-top: 0; color: #6A1B9A;">❓ Butona tıklayamıyor musunuz?</h4>
+            <p style="margin-bottom: 10px;">Aşağıdaki linki kopyalayıp tarayıcınızın adres çubuğuna yapıştırabilirsiniz:</p>
+            <p style="word-break: break-all; background-color: #fff; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; margin-bottom: 0;">
+                <span th:text="${verificationLink}">verification-link-here</span>
+            </p>
+        </div>
+
+        <p style="text-align: center; font-size: 16px; color: #555;">
+            Herhangi bir sorunuz varsa, destek ekibimiz size yardımcı olmaktan mutluluk duyar.<br>
+            <a href="mailto:info@iskoala.com" style="color: #7CB342;">info@iskoala.com</a>
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p style="margin-top: 0;"><strong>Koala - İş Bulma Platformu</strong><br>Güvenli ve hızlı iş bulma deneyimi</p>
+        <div class="social-links">
+            <a href="https://iskoala.com">Web Sitesi</a> |
+            <a href="https://iskoala.com/about">Hakkımızda</a> |
+            <a href="https://iskoala.com/contact">İletişim</a> |
+            <a href="https://iskoala.com/privacy">Gizlilik</a>
+        </div>
+        <p style="font-size: 12px; color: #999; margin-bottom: 0;">
+            Bu e-posta <span th:text="${firstName} + ' ' + ${lastName}">Ad Soyad</span> için gönderilmiştir.<br>
+            Bu bir sistem e-postasıdır, lütfen yanıtlamayın.
+        </p>
+    </div>
+</div>
+</body>
+</html>
