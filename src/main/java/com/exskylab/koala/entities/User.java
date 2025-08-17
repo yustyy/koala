@@ -39,16 +39,16 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "email")
     private String email;
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_picture_id", referencedColumnName = "id")
+    private Image profilePicture;
+
     @Column(name ="preferred_language")
     private String preferredLanguage;
 
     @JsonIgnore
     @Column(name = "password")
     private String password;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_picture_id")
-    private Image profilePicture;
 
     @Column(name = "birth_date")
     private LocalDate birthDate;
@@ -97,5 +97,8 @@ public class User extends BaseEntity implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Device> devices;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CompanyContact> companyContacts;
 
 }

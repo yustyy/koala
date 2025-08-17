@@ -8,6 +8,8 @@ import com.exskylab.koala.core.dtos.user.UpdateUserDto;
 import com.exskylab.koala.core.exceptions.UserNotFoundException;
 import com.exskylab.koala.dataAccess.UserDao;
 import com.exskylab.koala.entities.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class UserManager implements UserService {
 
     private final UserDao userDao;
+    private final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
     public UserManager(UserDao userDao) {
         this.userDao = userDao;
@@ -51,13 +54,16 @@ public class UserManager implements UserService {
 
     @Override
     public User getAuthenticatedUser() {
+        logger.info("Getting authenticated user");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            logger.warn("User not authenticated or anonymous");
             throw new UserNotFoundException("{user.not.authenticated}");
         }
-
-        return (User) authentication.getPrincipal();
+        User user = (User) authentication.getPrincipal();
+        logger.info("Authenticated user found: {}", user.getId());
+        return user;
     }
 
     @Override

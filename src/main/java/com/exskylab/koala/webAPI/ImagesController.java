@@ -5,6 +5,7 @@ import com.exskylab.koala.core.constants.ImageMessages;
 import com.exskylab.koala.core.dtos.images.response.UploadImageResponseDto;
 import com.exskylab.koala.core.mappers.image.ImageMapper;
 import com.exskylab.koala.core.utilities.results.SuccessDataResult;
+import com.exskylab.koala.core.utilities.results.SuccessResult;
 import com.exskylab.koala.entities.Image;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.UUID;
 
 @Validated
 @RestController
@@ -44,4 +47,18 @@ public class ImagesController {
         );
 
     }
+
+
+    @DeleteMapping("/deleteImage/{imageId}")
+    public ResponseEntity<SuccessResult> deleteImage(@PathVariable UUID imageId, HttpServletRequest request) {
+
+        imageService.deleteImage(imageId);
+
+        return ResponseEntity.ok(
+                new SuccessResult(ImageMessages.DELETE_IMAGE_SUCCESS,
+                        HttpStatus.OK,
+                        request.getRequestURI())
+        );
+    }
+
 }

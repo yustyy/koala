@@ -8,6 +8,8 @@ import com.exskylab.koala.core.exceptions.ImageUploadError;
 import com.exskylab.koala.core.utilities.storage.R2StorageService;
 import com.exskylab.koala.dataAccess.ImageDao;
 import com.exskylab.koala.entities.Image;
+import com.exskylab.koala.entities.Role;
+import com.exskylab.koala.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,18 +19,21 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 public class ImageManager implements ImageService {
 
     private final ImageDao imageDao;
     private final R2StorageService r2StorageService;
+    private final UserService userService;
     private final static Logger logger = LoggerFactory.getLogger(ImageManager.class);
 
 
-    public ImageManager(ImageDao imageDao, R2StorageService r2StorageService) {
+    public ImageManager(ImageDao imageDao, R2StorageService r2StorageService, UserService userService) {
         this.imageDao = imageDao;
         this.r2StorageService = r2StorageService;
+        this.userService = userService;
     }
 
 
@@ -48,7 +53,7 @@ public class ImageManager implements ImageService {
         try {
             byte[] cleanImageBytes = removeMetadata(image);
 
-            String imageUrl = r2StorageService.uploadFile(
+            String imageKey = r2StorageService.uploadFile(
                     cleanImageBytes,
                     image.getOriginalFilename(),
                     image.getContentType(),
@@ -58,7 +63,7 @@ public class ImageManager implements ImageService {
             Image newImage = new Image();
             newImage.setFileName(image.getOriginalFilename());
             newImage.setFileType(image.getContentType());
-            newImage.setFileUrl(imageUrl);
+            newImage.setFileUrl(imageKey);
             newImage.setFileSize((long) cleanImageBytes.length);
 
             var savedImage = imageDao.save(newImage);
@@ -67,6 +72,32 @@ public class ImageManager implements ImageService {
         } catch (Exception e) {
             logger.error("Image upload failed fileName: {}, errorMessage: {}", image.getOriginalFilename(), e.getMessage());
             throw new ImageUploadError(ImageMessages.IMAGE_UPLOAD_ERROR);
+        }
+    }
+
+    @Override
+    public void deleteImage(UUID imageId) {
+        logger.info("Deleting image with ID: {}", imageId);
+        var image = imageDao.findById(imageId);
+
+        if(image.isEmpty()){
+            logger.error("Image deletion failed: Image with ID {} not found.", imageId);
+            throw new ImageUploadError(ImageMessages.IMAGE_NOT_FOUND_ERROR);
+        }
+
+        User user = userService.getAuthenticatedUser();
+        if (!image.get().getCreatedBy().getId().equals(user.getId()) && !user.getAuthorities().contains(Role.ROLE_ADMIN)) {
+            logger.error("Image deletion failed: User {} does not have permission to delete image with ID {}. Image creator ID: {}", user.getId(), imageId, image.get().getCreatedBy().getId());
+            throw new ImageUploadError(ImageMessages.IMAGE_PERMISSION_ERROR);
+        }
+
+        try {
+            r2StorageService.deleteFile(image.get().getFileUrl());
+            imageDao.deleteById(imageId);
+            logger.info("Image with ID {} deleted successfully by userID {}", imageId, user.getId());
+        } catch (Exception e) {
+            logger.error("Image deletion failed for ID {}: errorMessage {}", imageId, e.getMessage());
+            throw new ImageUploadError(ImageMessages.IMAGE_DELETE_ERROR);
         }
     }
 

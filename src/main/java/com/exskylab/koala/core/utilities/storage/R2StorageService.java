@@ -48,7 +48,7 @@ public class R2StorageService {
         s3Client.putObject(putObjectRequest, RequestBody.fromBytes(fileBytes));
 
 
-        return r2Properties.getPublicUrl() + "/" + key;
+        return key;
     }
 
     public void deleteFile(String key){
