@@ -15,7 +15,8 @@ import lombok.Setter;
 @DiscriminatorValue("VERIFICATION_DOCUMENT")
 public class VerificationDocument extends Media{
 
-    @OneToOne(mappedBy = "verificationDocument")
+    @ManyToOne
+    @JoinColumn(name = "user_verification_id")
     private UserVerification userVerification;
 
 }

@@ -1,6 +1,7 @@
-package com.exskylab.koala.core.configs;
+package com.exskylab.koala.core.configs.r2;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.exskylab.koala.core.properties.R2Properties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -13,26 +14,24 @@ import java.net.URI;
 @Configuration
 public class R2ClientConfig {
 
+    private final R2Properties r2Properties;
 
-    @Value("${r2.endpoint}")
-    private static String R2_ENDPOINT;
+    public R2ClientConfig(R2Properties r2Properties) {
+        this.r2Properties = r2Properties;
+    }
 
-    @Value("${r2.access-key}")
-    private static String ACCESS_KEY;
-
-    @Value("${r2.secret-key}")
-    private static String SECRET_KEY;
-
-    public static S3Client createS3Client(){
+    @Bean
+    public S3Client createS3Client(){
 
         return S3Client.builder()
-                .endpointOverride(URI.create(R2_ENDPOINT))
-                .region(Region.EU_WEST_1)
+                .endpointOverride(URI.create(r2Properties.getEndpoint()))
+                .region(Region.of("auto"))
                 .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(ACCESS_KEY, SECRET_KEY)
+                        AwsBasicCredentials.create(r2Properties.getAccessKey(), r2Properties.getSecretKey())
                 ))
                 .serviceConfiguration(S3Configuration.builder()
                         .pathStyleAccessEnabled(true)
+                        .chunkedEncodingEnabled(false)
                         .build())
                 .build();
     }

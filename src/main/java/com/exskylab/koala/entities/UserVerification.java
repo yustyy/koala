@@ -3,6 +3,7 @@ package com.exskylab.koala.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -27,8 +28,7 @@ public abstract class UserVerification extends BaseEntity{
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "verification_document_id")
-    private VerificationDocument verificationDocument;
+    @OneToMany(mappedBy = "userVerification", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VerificationDocument> verificationDocuments;
 
 }
