@@ -3,6 +3,7 @@ package com.exskylab.koala.core.consumers;
 import com.exskylab.koala.business.abstracts.NotificationService;
 import com.exskylab.koala.core.configs.RabbitMQConfig;
 import com.exskylab.koala.core.producers.EmailTaskDto;
+import com.exskylab.koala.core.properties.AppProperties;
 import com.exskylab.koala.entities.Notification;
 import com.exskylab.koala.entities.NotificationStatus;
 import jakarta.mail.MessagingException;
@@ -23,16 +24,19 @@ import java.time.LocalDateTime;
 @Service
 public class EmailConsumer {
 
+    private AppProperties appProperties;
+
 
     private static final Logger logger = LoggerFactory.getLogger(EmailConsumer.class);
     private final NotificationService notificationService;
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
 
-    public EmailConsumer(NotificationService notificationService, JavaMailSender javaMailSender, SpringTemplateEngine templateEngine) {
+    public EmailConsumer(NotificationService notificationService, JavaMailSender javaMailSender, SpringTemplateEngine templateEngine, AppProperties appProperties) {
         this.notificationService = notificationService;
         this.javaMailSender = javaMailSender;
         this.templateEngine = templateEngine;
+        this.appProperties = appProperties;
     }
 
 
@@ -55,8 +59,10 @@ public class EmailConsumer {
         notificationService.save(notification);
 
         try{
+            String trackingUrl = appProperties.apiUrl() + "/api/notifications/track/" + emailTaskDto.id()+".png";
             Context context = new Context();
             context.setVariables(emailTaskDto.templateParameters());
+            context.setVariable("trackingUrl", trackingUrl);
             String htmlBody = templateEngine.process("emails/"+emailTaskDto.templateName(), context);
 
             sendHtmlEmail(emailTaskDto.to(), emailTaskDto.subject(), htmlBody);
@@ -71,7 +77,6 @@ public class EmailConsumer {
         }finally {
             notificationService.save(notification);
         }
-
 
     }
 

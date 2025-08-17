@@ -286,6 +286,16 @@ public class NotificationManager implements NotificationService {
         return notificationDao.save(notification);
     }
 
+    @Override
+    public void setAsOpened(UUID id) {
+        var notification = notificationDao.findById(id)
+                .orElseThrow(() -> new NotificationNotFoundException(NotificationMessages.NOTIFICATION_NOT_FOUND_WITH_ID));
+        logger.info("Setting notification with ID: {} as opened", id);
+        notification.setStatus(NotificationStatus.OPENED);
+        notificationDao.save(notification);
+        logger.info("Notification with ID: {} set as opened", id);
+    }
+
 
     private void executeDispatch(Runnable dispatchAction, NotificationChannel channel, DispatchPriority dispatchPriority,
                                  UUID id) {

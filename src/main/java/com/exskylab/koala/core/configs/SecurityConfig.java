@@ -44,6 +44,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/refreshToken").authenticated()
                         .requestMatchers("/api/auth/logout").authenticated()
+
+
+
+                        .requestMatchers(("/api/notifications/track/**")).permitAll()
+
+
                         .anyRequest().authenticated()
                 )
                 .headers(headers ->

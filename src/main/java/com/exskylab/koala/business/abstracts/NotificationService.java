@@ -22,4 +22,5 @@ public interface NotificationService {
 
     Notification save(Notification notification);
 
+    void setAsOpened(UUID id);
 }
