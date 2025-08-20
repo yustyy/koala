@@ -30,7 +30,8 @@ public class JobAssignment {
     @JoinColumn(name = "worker_id", nullable = false)
     private User worker;
 
-    @OneToOne(mappedBy = "jobAssignment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_application_id", referencedColumnName = "id", unique = true)
     private JobApplication jobApplication;
 
     @Enumerated(EnumType.STRING)
