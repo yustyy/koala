@@ -6,6 +6,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
 
-    <include file="db/changelog/2025/08/20-01-changelog.xml"/>
-    <include file="db/changelog/2025/08/20-01-initial-data.xml"/>
+    <include file="/db/changelog/2025/08/20-01-changelog.xml"/>
+    <include file="/db/changelog/2025/08/20-01-initial-data.xml"/>
+    <include file="/db/changelog/2025/08/21-01-initial-education-data.xml"/>
 </databaseChangeLog>

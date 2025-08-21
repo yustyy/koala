@@ -1,8 +1,8 @@
 package com.exskylab.koala.business.concretes;
 
 import com.exskylab.koala.business.abstracts.CompanyContactService;
+import com.exskylab.koala.core.dtos.companyContact.request.InviteContactToCompanyDto;
 import com.exskylab.koala.dataAccess.CompanyContactDao;
-import com.exskylab.koala.entities.CompanyContact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,11 @@ public class CompanyContactManager implements CompanyContactService {
     }
 
     @Override
-    public CompanyContact addCompanyContact(CompanyContact companyContact) {
-        return null;
+    public void inviteContactToCompany(InviteContactToCompanyDto inviteContactToCompanyDto) {
+
+
+
+
+
     }
 }

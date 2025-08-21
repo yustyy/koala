@@ -16,7 +16,7 @@
         <sql>
             INSERT INTO users (
                 id, username, email, password, first_name, last_name,
-                email_verified, phone_verified, identity_verified, preferred_language,
+                email_verified, phone_verified, identity_verified,
                 created_at, updated_at, created_by_id, updated_by_id
             )
             VALUES (
@@ -29,7 +29,6 @@
                        true,
                        true,
                        true,
-                       'tr-TR',
                        CURRENT_TIMESTAMP,
                        CURRENT_TIMESTAMP,
                        '00000000-0000-0000-0000-000000000001',

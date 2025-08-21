@@ -32,7 +32,7 @@ public class JobAssignment {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "job_application_id", referencedColumnName = "id", unique = true)
-    private JobApplication jobApplication;
+    private JobApplication application;
 
     @Enumerated(EnumType.STRING)
     private AssignmentStatus status;

@@ -1,7 +1,9 @@
 package com.exskylab.koala.business.abstracts;
 
-import com.exskylab.koala.entities.CompanyContact;
+import com.exskylab.koala.core.dtos.companyContact.request.InviteContactToCompanyDto;
 
 public interface CompanyContactService {
-    CompanyContact addCompanyContact(CompanyContact companyContact);
+
+    void inviteContactToCompany(InviteContactToCompanyDto inviteContactToCompanyDto);
+
 }

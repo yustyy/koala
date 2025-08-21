@@ -1,18 +1,20 @@
 package com.exskylab.koala.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name ="countries")
-public class Country extends BaseEntity{
+@Table(name = "universities")
+public class University extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,6 +24,4 @@ public class Country extends BaseEntity{
     @Column(name = "name")
     private String name;
 
-    @Column(name = "code")
-    private String code;
 }

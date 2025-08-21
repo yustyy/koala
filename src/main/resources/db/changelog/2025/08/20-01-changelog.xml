@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
-    <changeSet id="1755698768426-1" author="yusssss">
+    <changeSet id="1755816301696-1" author="yusssss">
         <createTable tableName="addresses">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_addresses"/>
@@ -16,13 +16,16 @@
             <column name="updated_at" type="DATETIME"/>
             <column name="created_by_id" type="UUID"/>
             <column name="updated_by_id" type="UUID"/>
-            <column name="city_id" type="UUID"/>
             <column name="country_id" type="UUID"/>
-            <column name="address" type="VARCHAR(255)"/>
-            <column name="user_id" type="UUID"/>
+            <column name="city_id" type="UUID"/>
+            <column name="district_id" type="UUID"/>
+            <column name="address_line" type="VARCHAR(255)"/>
+            <column name="postal_code" type="VARCHAR(255)"/>
+            <column name="latitude" type="DOUBLE"/>
+            <column name="longitude" type="DOUBLE"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-2" author="yusssss">
+    <changeSet id="1755816301696-2" author="yusssss">
         <createTable tableName="authorities">
             <column name="user_id" type="UUID">
                 <constraints nullable="false"/>
@@ -32,7 +35,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-3" author="yusssss">
+    <changeSet id="1755816301696-3" author="yusssss">
         <createTable tableName="cities">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_cıtıes"/>
@@ -49,7 +52,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-4" author="yusssss">
+    <changeSet id="1755816301696-4" author="yusssss">
         <createTable tableName="companies">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_companıes"/>
@@ -66,12 +69,39 @@
             <column name="logo_id" type="UUID"/>
             <column name="website" type="VARCHAR(255)"/>
             <column name="description" type="VARCHAR(255)"/>
+            <column name="address_id" type="UUID"/>
             <column name="tax_number" type="VARCHAR(255)"/>
             <column name="type" type="VARCHAR(255)"/>
             <column name="is_approved" type="BOOLEAN"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-5" author="yusssss">
+    <changeSet id="1755816301696-5" author="yusssss">
+        <createTable tableName="company_contact_invitations">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_company_contact_ınvıtatıons"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="created_by_id" type="UUID"/>
+            <column name="updated_by_id" type="UUID"/>
+            <column name="company_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="invited_by_user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="invited_user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(255)"/>
+            <column name="invited_at" type="DATETIME"/>
+            <column name="answered_at" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1755816301696-6" author="yusssss">
         <createTable tableName="company_contacts">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_company_contacts"/>
@@ -85,7 +115,7 @@
             <column name="role" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-6" author="yusssss">
+    <changeSet id="1755816301696-7" author="yusssss">
         <createTable tableName="countries">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_countrıes"/>
@@ -100,7 +130,24 @@
             <column name="code" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-7" author="yusssss">
+    <changeSet id="1755816301696-8" author="yusssss">
+        <createTable tableName="departments">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_departments"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="created_by_id" type="UUID"/>
+            <column name="updated_by_id" type="UUID"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="faculty_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1755816301696-9" author="yusssss">
         <createTable tableName="devices">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_devıces"/>
@@ -119,7 +166,70 @@
             <column name="last_seen_at" type="DATETIME"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-8" author="yusssss">
+    <changeSet id="1755816301696-10" author="yusssss">
+        <createTable tableName="districts">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_dıstrıcts"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="created_by_id" type="UUID"/>
+            <column name="updated_by_id" type="UUID"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="city_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1755816301696-11" author="yusssss">
+        <createTable tableName="educations">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_educatıons"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="created_by_id" type="UUID"/>
+            <column name="updated_by_id" type="UUID"/>
+            <column name="university_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="faculty_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="department_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)"/>
+            <column name="gpa" type="DOUBLE"/>
+            <column name="start_date" type="DATE"/>
+            <column name="end_date" type="DATE"/>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1755816301696-12" author="yusssss">
+        <createTable tableName="faculties">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_facultıes"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="created_by_id" type="UUID"/>
+            <column name="updated_by_id" type="UUID"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="university_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1755816301696-13" author="yusssss">
         <createTable tableName="job_applications">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_job_applıcatıons"/>
@@ -141,7 +251,7 @@
             <column name="notes" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-9" author="yusssss">
+    <changeSet id="1755816301696-14" author="yusssss">
         <createTable tableName="job_assignments">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_job_assıgnments"/>
@@ -163,7 +273,7 @@
             <column name="notes" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-10" author="yusssss">
+    <changeSet id="1755816301696-15" author="yusssss">
         <createTable tableName="jobs">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_jobs"/>
@@ -182,8 +292,6 @@
             <column name="sector" type="VARCHAR(255)"/>
             <column name="position" type="VARCHAR(255)"/>
             <column name="location" type="VARCHAR(255)"/>
-            <column name="location_latitude" type="FLOAT"/>
-            <column name="location_longitude" type="FLOAT"/>
             <column name="address_id" type="UUID"/>
             <column name="type" type="VARCHAR(255)"/>
             <column name="start_date_time" type="DATETIME"/>
@@ -196,7 +304,7 @@
             <column name="status" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-11" author="yusssss">
+    <changeSet id="1755816301696-16" author="yusssss">
         <createTable tableName="login_attempts">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_logın_attempts"/>
@@ -216,7 +324,7 @@
             <column name="time_stamp" type="DATETIME"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-12" author="yusssss">
+    <changeSet id="1755816301696-17" author="yusssss">
         <createTable tableName="media">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_medıa"/>
@@ -235,7 +343,7 @@
             <column name="user_verification_id" type="UUID"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-13" author="yusssss">
+    <changeSet id="1755816301696-18" author="yusssss">
         <createTable tableName="notifications">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_notıfıcatıons"/>
@@ -263,7 +371,7 @@
             <column name="failure_reason" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-14" author="yusssss">
+    <changeSet id="1755816301696-19" author="yusssss">
         <createTable tableName="pending_registrations">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_pendıng_regıstratıons"/>
@@ -281,7 +389,7 @@
             <column name="expires_at" type="DATETIME"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-15" author="yusssss">
+    <changeSet id="1755816301696-20" author="yusssss">
         <createTable tableName="sessions">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_sessıons"/>
@@ -301,7 +409,21 @@
             <column name="is_active" type="BOOLEAN"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-16" author="yusssss">
+    <changeSet id="1755816301696-21" author="yusssss">
+        <createTable tableName="universities">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_unıversıtıes"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="created_by_id" type="UUID"/>
+            <column name="updated_by_id" type="UUID"/>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1755816301696-22" author="yusssss">
         <createTable tableName="user_communication_preferences">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user_communıcatıon_preferences"/>
@@ -319,7 +441,7 @@
             <column name="push_enabled" type="BOOLEAN"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-17" author="yusssss">
+    <changeSet id="1755816301696-23" author="yusssss">
         <createTable tableName="user_verifications">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user_verıfıcatıons"/>
@@ -334,15 +456,17 @@
             <column name="is_verified" type="BOOLEAN"/>
             <column name="verified_by_id" type="UUID"/>
             <column name="user_id" type="UUID"/>
-            <column name="phone_number" type="VARCHAR(255)"/>
+            <column name="old_phone_number" type="VARCHAR(255)"/>
+            <column name="new_phone_number" type="VARCHAR(255)"/>
             <column name="token" type="VARCHAR(255)"/>
             <column name="expires_at" type="DATETIME"/>
             <column name="tc_identity_number" type="VARCHAR(255)"/>
             <column name="verification_document_id" type="UUID"/>
-            <column name="email" type="VARCHAR(255)"/>
+            <column name="old_email" type="VARCHAR(255)"/>
+            <column name="new_email" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-18" author="yusssss">
+    <changeSet id="1755816301696-24" author="yusssss">
         <createTable tableName="users">
             <column name="id" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users"/>
@@ -359,7 +483,6 @@
             <column name="username" type="VARCHAR(255)"/>
             <column name="email" type="VARCHAR(255)"/>
             <column name="profile_picture_id" type="UUID"/>
-            <column name="preferred_language" type="VARCHAR(255)"/>
             <column name="password" type="VARCHAR(255)"/>
             <column name="birth_date" type="DATE"/>
             <column name="gender" type="VARCHAR(255)"/>
@@ -371,300 +494,437 @@
             <column name="email_verified" type="BOOLEAN"/>
             <column name="phone_verified" type="BOOLEAN"/>
             <column name="identity_verified" type="BOOLEAN"/>
-            <column name="location_permission" type="BOOLEAN"/>
         </createTable>
     </changeSet>
-    <changeSet id="1755698768426-19" author="yusssss">
+    <changeSet id="1755816301696-25" author="yusssss">
+        <createTable tableName="users_addresses">
+            <column name="address_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1755816301696-26" author="yusssss">
+        <addUniqueConstraint columnNames="address_id" constraintName="uc_companıes_address" tableName="companies"/>
+    </changeSet>
+    <changeSet id="1755816301696-27" author="yusssss">
         <addUniqueConstraint columnNames="logo_id" constraintName="uc_companıes_logo" tableName="companies"/>
     </changeSet>
-    <changeSet id="1755698768426-20" author="yusssss">
+    <changeSet id="1755816301696-28" author="yusssss">
         <addUniqueConstraint columnNames="job_application_id" constraintName="uc_job_assıgnments_job_applıcatıon"
                              tableName="job_assignments"/>
     </changeSet>
-    <changeSet id="1755698768426-21" author="yusssss">
+    <changeSet id="1755816301696-29" author="yusssss">
         <addUniqueConstraint columnNames="verification_document_id"
                              constraintName="uc_user_verıfıcatıons_verıfıcatıon_document"
                              tableName="user_verifications"/>
     </changeSet>
-    <changeSet id="1755698768426-22" author="yusssss">
+    <changeSet id="1755816301696-30" author="yusssss">
         <addUniqueConstraint columnNames="profile_picture_id" constraintName="uc_users_profıle_pıcture"
                              tableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-23" author="yusssss">
+    <changeSet id="1755816301696-31" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="city_id" baseTableName="addresses"
                                  constraintName="FK_ADDRESSES_ON_CITY" referencedColumnNames="id"
                                  referencedTableName="cities"/>
     </changeSet>
-    <changeSet id="1755698768426-24" author="yusssss">
+    <changeSet id="1755816301696-32" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="country_id" baseTableName="addresses"
                                  constraintName="FK_ADDRESSES_ON_COUNTRY" referencedColumnNames="id"
                                  referencedTableName="countries"/>
     </changeSet>
-    <changeSet id="1755698768426-25" author="yusssss">
+    <changeSet id="1755816301696-33" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="addresses"
                                  constraintName="FK_ADDRESSES_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-26" author="yusssss">
+    <changeSet id="1755816301696-34" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="district_id" baseTableName="addresses"
+                                 constraintName="FK_ADDRESSES_ON_DISTRICT" referencedColumnNames="id"
+                                 referencedTableName="districts"/>
+    </changeSet>
+    <changeSet id="1755816301696-35" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="addresses"
                                  constraintName="FK_ADDRESSES_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-27" author="yusssss">
-        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="addresses"
-                                 constraintName="FK_ADDRESSES_ON_USER" referencedColumnNames="id"
-                                 referencedTableName="users"/>
-    </changeSet>
-    <changeSet id="1755698768426-28" author="yusssss">
+    <changeSet id="1755816301696-36" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="country_id" baseTableName="cities"
                                  constraintName="FK_CITIES_ON_COUNTRY" referencedColumnNames="id"
                                  referencedTableName="countries"/>
     </changeSet>
-    <changeSet id="1755698768426-29" author="yusssss">
+    <changeSet id="1755816301696-37" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="cities"
                                  constraintName="FK_CITIES_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-30" author="yusssss">
+    <changeSet id="1755816301696-38" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="cities"
                                  constraintName="FK_CITIES_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-31" author="yusssss">
+    <changeSet id="1755816301696-39" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="address_id" baseTableName="companies"
+                                 constraintName="FK_COMPANIES_ON_ADDRESS" referencedColumnNames="id"
+                                 referencedTableName="addresses"/>
+    </changeSet>
+    <changeSet id="1755816301696-40" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="companies"
                                  constraintName="FK_COMPANIES_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-32" author="yusssss">
+    <changeSet id="1755816301696-41" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="logo_id" baseTableName="companies"
                                  constraintName="FK_COMPANIES_ON_LOGO" referencedColumnNames="id"
                                  referencedTableName="media"/>
     </changeSet>
-    <changeSet id="1755698768426-33" author="yusssss">
+    <changeSet id="1755816301696-42" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="companies"
                                  constraintName="FK_COMPANIES_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-34" author="yusssss">
+    <changeSet id="1755816301696-43" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="company_id" baseTableName="company_contacts"
                                  constraintName="FK_COMPANY_CONTACTS_ON_COMPANY" referencedColumnNames="id"
                                  referencedTableName="companies"/>
     </changeSet>
-    <changeSet id="1755698768426-35" author="yusssss">
+    <changeSet id="1755816301696-44" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="company_contacts"
                                  constraintName="FK_COMPANY_CONTACTS_ON_USER" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-36" author="yusssss">
+    <changeSet id="1755816301696-45" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="company_id" baseTableName="company_contact_invitations"
+                                 constraintName="FK_COMPANY_CONTACT_INVITATIONS_ON_COMPANY" referencedColumnNames="id"
+                                 referencedTableName="companies"/>
+    </changeSet>
+    <changeSet id="1755816301696-46" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="company_contact_invitations"
+                                 constraintName="FK_COMPANY_CONTACT_INVITATIONS_ON_CREATED_BY"
+                                 referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-47" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="invited_by_user_id" baseTableName="company_contact_invitations"
+                                 constraintName="FK_COMPANY_CONTACT_INVITATIONS_ON_INVITED_BY_USER"
+                                 referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-48" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="invited_user_id" baseTableName="company_contact_invitations"
+                                 constraintName="FK_COMPANY_CONTACT_INVITATIONS_ON_INVITED_USER"
+                                 referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-49" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="company_contact_invitations"
+                                 constraintName="FK_COMPANY_CONTACT_INVITATIONS_ON_UPDATED_BY"
+                                 referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-50" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="countries"
                                  constraintName="FK_COUNTRIES_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-37" author="yusssss">
+    <changeSet id="1755816301696-51" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="countries"
                                  constraintName="FK_COUNTRIES_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-38" author="yusssss">
+    <changeSet id="1755816301696-52" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="departments"
+                                 constraintName="FK_DEPARTMENTS_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-53" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="faculty_id" baseTableName="departments"
+                                 constraintName="FK_DEPARTMENTS_ON_FACULTY" referencedColumnNames="id"
+                                 referencedTableName="faculties"/>
+    </changeSet>
+    <changeSet id="1755816301696-54" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="departments"
+                                 constraintName="FK_DEPARTMENTS_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-55" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="devices"
                                  constraintName="FK_DEVICES_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-39" author="yusssss">
+    <changeSet id="1755816301696-56" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="devices"
                                  constraintName="FK_DEVICES_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-40" author="yusssss">
+    <changeSet id="1755816301696-57" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="devices" constraintName="FK_DEVICES_ON_USER"
                                  referencedColumnNames="id" referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-41" author="yusssss">
+    <changeSet id="1755816301696-58" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="city_id" baseTableName="districts"
+                                 constraintName="FK_DISTRICTS_ON_CITY" referencedColumnNames="id"
+                                 referencedTableName="cities"/>
+    </changeSet>
+    <changeSet id="1755816301696-59" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="districts"
+                                 constraintName="FK_DISTRICTS_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-60" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="districts"
+                                 constraintName="FK_DISTRICTS_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-61" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="educations"
+                                 constraintName="FK_EDUCATIONS_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-62" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="department_id" baseTableName="educations"
+                                 constraintName="FK_EDUCATIONS_ON_DEPARTMENT" referencedColumnNames="id"
+                                 referencedTableName="departments"/>
+    </changeSet>
+    <changeSet id="1755816301696-63" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="faculty_id" baseTableName="educations"
+                                 constraintName="FK_EDUCATIONS_ON_FACULTY" referencedColumnNames="id"
+                                 referencedTableName="faculties"/>
+    </changeSet>
+    <changeSet id="1755816301696-64" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="university_id" baseTableName="educations"
+                                 constraintName="FK_EDUCATIONS_ON_UNIVERSITY" referencedColumnNames="id"
+                                 referencedTableName="universities"/>
+    </changeSet>
+    <changeSet id="1755816301696-65" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="educations"
+                                 constraintName="FK_EDUCATIONS_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-66" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="educations"
+                                 constraintName="FK_EDUCATIONS_ON_USER" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-67" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="faculties"
+                                 constraintName="FK_FACULTIES_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-68" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="university_id" baseTableName="faculties"
+                                 constraintName="FK_FACULTIES_ON_UNIVERSITY" referencedColumnNames="id"
+                                 referencedTableName="universities"/>
+    </changeSet>
+    <changeSet id="1755816301696-69" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="faculties"
+                                 constraintName="FK_FACULTIES_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-70" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="address_id" baseTableName="jobs" constraintName="FK_JOBS_ON_ADDRESS"
                                  referencedColumnNames="id" referencedTableName="addresses"/>
     </changeSet>
-    <changeSet id="1755698768426-42" author="yusssss">
+    <changeSet id="1755816301696-71" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="company_id" baseTableName="jobs" constraintName="FK_JOBS_ON_COMPANY"
                                  referencedColumnNames="id" referencedTableName="companies"/>
     </changeSet>
-    <changeSet id="1755698768426-43" author="yusssss">
+    <changeSet id="1755816301696-72" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="jobs"
                                  constraintName="FK_JOBS_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-44" author="yusssss">
+    <changeSet id="1755816301696-73" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="jobs"
                                  constraintName="FK_JOBS_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-45" author="yusssss">
+    <changeSet id="1755816301696-74" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="job_applications"
                                  constraintName="FK_JOB_APPLICATIONS_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-46" author="yusssss">
+    <changeSet id="1755816301696-75" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="job_id" baseTableName="job_applications"
                                  constraintName="FK_JOB_APPLICATIONS_ON_JOB" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-47" author="yusssss">
+    <changeSet id="1755816301696-76" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="job_applications"
                                  constraintName="FK_JOB_APPLICATIONS_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-48" author="yusssss">
+    <changeSet id="1755816301696-77" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="job_applications"
                                  constraintName="FK_JOB_APPLICATIONS_ON_USER" referencedColumnNames="id"
                                  referencedTableName="jobs"/>
     </changeSet>
-    <changeSet id="1755698768426-49" author="yusssss">
+    <changeSet id="1755816301696-78" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="job_id" baseTableName="job_assignments"
                                  constraintName="FK_JOB_ASSIGNMENTS_ON_JOB" referencedColumnNames="id"
                                  referencedTableName="jobs"/>
     </changeSet>
-    <changeSet id="1755698768426-50" author="yusssss">
+    <changeSet id="1755816301696-79" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="job_application_id" baseTableName="job_assignments"
                                  constraintName="FK_JOB_ASSIGNMENTS_ON_JOB_APPLICATION" referencedColumnNames="id"
                                  referencedTableName="job_applications"/>
     </changeSet>
-    <changeSet id="1755698768426-51" author="yusssss">
+    <changeSet id="1755816301696-80" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="worker_id" baseTableName="job_assignments"
                                  constraintName="FK_JOB_ASSIGNMENTS_ON_WORKER" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-52" author="yusssss">
+    <changeSet id="1755816301696-81" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="login_attempts"
                                  constraintName="FK_LOGIN_ATTEMPTS_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-53" author="yusssss">
+    <changeSet id="1755816301696-82" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="login_attempts"
                                  constraintName="FK_LOGIN_ATTEMPTS_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-54" author="yusssss">
+    <changeSet id="1755816301696-83" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="login_attempts"
                                  constraintName="FK_LOGIN_ATTEMPTS_ON_USER" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-55" author="yusssss">
+    <changeSet id="1755816301696-84" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="media"
                                  constraintName="FK_MEDIA_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-56" author="yusssss">
+    <changeSet id="1755816301696-85" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="media"
                                  constraintName="FK_MEDIA_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-57" author="yusssss">
+    <changeSet id="1755816301696-86" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="user_verification_id" baseTableName="media"
                                  constraintName="FK_MEDIA_ON_USER_VERIFICATION" referencedColumnNames="id"
                                  referencedTableName="user_verifications"/>
     </changeSet>
-    <changeSet id="1755698768426-58" author="yusssss">
+    <changeSet id="1755816301696-87" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="notifications"
                                  constraintName="FK_NOTIFICATIONS_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-59" author="yusssss">
+    <changeSet id="1755816301696-88" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="recipient_id" baseTableName="notifications"
                                  constraintName="FK_NOTIFICATIONS_ON_RECIPIENT" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-60" author="yusssss">
+    <changeSet id="1755816301696-89" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="sender_id" baseTableName="notifications"
                                  constraintName="FK_NOTIFICATIONS_ON_SENDER" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-61" author="yusssss">
+    <changeSet id="1755816301696-90" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="notifications"
                                  constraintName="FK_NOTIFICATIONS_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-62" author="yusssss">
+    <changeSet id="1755816301696-91" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="pending_registrations"
                                  constraintName="FK_PENDING_REGISTRATIONS_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-63" author="yusssss">
+    <changeSet id="1755816301696-92" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="pending_registrations"
                                  constraintName="FK_PENDING_REGISTRATIONS_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-64" author="yusssss">
+    <changeSet id="1755816301696-93" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="sessions"
                                  constraintName="FK_SESSIONS_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-65" author="yusssss">
+    <changeSet id="1755816301696-94" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="device_id" baseTableName="sessions"
                                  constraintName="FK_SESSIONS_ON_DEVICE" referencedColumnNames="id"
                                  referencedTableName="devices"/>
     </changeSet>
-    <changeSet id="1755698768426-66" author="yusssss">
+    <changeSet id="1755816301696-95" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="sessions"
                                  constraintName="FK_SESSIONS_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-67" author="yusssss">
+    <changeSet id="1755816301696-96" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="universities"
+                                 constraintName="FK_UNIVERSITIES_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-97" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="universities"
+                                 constraintName="FK_UNIVERSITIES_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-98" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="users"
                                  constraintName="FK_USERS_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-68" author="yusssss">
+    <changeSet id="1755816301696-99" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="profile_picture_id" baseTableName="users"
                                  constraintName="FK_USERS_ON_PROFILE_PICTURE" referencedColumnNames="id"
                                  referencedTableName="media"/>
     </changeSet>
-    <changeSet id="1755698768426-69" author="yusssss">
+    <changeSet id="1755816301696-100" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="users"
                                  constraintName="FK_USERS_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-70" author="yusssss">
+    <changeSet id="1755816301696-101" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="user_communication_preferences"
                                  constraintName="FK_USER_COMMUNICATION_PREFERENCES_ON_CREATED_BY"
                                  referencedColumnNames="id" referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-71" author="yusssss">
+    <changeSet id="1755816301696-102" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="user_communication_preferences"
                                  constraintName="FK_USER_COMMUNICATION_PREFERENCES_ON_UPDATED_BY"
                                  referencedColumnNames="id" referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-72" author="yusssss">
+    <changeSet id="1755816301696-103" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_communication_preferences"
                                  constraintName="FK_USER_COMMUNICATION_PREFERENCES_ON_USER" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-73" author="yusssss">
+    <changeSet id="1755816301696-104" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="user_verifications"
                                  constraintName="FK_USER_VERIFICATIONS_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-74" author="yusssss">
+    <changeSet id="1755816301696-105" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="user_verifications"
                                  constraintName="FK_USER_VERIFICATIONS_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-75" author="yusssss">
+    <changeSet id="1755816301696-106" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_verifications"
                                  constraintName="FK_USER_VERIFICATIONS_ON_USER" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-76" author="yusssss">
+    <changeSet id="1755816301696-107" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="verification_document_id" baseTableName="user_verifications"
                                  constraintName="FK_USER_VERIFICATIONS_ON_VERIFICATION_DOCUMENT"
                                  referencedColumnNames="id" referencedTableName="media"/>
     </changeSet>
-    <changeSet id="1755698768426-77" author="yusssss">
+    <changeSet id="1755816301696-108" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="verified_by_id" baseTableName="user_verifications"
                                  constraintName="FK_USER_VERIFICATIONS_ON_VERIFIED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
-    <changeSet id="1755698768426-78" author="yusssss">
+    <changeSet id="1755816301696-109" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="authorities"
                                  constraintName="fk_authorıtıes_on_user" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1755816301696-110" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="address_id" baseTableName="users_addresses"
+                                 constraintName="fk_useadd_on_address" referencedColumnNames="id"
+                                 referencedTableName="addresses"/>
+    </changeSet>
+    <changeSet id="1755816301696-111" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="users_addresses"
+                                 constraintName="fk_useadd_on_user" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
 

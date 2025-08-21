@@ -11,8 +11,11 @@ import java.time.LocalDateTime;
 public class PhoneVerification extends UserVerification{
 
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+    @Column(name = "old_phone_number")
+    private String oldPhoneNumber;
+
+    @Column(name = "new_phone_number")
+    private String newPhoneNumber;
 
     @Column(name = "token")
     private String token;

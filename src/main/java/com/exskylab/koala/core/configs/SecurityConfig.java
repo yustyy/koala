@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/verifyRegistrationToken").permitAll()
                         .requestMatchers("/api/auth/completeRegistration").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/refreshToken").authenticated()
+                        .requestMatchers("/api/auth/refreshToken").permitAll()
                         .requestMatchers("/api/auth/logout").authenticated()
 
 

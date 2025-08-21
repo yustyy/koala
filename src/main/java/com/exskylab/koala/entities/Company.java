@@ -42,6 +42,10 @@ public class Company extends BaseEntity{
     @Column(name = "description")
     private String description;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    private Address address;
+
     @Column(name = "tax_number")
     private String taxNumber;
 

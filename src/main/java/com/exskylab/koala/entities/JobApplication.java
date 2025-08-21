@@ -39,8 +39,8 @@ public class JobApplication extends BaseEntity{
     @Column(name = "notes")
     private String notes;
 
-    @OneToOne(mappedBy = "jobApplication", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private JobAssignment jobAssignment;
+    @OneToOne(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private JobAssignment assignment;
 
 
 

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -41,12 +42,6 @@ public class Job extends BaseEntity{
     @Column(name = "location")
     private String duties;
 
-    @Column(name = "locationLatitude")
-    private Float locationLatitude;
-
-    @Column(name = "locationLongitude")
-    private Float locationLongitude;
-
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Address address;
 
@@ -76,5 +71,11 @@ public class Job extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     private JobStatus status;
+
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<JobApplication> applications;
+
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<JobAssignment> assignments;
 
 }

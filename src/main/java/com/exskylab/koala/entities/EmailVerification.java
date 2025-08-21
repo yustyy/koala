@@ -10,8 +10,11 @@ import java.time.LocalDateTime;
 @DiscriminatorValue("EMAIL")
 public class EmailVerification extends UserVerification {
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "old_email")
+    private String oldEmail;
+
+    @Column(name = "new_email")
+    private String newEmail;
 
     @Column(name = "token")
     private String token;

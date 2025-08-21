@@ -3,103 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-posta Adresinizi Doğrulayın - Koala</title>
+    <title>Koala - E-mail Doğrulama</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Manrope:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; line-height: 1.6; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-        .header { background: linear-gradient(135deg, #7CB342, #8BC34A); padding: 40px 20px; text-align: center; color: white; }
-        .logo { max-width: 200px; height: auto; margin-bottom: 20px; }
-        .content { padding: 40px 30px; color: #333333; }
-        .verification-title { font-size: 28px; font-weight: bold; color: #2E7D32; margin-bottom: 20px; text-align: center; }
-        .user-info { background-color: #E8F5E8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #7CB342; }
-        .cta-button { display: inline-block; background: linear-gradient(135deg, #7CB342, #8BC34A); color: white !important; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; transition: transform 0.2s; font-size: 16px; }
-        .cta-button:hover { transform: translateY(-2px); }
-        .verification-box { background-color: #FFF3E0; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #FF9800; text-align: center; }
-        .security-note { background-color: #E3F2FD; padding: 20px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #2196F3; }
-        .footer { background-color: #f8f8f8; padding: 30px; text-align: center; color: #666666; font-size: 14px; }
-        .social-links { margin: 20px 0; }
-        .social-links a { color: #7CB342; text-decoration: none; margin: 0 10px; }
-        @media (max-width: 600px) {
-            .content { padding: 20px 15px; }
-            .verification-title { font-size: 24px; }
-            .cta-button { padding: 12px 25px; font-size: 14px; }
+        body {
+            font-family: "DM Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        @media screen and (max-width: 680px) {
+            .email-container, .content-table {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
         }
     </style>
 </head>
-<body>
-<div class="container">
-    <!-- Header -->
-    <div class="header">
-        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/koala-WXCGPO5pAIHDqa0Y0Zd5i008uFuQKw.jpeg" alt="Koala Logo" class="logo">
-        <h1 style="margin: 0; font-size: 24px;">E-posta Doğrulama</h1>
-    </div>
+<body style="margin: 0; padding: 0; background-color: #2a2a2a;">
+<center>
+    <!-- Ana Konteyner Tablosu -->
+    <table class="email-container" border="0" cellpadding="0" cellspacing="0" width="680" style="max-width: 680px; margin: 0 auto; background-image: url('https://cdn.iskoala.com/images/f7fad770-0fe3-4590-8c02-a9666288c697-koala-mail-background.png'); background-size: cover; background-position: center; border-radius: 24px;">
+        <tr>
+            <td align="center" style="padding: 20px;">
+                <!-- İçerik Tablosu -->
+                <table class="content-table" border="0" cellpadding="0" cellspacing="0" width="100%">
 
-    <!-- Main Content -->
-    <div class="content">
-        <h2 class="verification-title" th:text="|Merhaba ${firstName}! ✉️|">Merhaba ${firstName}! ✉️</h2>
+                    <!-- 1. BÖLÜM: HEADER -->
+                    <tr>
+                        <td style="padding: 20px 12px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td align="left" width="50%">
+                                        <img src="https://cdn.iskoala.com/images/b70a6f9c-6508-48f2-be47-154b6a39f917-koala-mail-logo.png" alt="Koala Logo" height="70" style="height: 70px; width: auto; display: block;">
+                                    </td>
+                                    <td align="right" width="50%">
+                                        <img src="https://cdn.iskoala.com/images/4568fb67-479d-48f2-9920-4ad69db9a446-koala-mail-text.png" alt="KOALA" height="45" style="height: 45px; width: auto; display: block;">
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
 
-        <p style="font-size: 18px; text-align: center; color: #555;">
-            Koala'ya kaydolduğunuz için teşekkür ederiz! Hesabınızı aktifleştirmek için e-posta adresinizi doğrulamanız gerekmektedir.
-        </p>
+                    <!-- 2. BÖLÜM: ANA İÇERİK -->
+                    <tr>
+                        <td style="padding: 0 20px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border-radius: 24px; text-align: center;">
+                                <tr>
+                                    <td style="padding: 40px 20px;">
+                                        <h1 style='font-family: "DM Sans", sans-serif; font-size: 30px; font-weight: 600; color: #282828; margin: 0 0 20px 0;'>Merhaba <span th:text="${firstName}">[İsim]</span>!<br>E-mailini doğrula!</h1>
+                                        <p style='font-family: "DM Sans", sans-serif; font-size: 20px; font-weight: 400; color: #4D4D4D; line-height: 1.5; margin: 0 0 30px 0;'>Koala ile iş dünyasına katılmayı<br> tercih ettiğin için teşekkürler</p>
 
-        <div class="user-info">
-            <h3 style="margin-top: 0; color: #2E7D32;">Kayıt Bilgileriniz:</h3>
-            <p><strong>Ad Soyad:</strong> <span th:text="${firstName} + ' ' + ${lastName}">Ad Soyad</span></p>
-            <p style="margin-bottom: 0;"><strong>Durum:</strong> E-posta doğrulama bekleniyor</p>
-        </div>
+                                        <!-- Doğrulama Butonu -->
+                                        <a th:href="${verificationLink}" href="#" target="_blank" style="display: inline-block; background-color: #F15757; color: white; font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 16px; padding: 12px 40px; border-radius: 8px; text-decoration: none; margin-bottom: 20px;">Doğrulamak için tıkla</a>
 
-        <div class="verification-box">
-            <h3 style="margin-top: 0; color: #E65100;">🔐 E-posta Adresinizi Doğrulayın</h3>
-            <p style="margin-bottom: 25px; font-size: 16px;">
-                Hesabınızı aktifleştirmek ve Koala'nın tüm özelliklerinden yararlanmak için aşağıdaki butona tıklayın:
-            </p>
-            <div style="text-align: center;">
-                <a th:href="${verificationLink}" href="#" class="cta-button">
-                    ✅ E-posta Adresimi Doğrula
-                </a>
-            </div>
-        </div>
+                                        <p style='font-family: "DM Sans", sans-serif; font-size: 15px; color: #4D4D4D; line-height: 1.5; margin: 0;'>Buton çalışmıyorsa linki tarayıcıya kopyala :<br><span th:text="${verificationLink}" style="color: #F15757;">-</span></p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
 
-        <div class="security-note">
-            <h4 style="margin-top: 0; color: #1976D2;">🛡️ Güvenlik Notu:</h4>
-            <ul style="margin-bottom: 0; text-align: left;">
-                <li>Bu doğrulama linki sadece 24 saat geçerlidir</li>
-                <li>Link sadece bir kez kullanılabilir</li>
-                <li>Bu e-postayı siz talep etmediyseniz, güvenle silebilirsiniz</li>
-                <li>Şüpheli bir durum fark ederseniz, hemen bizimle iletişime geçin</li>
-            </ul>
-        </div>
+                    <!-- 3. BÖLÜM: DESTEK -->
+                    <tr>
+                        <td style="padding: 20px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border-radius: 24px; text-align: center;">
+                                <tr>
+                                    <td style="padding: 40px 20px;">
+                                        <p style='font-family: "DM Sans", sans-serif; font-size: 18px; color: #4D4D4D; margin: 0 0 20px 0;'>Herhangi bir sorun yaşarsan bize ulaşmaktan çekinme!</p>
+                                        <a href="mailto:info@iskoala.com" style='font-family: "DM Sans", sans-serif; font-size: 14px; color: #4D4D4D; text-decoration: underline; font-weight: 600; margin: 0 10px;'>info@iskoala.com</a>
+                                        <a href="https://www.iskoala.com/faq" target="_blank" style='font-family: "DM Sans", sans-serif; font-size: 14px; color: #4D4D4D; text-decoration: underline; font-weight: 600; margin: 0 10px;'>iskoala.com/faq</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
 
-        <div style="background-color: #F3E5F5; padding: 20px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #9C27B0;">
-            <h4 style="margin-top: 0; color: #6A1B9A;">❓ Butona tıklayamıyor musunuz?</h4>
-            <p style="margin-bottom: 10px;">Aşağıdaki linki kopyalayıp tarayıcınızın adres çubuğuna yapıştırabilirsiniz:</p>
-            <p style="word-break: break-all; background-color: #fff; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; margin-bottom: 0;">
-                <span th:text="${verificationLink}">verification-link-here</span>
-            </p>
-        </div>
+                    <!-- 4. BÖLÜM: FOOTER -->
+                    <tr>
+                        <td style="padding: 40px 32px; text-align: center;">
+                            <p style='font-family: "DM Sans", sans-serif; font-size: 12px; color: #1F1F1F; margin: 0 0 12px 0;'>Bizi takip edin :</p>
 
-        <p style="text-align: center; font-size: 16px; color: #555;">
-            Herhangi bir sorunuz varsa, destek ekibimiz size yardımcı olmaktan mutluluk duyar.<br>
-            <a href="mailto:info@iskoala.com" style="color: #7CB342;">info@iskoala.com</a>
-        </p>
-    </div>
+                            <!-- Sosyal Medya İkonları (Tablo ile) -->
+                            <table border="0" cellpadding="0" cellspacing="0" role="presentation" align="center" style="margin-bottom: 20px;">
+                                <tr>
+                                    <td style="padding: 0 10px;"><a href="#" target="_blank"><img src="https://cdn.iskoala.com/images/7df3c14c-1f8c-46a1-835a-0187f0548fd4-facebook.png" alt="Facebook" width="28" style="display: block; border: 0; width: 28px; height: 28px;"></a></td>
+                                    <td style="padding: 0 10px;"><a href="#" target="_blank"><img src="https://cdn.iskoala.com/images/136a1e61-9734-4a2d-99ee-42bdaceb05f9-instagram.png" alt="Instagram" width="28" style="display: block; border: 0; width: 28px; height: 28px;"></a></td>
+                                    <td style="padding: 0 10px;"><a href="#" target="_blank"><img src="https://cdn.iskoala.com/images/4b5d50e2-ba44-4ffe-a5ad-5c21c6112f3a-x.png" alt="X" width="28" style="display: block; border: 0; width: 28px; height: 28px;"></a></td>
+                                    <td style="padding: 0 10px;"><a href="#" target="_blank"><img src="https://cdn.iskoala.com/images/07af8e49-75d4-465f-93e2-3e7b9b3120f8-youtube.png" alt="YouTube" width="28" style="display: block; border: 0; width: 28px; height: 28px;"></a></td>
+                                    <td style="padding: 0 10px;"><a href="#" target="_blank"><img src="https://cdn.iskoala.com/images/6e6daa18-c622-4940-833f-1dda3b4a43f0-linkedin.png" alt="LinkedIn" width="28" style="display: block; border: 0; width: 28px; height: 28px;"></a></td>
+                                </tr>
+                            </table>
 
-    <!-- Footer -->
-    <div class="footer">
-        <p style="margin-top: 0;"><strong>Koala - İş Bulma Platformu</strong><br>Güvenli ve hızlı iş bulma deneyimi</p>
-        <div class="social-links">
-            <a href="https://iskoala.com">Web Sitesi</a> |
-            <a href="https://iskoala.com/about">Hakkımızda</a> |
-            <a href="https://iskoala.com/contact">İletişim</a> |
-            <a href="https://iskoala.com/privacy">Gizlilik</a>
-        </div>
-        <p style="font-size: 12px; color: #999; margin-bottom: 0;">
-            Bu e-posta <span th:text="${firstName} + ' ' + ${lastName}">Ad Soyad</span> için gönderilmiştir.<br>
-            Bu bir sistem e-postasıdır, lütfen yanıtlamayın.
-        </p>
-    </div>
-</div>
+                            <div class="address" style='font-family: "DM Sans", sans-serif; font-size: 14px; color: #1F1F1F; line-height: 1.5; margin: 0 0 20px 0;'>
+                                YTÜ Teknopark Davutpaşa Kampüsü<br> İstanbul, Türkiye
+                            </div>
+                        </td>
+                    </tr>
 
+                </table>
+            </td>
+        </tr>
+    </table>
+</center>
+
+<!-- Takip Pikseli -->
 <img th:if="${trackingUrl != null}" th:src="${trackingUrl}" width="1" height="1" border="0" alt="" style="position:absolute; visibility:hidden; display:block;"/>
 </body>
 </html>

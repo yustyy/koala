@@ -43,9 +43,6 @@ public class User extends BaseEntity implements UserDetails {
     @JoinColumn(name = "profile_picture_id", referencedColumnName = "id")
     private Image profilePicture;
 
-    @Column(name ="preferred_language")
-    private String preferredLanguage;
-
     @JsonIgnore
     @Column(name = "password")
     private String password;
@@ -80,11 +77,16 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "identity_verified")
     private boolean identityVerified;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "users_addresses",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "address_id")
+    )
     private List<Address> addresses;
 
-    @Column(name = "location_permission")
-    private Boolean locationPermission;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Education> educations;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserVerification> verifications;

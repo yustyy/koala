@@ -31,7 +31,7 @@ public class AuthController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("/startRegistration")
+    @PostMapping("/start-registration")
     public ResponseEntity<SuccessResult> startRegistration(@RequestBody @Valid AuthStartRegistrationDto authStartRegistrationDto,
                                                     HttpServletRequest request){
         authService.startRegistration(authStartRegistrationDto);
@@ -41,7 +41,7 @@ public class AuthController {
 
     }
 
-    @PostMapping("/verifyRegistrationToken")
+    @PostMapping("/verify-registration-token")
     public ResponseEntity<SuccessDataResult<AuthSetPasswordDto>>
                             verifyRegistrationToken(@RequestBody @Valid AuthVerifyRegistrationTokenDto authVerifyRegistrationTokenDto,
                                                     HttpServletRequest request){
@@ -55,7 +55,7 @@ public class AuthController {
 
     }
 
-    @PostMapping("/completeRegistration")
+    @PostMapping("/complete-registration")
     public ResponseEntity<SuccessDataResult<TokenResponseDto>> completeRegistration(@RequestBody @Valid AuthCompleteRegistrationDto authCompleteRegistrationDto,
                                                                                     HttpServletRequest request){
 
