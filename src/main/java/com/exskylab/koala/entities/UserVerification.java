@@ -32,6 +32,9 @@ public abstract class UserVerification extends BaseEntity{
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "verified_at")
+    private LocalDateTime verifiedAt;
+
     @OneToMany(mappedBy = "userVerification", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VerificationDocument> verificationDocuments;
 

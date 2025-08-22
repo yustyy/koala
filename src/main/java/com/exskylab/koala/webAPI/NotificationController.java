@@ -8,7 +8,7 @@ import java.util.Base64;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/notifications")
 public class NotificationController {
 
     private final NotificationService notificationService;

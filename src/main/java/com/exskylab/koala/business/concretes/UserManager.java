@@ -299,6 +299,25 @@ public class UserManager implements UserService {
     }
 
     @Override
+    public void updatePhoneVerification(User user, String newPhoneNumber) {
+        logger.info("Updating phone verification for user with ID: {}", user.getId());
+        user.setPhoneNumber(newPhoneNumber);
+        user.setPhoneVerified(true);
+        userDao.save(user);
+        logger.info("Phone verification updated successfully for user with ID: {}", user.getId());
+    }
+
+    @Override
+    public void updateEmailVerification(User user, String newEmail) {
+        logger.info("Updating email verification for user with ID: {}", user.getId());
+        user.setEmail(newEmail);
+        user.setEmailVerified(true);
+        userDao.save(user);
+        logger.info("Email verification updated successfully for user with ID: {}", user.getId());
+
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return null;
     }

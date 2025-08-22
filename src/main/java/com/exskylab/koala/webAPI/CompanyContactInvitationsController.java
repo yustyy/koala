@@ -1,0 +1,64 @@
+package com.exskylab.koala.webAPI;
+
+import com.exskylab.koala.business.abstracts.CompanyContactInvitationService;
+import com.exskylab.koala.core.constants.CompanyContactInvitationMessages;
+import com.exskylab.koala.core.dtos.companyContactInvitation.request.AnswerToContactInvitationDto;
+import com.exskylab.koala.core.dtos.companyContactInvitation.response.GetCompanyContactInvitationDto;
+import com.exskylab.koala.core.mappers.CompanyContactInvitationMapper;
+import com.exskylab.koala.core.utilities.results.SuccessDataResult;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/company-contact-invitations")
+public class CompanyContactInvitationsController {
+
+    private final CompanyContactInvitationService companyContactInvitationService;
+    private final CompanyContactInvitationMapper companyContactInvitationMapper;
+
+
+    public CompanyContactInvitationsController(CompanyContactInvitationService companyContactInvitationService, CompanyContactInvitationMapper companyContactInvitationMapper) {
+        this.companyContactInvitationService = companyContactInvitationService;
+        this.companyContactInvitationMapper = companyContactInvitationMapper;
+    }
+
+
+    @PatchMapping("/{invitationId}")
+    public ResponseEntity<SuccessDataResult<GetCompanyContactInvitationDto>> answerToInvitation(@PathVariable UUID invitationId, @RequestBody AnswerToContactInvitationDto answerToContactInvitationDto){
+
+        var result = companyContactInvitationService.answerToInvitation(invitationId, answerToContactInvitationDto.isAccepted());
+
+        var dto = companyContactInvitationMapper.toGetCompanyContactInvitationDto(result);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new SuccessDataResult<>(
+                        dto,
+                        CompanyContactInvitationMessages.INVITATION_ANSWERED_SUCCESS,
+                        HttpStatus.OK
+                        ));
+
+    }
+
+
+    @GetMapping("/{invitationId}")
+    public ResponseEntity<SuccessDataResult<GetCompanyContactInvitationDto>> getInvitation(@PathVariable UUID invitationId){
+        var result = companyContactInvitationService.getInvitationById(invitationId);
+
+        var dto = companyContactInvitationMapper.toGetCompanyContactInvitationDto(result);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new SuccessDataResult<>(
+                        dto,
+                        CompanyContactInvitationMessages.INVITATION_FETCHED_SUCCESS,
+                        HttpStatus.OK
+                ));
+
+
+    }
+
+
+
+}

@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Validated
 @RestController
-@RequestMapping("/api/images")
+@RequestMapping("/images")
 public class ImagesController {
 
     private final ImageService imageService;
@@ -31,7 +31,7 @@ public class ImagesController {
 
 
 
-    @PostMapping("/uploadImage")
+    @PostMapping("/")
     public ResponseEntity<SuccessDataResult<UploadImageResponseDto>> uploadImage(@RequestParam("image") MultipartFile image){
 
         Image responseImage = imageService.uploadImage(image);
@@ -47,7 +47,7 @@ public class ImagesController {
     }
 
 
-    @DeleteMapping("/deleteImage/{imageId}")
+    @DeleteMapping("/{imageId}")
     public ResponseEntity<SuccessResult> deleteImage(@PathVariable UUID imageId) {
 
         imageService.deleteImage(imageId);
