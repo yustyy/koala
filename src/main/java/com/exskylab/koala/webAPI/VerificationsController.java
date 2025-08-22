@@ -23,7 +23,7 @@ public class VerificationsController {
 
 
     @PostMapping("/{id}")
-    public ResponseEntity<SuccessResult> verify(@RequestParam UUID id, @RequestBody VerificationRequestDto verificationRequestDto){
+    public ResponseEntity<SuccessResult> verify(@PathVariable UUID id, @RequestBody VerificationRequestDto verificationRequestDto){
 
         userVerificationService.verify(id, verificationRequestDto);
 

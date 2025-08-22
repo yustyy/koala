@@ -2,7 +2,7 @@ package com.exskylab.koala.business.concretes;
 
 import com.exskylab.koala.business.abstracts.DeviceService;
 import com.exskylab.koala.business.abstracts.NotificationService;
-import com.exskylab.koala.business.abstracts.UserService;
+import com.exskylab.koala.business.abstracts.SecurityService;
 import com.exskylab.koala.core.constants.NotificationMessages;
 import com.exskylab.koala.core.dtos.notification.request.*;
 import com.exskylab.koala.core.exceptions.*;
@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,37 +28,45 @@ public class NotificationManager implements NotificationService {
 
     private final NotificationDao notificationDao;
     private final NotificationProducerService notificationProducerService;
-    private final UserService userService;
     private final Logger logger = LoggerFactory.getLogger(NotificationManager.class);
     private final ObjectMapper objectMapper;
     private final DeviceService deviceService;
+    private final SecurityService securityService;
 
     public NotificationManager(NotificationDao notificationDao,
-                               @Lazy NotificationProducerService notificationProducerService,
-                               @Lazy UserService userService, ObjectMapper objectMapper, DeviceService deviceService) {
+                                NotificationProducerService notificationProducerService,
+                               DeviceService deviceService,
+                                 ObjectMapper objectMapper,
+                               SecurityService securityService) {
         this.notificationDao = notificationDao;
         this.notificationProducerService = notificationProducerService;
-        this.userService = userService;
         this.objectMapper = objectMapper;
         this.deviceService = deviceService;
+        this.securityService = securityService;
     }
 
     @Override
     @Transactional
     public Notification sendEmail(SendEmailDto sendEmailDto, DispatchPriority dispatchPriority, boolean isSystemMail) {
-        logger.info("Sending email notification to userId: {} destinationEmail: {}", sendEmailDto.getRecipientId(), sendEmailDto.getDestinationEmail());
+
+        String recipientInfo;
+        if (sendEmailDto.getRecipient() != null) {
+            recipientInfo = "userId: " + sendEmailDto.getRecipient().getId();
+        } else {
+            recipientInfo = "external address";
+        }
+
+        logger.info("Sending email notification to {} destinationEmail: {}", recipientInfo, sendEmailDto.getDestinationEmail());
+
 
         User sender;
         if (isSystemMail) {
-            sender = userService.getSystemUser();
+            sender = securityService.getSystemUser();
         } else {
-            sender = userService.getAuthenticatedUser();
+            sender = securityService.getAuthenticatedUser();
         }
 
-        User recipient = null;
-        if (sendEmailDto.getRecipientId() != null) {
-            recipient = userService.getById(sendEmailDto.getRecipientId());
-        }
+
 
         String finalTemplateName;
         Map<String, Object> finalTemplateParameters;
@@ -74,13 +81,13 @@ public class NotificationManager implements NotificationService {
             finalTemplateParameters = Map.of("htmlContent", sendEmailDto.getHtmlBody());
             finalSubject = sendEmailDto.getSubject();
         } else {
-            logger.error("Email notification could not be queued for userId: {}. Cause: {}",
-                    sendEmailDto.getRecipientId(), NotificationMessages.TEMPLATE_OR_SUBJECT_NOT_PROVIDED);
+            logger.error("Email notification could not be queued for {}. Cause: {}",
+                    recipientInfo, NotificationMessages.TEMPLATE_OR_SUBJECT_NOT_PROVIDED);
             throw new NotificationDispatchException(NotificationMessages.TEMPLATE_OR_SUBJECT_NOT_PROVIDED);
         }
 
         Notification notification = new Notification();
-        notification.setRecipient(recipient);
+        notification.setRecipient(sendEmailDto.getRecipient());
         notification.setSender(sender);
         notification.setChannel(NotificationChannel.EMAIL);
         notification.setCategory(sendEmailDto.getCategory());
@@ -91,7 +98,7 @@ public class NotificationManager implements NotificationService {
         try {
             notification.setTemplateParameters(objectMapper.writeValueAsString(finalTemplateParameters));
         } catch (JsonProcessingException e) {
-            logger.error("Error while serializing template parameters for email with userId: {} ErrorMessage: {}", sendEmailDto.getRecipientId(), e.getMessage());
+            logger.error("Error while serializing template parameters for email with {} ErrorMessage: {}", recipientInfo, e.getMessage());
             throw new TemplateParametersSerializationException("{parameters.could.not.serialize}");
         }
 
@@ -118,19 +125,15 @@ public class NotificationManager implements NotificationService {
     @Override
     @Transactional
     public Notification sendSms(SendSmsDto sendSmsDto, DispatchPriority dispatchPriority, boolean isSystemSms) {
-        logger.info("Sending SMS notification to userId: {} destinationPhoneNumber: {}", sendSmsDto.getRecipientId(), sendSmsDto.getDestinationPhoneNumber());
+        logger.info("Sending SMS notification to userId: {} destinationPhoneNumber: {}", sendSmsDto.getRecipient().getId(), sendSmsDto.getDestinationPhoneNumber());
 
         User sender;
         if (isSystemSms) {
-            sender = userService.getSystemUser();
+            sender = securityService.getSystemUser();
         } else {
-            sender = userService.getAuthenticatedUser();
+            sender = securityService.getAuthenticatedUser();
         }
 
-        User recipient = null;
-        if (sendSmsDto.getRecipientId() != null) {
-            recipient = userService.getById(sendSmsDto.getRecipientId());
-        }
 
         String finalTemplateName;
         Map<String, Object> finalTemplateParameters;
@@ -143,13 +146,13 @@ public class NotificationManager implements NotificationService {
             finalTemplateParameters = Map.of("textContent", sendSmsDto.getMessageBody());
         } else {
             logger.error("SMS notification could not be queued for userId: {}. Cause: {}",
-                    sendSmsDto.getRecipientId(), NotificationMessages.TEMPLATE_OR_MESSAGE_BODY_NOT_PROVIDED);
+                    sendSmsDto.getRecipient().getId(), NotificationMessages.TEMPLATE_OR_MESSAGE_BODY_NOT_PROVIDED);
             throw new NotificationDispatchException(NotificationMessages.TEMPLATE_OR_MESSAGE_BODY_NOT_PROVIDED);
         }
 
 
         Notification notification = new Notification();
-        notification.setRecipient(recipient);
+        notification.setRecipient(sendSmsDto.getRecipient());
         notification.setSender(sender);
         notification.setChannel(NotificationChannel.SMS);
         notification.setCategory(sendSmsDto.getCategory());
@@ -159,7 +162,7 @@ public class NotificationManager implements NotificationService {
         try {
             notification.setTemplateParameters(objectMapper.writeValueAsString(finalTemplateParameters));
         } catch (JsonProcessingException e) {
-            logger.error("Error while serializing template parameters for email with userId: {} ErrorMessage: {}", sendSmsDto.getRecipientId(), e.getMessage());
+            logger.error("Error while serializing template parameters for email with userId: {} ErrorMessage: {}", sendSmsDto.getRecipient().getId(), e.getMessage());
             throw new TemplateParametersSerializationException("{parameters.could.not.serialize}");
         }
 
@@ -186,18 +189,18 @@ public class NotificationManager implements NotificationService {
     @Transactional
     public void sendPushToUser(SendPushToUserDto sendPushToUserDto, DispatchPriority dispatchPriority, boolean isSystemPush) {
         logger.info("Dispatching push notification to userId: {} with title: {}",
-                sendPushToUserDto.getRecipientId(), sendPushToUserDto.getTitle());
+                sendPushToUserDto.getRecipient().getId(), sendPushToUserDto.getTitle());
 
-        if (sendPushToUserDto.getRecipientId() == null) {
+        if (sendPushToUserDto.getRecipient() == null) {
             throw new ArgumentCannotBeNullException(NotificationMessages.USER_ID_CANNOT_BE_NULL);
         }
 
-        User sender = isSystemPush ? userService.getSystemUser(): userService.getAuthenticatedUser();
-        User recipient = userService.getById(sendPushToUserDto.getRecipientId());
+        User sender = isSystemPush ? securityService.getSystemUser(): securityService.getAuthenticatedUser();
+        User recipient = sendPushToUserDto.getRecipient();
 
-        List<Device> usersDevices = deviceService.getDevicesByUserIdAndPushTokenNotNull(sendPushToUserDto.getRecipientId());
+        List<Device> usersDevices = deviceService.getDevicesByUserIdAndPushTokenNotNull(recipient.getId());
         if (usersDevices.isEmpty()) {
-            logger.warn("No devices found for userId: {}. Push notification wont be sent.", sendPushToUserDto.getRecipientId());
+            logger.warn("No devices found for userId: {}. Push notification wont be sent.", recipient.getId());
             return;
         }
 
@@ -238,7 +241,7 @@ public class NotificationManager implements NotificationService {
             try{
                 notification.setTemplateParameters(objectMapper.writeValueAsString(finalTemplateParameters));
             }catch (JsonProcessingException e){
-                logger.error("Error while serializing template parameters for push notification with userId: {} ErrorMessage: {}", sendPushToUserDto.getRecipientId(), e.getMessage());
+                logger.error("Error while serializing template parameters for push notification with userId: {} ErrorMessage: {}", recipient.getId(), e.getMessage());
                 throw new TemplateParametersSerializationException("{parameters.could.not.serialize}");
             }
 

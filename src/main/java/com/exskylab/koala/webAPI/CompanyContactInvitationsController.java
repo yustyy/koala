@@ -26,7 +26,7 @@ public class CompanyContactInvitationsController {
     }
 
 
-    @PatchMapping("/{invitationId}")
+    @PostMapping("/{invitationId}")
     public ResponseEntity<SuccessDataResult<GetCompanyContactInvitationDto>> answerToInvitation(@PathVariable UUID invitationId, @RequestBody AnswerToContactInvitationDto answerToContactInvitationDto){
 
         var result = companyContactInvitationService.answerToInvitation(invitationId, answerToContactInvitationDto.isAccepted());

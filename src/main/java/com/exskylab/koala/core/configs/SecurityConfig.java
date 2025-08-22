@@ -3,6 +3,7 @@ package com.exskylab.koala.core.configs;
 import com.exskylab.koala.core.security.SessionAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,17 +39,37 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         //auth endpoints
-                        .requestMatchers("/api/auth/startRegistration").permitAll()
-                        .requestMatchers("/api/auth/verifyRegistrationToken").permitAll()
-                        .requestMatchers("/api/auth/completeRegistration").permitAll()
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/refreshToken").permitAll()
-                        .requestMatchers("/api/auth/logout").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/auth/start-registration").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/auth/verify-registration-token").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/auth/complete-registration").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/auth/refreshToken").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/auth/logout").authenticated()
 
+                        //companycontactinvitation endpoints
+                        .requestMatchers(HttpMethod.POST,"/company-contact-invitations/{invitationId}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/company-contact-invitations/{invitationId}").hasAnyRole("USER", "ADMIN")
 
+                        //company endpoints
+                        .requestMatchers(HttpMethod.POST,"/companies/").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/companies/{companyId}/contact-invitations").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/companies/{companyId}/contact-invitations").hasAnyRole("ADMIN")
 
-                        .requestMatchers(("/api/notifications/track/**")).permitAll()
+                        //image endpoints
+                        .requestMatchers(HttpMethod.POST,"/images/").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/images/{imageId}").hasAnyRole("USER", "ADMIN")
 
+                        //notification endpoints
+                        .requestMatchers(HttpMethod.GET,"/notifications/track/**").permitAll()
+
+                        //user endpoints
+                        .requestMatchers(HttpMethod.GET, "/users/me").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/users/me").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/users/me/password").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/users/me/profile-picture").hasAnyRole("USER", "ADMIN")
+
+                        //verification endpoints
+                        .requestMatchers(HttpMethod.POST, "/user-verifications/{id}").hasAnyRole("USER", "ADMIN")
 
                         .anyRequest().authenticated()
                 )

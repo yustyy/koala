@@ -1,5 +1,6 @@
 package com.exskylab.koala.business.concretes;
 
+import com.exskylab.koala.business.abstracts.SecurityService;
 import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.business.abstracts.UserVerificationService;
 import com.exskylab.koala.core.constants.UserVerificationMessages;
@@ -25,12 +26,14 @@ public class UserVerificationManager implements UserVerificationService {
 
     private final UserVerificationDao userVerificationDao;
     private final UserService userService;
+    private final SecurityService securityService;
 
     private final Logger logger = LoggerFactory.getLogger(UserVerificationManager.class);
 
-    public UserVerificationManager(UserVerificationDao userVerificationDao, UserService userService) {
+    public UserVerificationManager(UserVerificationDao userVerificationDao, UserService userService, SecurityService securityService) {
         this.userVerificationDao = userVerificationDao;
         this.userService = userService;
+        this.securityService = securityService;
     }
 
 
@@ -44,7 +47,7 @@ public class UserVerificationManager implements UserVerificationService {
             return new UserVerificationNotFoundException(UserVerificationMessages.USER_VERIFICATION_NOT_FOUND_BY_ID);
         });
 
-        User currentUser = userService.getAuthenticatedUser();
+        User currentUser = securityService.getAuthenticatedUser();
         if (!userVerification.getUser().getId().equals(currentUser.getId())) {
             logger.error("Verification ID: {} does not belong to the authenticated user", verificationId);
             throw new UserVerificationNotAssociatedWithUserException(UserVerificationMessages.VERIFICATION_NOT_ASSOCIATED_WITH_USER);

@@ -1,5 +1,6 @@
 package com.exskylab.koala.core.dtos.user.response;
 
+import com.exskylab.koala.entities.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,7 @@ public class UserMeResponseDto {
 
     private LocalDate birthDate;
 
-    private String gender;
+    private Gender gender;
 
     private String tcIdentityNumber;
 

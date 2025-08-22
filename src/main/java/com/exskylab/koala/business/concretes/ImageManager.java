@@ -1,6 +1,7 @@
 package com.exskylab.koala.business.concretes;
 
 import com.exskylab.koala.business.abstracts.ImageService;
+import com.exskylab.koala.business.abstracts.SecurityService;
 import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.core.configs.r2.FolderType;
 import com.exskylab.koala.core.constants.ImageMessages;
@@ -26,14 +27,14 @@ public class ImageManager implements ImageService {
 
     private final ImageDao imageDao;
     private final R2StorageService r2StorageService;
-    private final UserService userService;
+    private final SecurityService securityService;
     private final static Logger logger = LoggerFactory.getLogger(ImageManager.class);
 
 
-    public ImageManager(ImageDao imageDao, R2StorageService r2StorageService, UserService userService) {
+    public ImageManager(ImageDao imageDao, R2StorageService r2StorageService, SecurityService securityService) {
         this.imageDao = imageDao;
         this.r2StorageService = r2StorageService;
-        this.userService = userService;
+        this.securityService = securityService;
     }
 
 
@@ -85,7 +86,7 @@ public class ImageManager implements ImageService {
             throw new ImageUploadError(ImageMessages.IMAGE_NOT_FOUND_ERROR);
         }
 
-        User user = userService.getAuthenticatedUser();
+        User user = securityService.getAuthenticatedUser();
         if (!image.get().getCreatedBy().getId().equals(user.getId()) && !user.getAuthorities().contains(Role.ROLE_ADMIN)) {
             logger.error("Image deletion failed: User {} does not have permission to delete image with ID {}. Image creator ID: {}", user.getId(), imageId, image.get().getCreatedBy().getId());
             throw new ImageUploadError(ImageMessages.IMAGE_PERMISSION_ERROR);

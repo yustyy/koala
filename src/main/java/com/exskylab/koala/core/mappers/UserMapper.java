@@ -34,13 +34,13 @@ public class UserMapper {
         userDto.setLastName(user.getLastName());
         userDto.setEmail(user.getEmail());
         userDto.setProfilePictureUrl(user.getProfilePicture() != null ? r2Properties.getPublicUrl()+"/"+user.getProfilePicture().getFileUrl() : null);
-        userDto.setPhoneNumber(user.getPhoneNumber());
-        userDto.setBirthDate(user.getBirthDate());
-        userDto.setGender(user.getGender().toString());
-        userDto.setTcIdentityNumber(user.getTcIdentityNumber());
-        userDto.setAbout(user.getAbout());
-        userDto.setQualifications(user.getQualifications());
-        userDto.setInterests(user.getInterests());
+        userDto.setPhoneNumber(user.getPhoneNumber() != null ? user.getPhoneNumber() : null);
+        userDto.setBirthDate(user.getBirthDate() != null ? user.getBirthDate() : null);
+        userDto.setGender(user.getGender() != null ? user.getGender() : null);
+        userDto.setTcIdentityNumber(user.getTcIdentityNumber() != null ? user.getTcIdentityNumber() : null);
+        userDto.setAbout(user.getAbout() != null ? user.getAbout() : null);
+        userDto.setQualifications(user.getQualifications() != null ? user.getQualifications() : null);
+        userDto.setInterests(user.getInterests() != null ? user.getInterests() : null);
         return userDto;
 
     }

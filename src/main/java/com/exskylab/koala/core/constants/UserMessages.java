@@ -12,7 +12,7 @@ public class UserMessages {
     public static final String IDENTITY_VERIFIED_CANNOT_CHANGE_FIRST_NAME = "{user.identity.verified.cannot.change.first.name}";
     public static final String IDENTITY_VERIFIED_CANNOT_CHANGE_LAST_NAME = "{user.identity.verified.cannot.change.last.name}";
     public static final String IDENTITY_VERIFIED_CANNOT_CHANGE_BIRTHDATE = "{user.identity.verified.cannot.change.birthdate}";
-    public static final String IDENTITY_VERIFIED_CANNOT_CHANGE_GENDER = "{user.identity.verified.cannot.change.birthdate}";
+    public static final String IDENTITY_VERIFIED_CANNOT_CHANGE_GENDER = "{user.identity.verified.cannot.change.gender}";
     public static final String USER_UPDATED_SUCCESSFULLY = "{user.updated.successfully}";
     public static final String CURRENT_PASSWORD_NOT_BLANK = "{user.current.password.not.blank}";
     public static final String NEW_PASSWORD_NOT_BLANK = "{user.new.password.not.blank}";

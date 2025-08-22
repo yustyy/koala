@@ -17,5 +17,5 @@ public interface SessionDao extends JpaRepository<Session, UUID> {
 
     List<Session> findAllByDeviceIdAndIsActive(UUID deviceId, boolean active);
 
-    List<Session> findAllByUserIdAndActive(UUID userId, boolean active);
+    List<Session> findAllByDevice_User_IdAndIsActive(UUID userId, boolean active);
 }

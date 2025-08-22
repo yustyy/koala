@@ -1,10 +1,7 @@
 package com.exskylab.koala.business.concretes;
 
 
-import com.exskylab.koala.business.abstracts.EmailVerificationService;
-import com.exskylab.koala.business.abstracts.ImageService;
-import com.exskylab.koala.business.abstracts.SessionService;
-import com.exskylab.koala.business.abstracts.UserService;
+import com.exskylab.koala.business.abstracts.*;
 
 import com.exskylab.koala.core.constants.UserMessages;
 import com.exskylab.koala.core.dtos.user.UpdateUserDto;
@@ -21,8 +18,6 @@ import com.exskylab.koala.entities.UserVerification;
 import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,19 +40,22 @@ public class UserManager implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final SessionService sessionService;
     private final ImageService imageService;
+    private final SecurityService securityService;
 
     public UserManager(UserDao userDao,
                        EmailVerificationService emailVerificationService,
                        UserMapper userMapper,
                        PasswordEncoder passwordEncoder,
                        SessionService sessionService,
-                       ImageService imageService) {
+                       ImageService imageService,
+                       SecurityService securityService) {
         this.userDao = userDao;
         this.emailVerificationService = emailVerificationService;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.sessionService = sessionService;
         this.imageService = imageService;
+        this.securityService = securityService;
     }
 
     @Override
@@ -80,20 +78,6 @@ public class UserManager implements UserService {
     @Override
     public List<User> getAll() {
         return userDao.findAll();
-    }
-
-    @Override
-    public User getAuthenticatedUser() {
-        logger.info("Getting authenticated user");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            logger.warn("User not authenticated or anonymous");
-            throw new UserNotFoundException("{user.not.authenticated}");
-        }
-        User user = (User) authentication.getPrincipal();
-        logger.info("Authenticated user found: {}", user.getId());
-        return user;
     }
 
     @Override
@@ -137,18 +121,10 @@ public class UserManager implements UserService {
     }
 
     @Override
-    public User getSystemUser() {
-        UUID systemUserId = UUID.fromString("00000000-0000-0000-0000-000000000001");
-
-        return userDao.findById(systemUserId).orElseThrow( () ->
-                new UserNotFoundException("{system.user.not.found}"));
-    }
-
-    @Override
     @Transactional
         public UserUpdateResponseDto patchCurrentUser(UserMePatchRequestDto userMePatchRequestDto) {
         logger.info("Patching current user.");
-        User currentUser = getAuthenticatedUser();
+        User currentUser = securityService.getAuthenticatedUser();
 
         List<UserVerification> pendingVerifications = new ArrayList<>();
 
@@ -245,15 +221,15 @@ public class UserManager implements UserService {
 
             User savedUser = userDao.save(currentUser);
 
-            logger.info("User with ID: {} patched successfully.", currentUser.getId());
+            logger.info("User with ID: {} patched successfully.", savedUser.getId());
 
-            return new UserUpdateResponseDto(userMapper.toUserMeResponseDto(currentUser), pendingVerifications);
+            return new UserUpdateResponseDto(userMapper.toUserMeResponseDto(savedUser), pendingVerifications);
     }
 
     @Override
     public void updateCurrentUserPassword(UserMeChangePasswordPutRequestDto userMeChangePasswordPutRequestDto, UUID currentSessionId) {
         logger.info("Updating current user password.");
-        User currentUser = getAuthenticatedUser();
+        User currentUser = securityService.getAuthenticatedUser();
         logger.info("Updating password for user with ID: {}", currentUser.getId());
 
         if (userMeChangePasswordPutRequestDto.getConfirmNewPassword().equals(userMeChangePasswordPutRequestDto.getCurrentPassword())){
@@ -288,7 +264,7 @@ public class UserManager implements UserService {
     @Transactional
     public void updateProfilePicture(MultipartFile image) {
         logger.info("Updating profile picture for current user.");
-        var currentUser = getAuthenticatedUser();
+        var currentUser = securityService.getAuthenticatedUser();
         logger.info("Uploading new profile picture for user with ID: {}", currentUser.getId());
 
         Image savedProfilePicture = imageService.uploadImage(image);

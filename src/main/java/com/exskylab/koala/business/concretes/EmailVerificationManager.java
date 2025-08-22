@@ -54,7 +54,7 @@ public class EmailVerificationManager implements EmailVerificationService {
         logger.info("Email verification started successfully for user with id: {}, email: {}", user.getId(), newEmail);
 
         SendEmailDto newEmailDto = new SendEmailDto();
-        newEmailDto.setRecipientId(user.getId());
+        newEmailDto.setRecipient(user);
         newEmailDto.setCategory(NotificationCategory.ACCOUNT_SECURITY);
         newEmailDto.setDestinationEmail(newEmail);
         newEmailDto.setTemplateName("email-verification-template");

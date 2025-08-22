@@ -18,7 +18,6 @@ public interface UserService extends UserDetailsService {
     User getByPhoneNumber(String phoneNumber);
     User getById(UUID id);
     List<User> getAll();
-    User getAuthenticatedUser();
 
     User save(User user);
     User updateOwnUser(UpdateUserDto updateUserDto);
@@ -33,9 +32,6 @@ public interface UserService extends UserDetailsService {
 
     void changePassword(UUID id, String newUnencodedPassword);
 
-
-
-    User getSystemUser();
 
     UserUpdateResponseDto patchCurrentUser(UserMePatchRequestDto userMePatchRequestDto);
 

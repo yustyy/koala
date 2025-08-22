@@ -98,7 +98,7 @@ public class SessionManager implements SessionService {
     public void invalidateActiveSessionsForUserIdExcludingSessionId(UUID userId, UUID currentSessionId) {
         logger.info("Invalidating active sessions for user with id: {}, currentSessionId: {}", userId, currentSessionId);
 
-        var activeSessions = sessionDao.findAllByUserIdAndActive(userId, true);
+        var activeSessions = sessionDao.findAllByDevice_User_IdAndIsActive(userId, true);
 
         for (var session : activeSessions){
             if (currentSessionId != null && session.getId().equals(currentSessionId)){

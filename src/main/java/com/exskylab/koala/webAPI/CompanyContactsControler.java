@@ -23,19 +23,4 @@ public class CompanyContactsControler {
         this.companyContactService = companyContactService;
     }
 
-
-    @PostMapping("/addContactToCompany")
-    public ResponseEntity<SuccessResult> addContactToCompany(@RequestBody @Valid InviteContactToCompanyDto inviteContactToCompanyDto){
-
-        companyContactService.inviteContactToCompany(inviteContactToCompanyDto);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new SuccessResult(
-                        CompanyContactMessages.CONTACT_INVITED_SUCCESS,
-                        HttpStatus.OK
-                        ));
-
-
-
-    }
 }

@@ -36,6 +36,7 @@ public class AuthManager implements AuthService {
     private final DeviceService deviceService;
     private final SessionService sessionService;
     private final LoginAttemptService loginAttemptService;
+    private final SecurityService securityService;
 
     private Logger logger = LoggerFactory.getLogger(AuthManager.class);
 
@@ -47,7 +48,8 @@ public class AuthManager implements AuthService {
                        PasswordEncoder passwordEncoder,
                        DeviceService deviceService,
                        SessionService sessionService,
-                       LoginAttemptService loginAttemptService) {
+                       LoginAttemptService loginAttemptService,
+                       SecurityService securityService) {
         this.userService = userService;
         this.pendingRegistrationService = pendingRegistrationService;
         this.notificationService = notificationService;
@@ -57,6 +59,7 @@ public class AuthManager implements AuthService {
         this.deviceService = deviceService;
         this.sessionService = sessionService;
         this.loginAttemptService = loginAttemptService;
+        this.securityService = securityService;
     }
 
     @Override
@@ -150,7 +153,7 @@ public class AuthManager implements AuthService {
         newUser.setEmailVerified(true);
         newUser.setPhoneVerified(false);
         newUser.setIdentityVerified(false);
-        newUser.setCreatedBy(userService.getSystemUser());
+        newUser.setCreatedBy(securityService.getSystemUser());
 
         User savedUser = userService.save(newUser);
 
@@ -316,7 +319,7 @@ public class AuthManager implements AuthService {
         logger.debug("Sending welcome email to user with ID: {}", savedUser.getId());
 
             SendEmailDto sendEmailDto = new SendEmailDto();
-            sendEmailDto.setRecipientId(savedUser.getId());
+            sendEmailDto.setRecipient(savedUser);
             sendEmailDto.setCategory(NotificationCategory.ACCOUNT_SECURITY);
             sendEmailDto.setDestinationEmail(savedUser.getEmail());
             sendEmailDto.setSubject("Koala'ya Hoş Geldin "+ savedUser.getFirstName()+ "!");

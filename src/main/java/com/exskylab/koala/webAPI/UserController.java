@@ -1,5 +1,6 @@
 package com.exskylab.koala.webAPI;
 
+import com.exskylab.koala.business.abstracts.SecurityService;
 import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.core.constants.UserMessages;
 import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
@@ -29,17 +30,19 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final JwtService jwtService;
+    private final SecurityService securityService;
 
-    public UserController(UserService userService, UserMapper userMapper, JwtService jwtService) {
+    public UserController(UserService userService, UserMapper userMapper, JwtService jwtService, SecurityService securityService) {
         this.userService = userService;
         this.userMapper= userMapper;
         this.jwtService = jwtService;
+        this.securityService = securityService;
     }
 
    @GetMapping("/me")
     public ResponseEntity<SuccessDataResult<UserMeResponseDto>> getCurrentUser(){
 
-        User currentUser = userService.getAuthenticatedUser();
+        User currentUser = securityService.getAuthenticatedUser();
 
         var userDto =  userMapper.toUserMeResponseDto(currentUser);
 
@@ -53,7 +56,7 @@ public class UserController {
     }
 
 
-    @PatchMapping("/me")
+    @PostMapping("/me")
     public ResponseEntity<SuccessDataResult<UserUpdateResponseDto>> patchCurrentUser(@RequestBody @Valid UserMePatchRequestDto userMePatchRequestDto){
 
         UserUpdateResponseDto patchedUser = userService.patchCurrentUser(userMePatchRequestDto);
@@ -66,7 +69,7 @@ public class UserController {
     }
 
 
-    @PutMapping("/me/password")
+    @PostMapping("/me/password")
     public ResponseEntity<SuccessResult> updateCurrentUserPassword(@RequestBody @Valid UserMeChangePasswordPutRequestDto userMeChangePasswordPutRequestDto,
                                                                    HttpServletRequest request){
         String authHeader = request.getHeader("Authorization");

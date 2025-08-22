@@ -1,8 +1,6 @@
 package com.exskylab.koala.business.concretes;
 
-import com.exskylab.koala.business.abstracts.CompanyContactInvitationService;
-import com.exskylab.koala.business.abstracts.NotificationService;
-import com.exskylab.koala.business.abstracts.UserService;
+import com.exskylab.koala.business.abstracts.*;
 import com.exskylab.koala.core.constants.CompanyContactInvitationMessages;
 import com.exskylab.koala.core.dtos.notification.request.SendEmailDto;
 import com.exskylab.koala.core.exceptions.CompanyContactInvitationNotFoundException;
@@ -25,15 +23,18 @@ public class CompanyContactInvitationManager implements CompanyContactInvitation
 
     private final CompanyContactInvitationDao companyContactInvitationDao;
     private final NotificationService notificationService;
+    private final SecurityService securityService;
+    private final CompanyContactService companyContactService;
 
     private final Logger logger = LoggerFactory.getLogger(CompanyContactInvitationManager.class);
-    private final UserService userService;
 
     public CompanyContactInvitationManager(CompanyContactInvitationDao companyContactInvitationDao,
-                                           NotificationService notificationService, UserService userService) {
+                                           NotificationService notificationService, SecurityService securityService,
+                                           CompanyContactService companyContactService) {
         this.companyContactInvitationDao = companyContactInvitationDao;
         this.notificationService = notificationService;
-        this.userService = userService;
+        this.securityService = securityService;
+        this.companyContactService = companyContactService;
     }
 
 
@@ -53,7 +54,7 @@ public class CompanyContactInvitationManager implements CompanyContactInvitation
         logger.info("Saved invitation with id: {}", savedInvitation.getId());
 
         SendEmailDto sendEmailDto = new SendEmailDto();
-        sendEmailDto.setRecipientId(userToInvite.getId());
+        sendEmailDto.setRecipient(userToInvite);
         sendEmailDto.setCategory(NotificationCategory.ACCOUNT_SECURITY);
         sendEmailDto.setDestinationEmail(userToInvite.getEmail());
 
@@ -84,7 +85,7 @@ public class CompanyContactInvitationManager implements CompanyContactInvitation
         CompanyContactInvitation invitation = companyContactInvitationDao.findById(invitationId)
                 .orElseThrow(() -> new CompanyContactInvitationNotFoundException(CompanyContactInvitationMessages.COMPANY_CONTACT_INVITATION_NOT_FOUND));
 
-        var currentUser = userService.getAuthenticatedUser();
+        var currentUser = securityService.getAuthenticatedUser();
 
         if (!invitation.getInvitedUser().getId().equals(currentUser.getId())){
             throw new UserNotAssosiatedWithInvitationException(CompanyContactInvitationMessages.USER_NOT_ASSOCIATED_WITH_INVITATION);
@@ -101,10 +102,15 @@ public class CompanyContactInvitationManager implements CompanyContactInvitation
 
         companyContactInvitationDao.save(invitation);
 
+        if (accepted){
+            logger.info("Invitation with id: {} accepted. Adding user to company contacts.", invitationId);
+            companyContactService.addCompanyContact(invitation.getCompany(), invitation.getInvitedUser(), invitation.getRole());
+        }
+
         logger.info("Invitation with id: {} has been answered and saved.", invitationId);
 
         SendEmailDto invitedUsersEmailNotification = new SendEmailDto();
-        invitedUsersEmailNotification.setRecipientId(invitation.getInvitedUser().getId());
+        invitedUsersEmailNotification.setRecipient(invitation.getInvitedUser());
         invitedUsersEmailNotification.setCategory(NotificationCategory.ACCOUNT_SECURITY);
         invitedUsersEmailNotification.setDestinationEmail(invitation.getInvitedUser().getEmail());
         invitedUsersEmailNotification.setTemplateName(accepted ? "company-invitation-accepted-template" : "company-invitation-rejected-template");
@@ -118,7 +124,7 @@ public class CompanyContactInvitationManager implements CompanyContactInvitation
         notificationService.sendEmail(invitedUsersEmailNotification, DispatchPriority.NORMAL, true);
 
         SendEmailDto invitedByEmailNotification = new SendEmailDto();
-        invitedByEmailNotification.setRecipientId(invitation.getInvitedBy().getId());
+        invitedByEmailNotification.setRecipient(invitation.getInvitedBy());
         invitedByEmailNotification.setCategory(NotificationCategory.ACCOUNT_SECURITY);
         invitedByEmailNotification.setDestinationEmail(invitation.getInvitedBy().getEmail());
         invitedByEmailNotification.setTemplateName(accepted ? "company-invitation-accepted-by-inviter-template" : "company-invitation-rejected-by-inviter-template");
