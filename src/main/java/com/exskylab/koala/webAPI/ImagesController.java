@@ -3,11 +3,10 @@ package com.exskylab.koala.webAPI;
 import com.exskylab.koala.business.abstracts.ImageService;
 import com.exskylab.koala.core.constants.ImageMessages;
 import com.exskylab.koala.core.dtos.images.response.UploadImageResponseDto;
-import com.exskylab.koala.core.mappers.image.ImageMapper;
+import com.exskylab.koala.core.mappers.ImageMapper;
 import com.exskylab.koala.core.utilities.results.SuccessDataResult;
 import com.exskylab.koala.core.utilities.results.SuccessResult;
 import com.exskylab.koala.entities.Image;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -33,7 +32,7 @@ public class ImagesController {
 
 
     @PostMapping("/uploadImage")
-    public ResponseEntity<SuccessDataResult<UploadImageResponseDto>> uploadImage(@RequestParam("image") MultipartFile image, HttpServletRequest request){
+    public ResponseEntity<SuccessDataResult<UploadImageResponseDto>> uploadImage(@RequestParam("image") MultipartFile image){
 
         Image responseImage = imageService.uploadImage(image);
 
@@ -42,23 +41,21 @@ public class ImagesController {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new SuccessDataResult<UploadImageResponseDto>(imageDto,
                         ImageMessages.UPLOAD_IMAGE_SUCCESS,
-                        HttpStatus.CREATED,
-                        request.getRequestURI())
-        );
+                        HttpStatus.CREATED
+        ));
 
     }
 
 
     @DeleteMapping("/deleteImage/{imageId}")
-    public ResponseEntity<SuccessResult> deleteImage(@PathVariable UUID imageId, HttpServletRequest request) {
+    public ResponseEntity<SuccessResult> deleteImage(@PathVariable UUID imageId) {
 
         imageService.deleteImage(imageId);
 
         return ResponseEntity.ok(
                 new SuccessResult(ImageMessages.DELETE_IMAGE_SUCCESS,
-                        HttpStatus.OK,
-                        request.getRequestURI())
-        );
+                        HttpStatus.OK
+        ));
     }
 
 }

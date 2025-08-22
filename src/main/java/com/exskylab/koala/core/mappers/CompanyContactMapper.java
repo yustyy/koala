@@ -1,7 +1,6 @@
-package com.exskylab.koala.core.mappers.companyContact;
+package com.exskylab.koala.core.mappers;
 
 import com.exskylab.koala.core.dtos.companyContact.response.CompanyContactWithoutCompanyDto;
-import com.exskylab.koala.core.mappers.user.UserMapper;
 import com.exskylab.koala.entities.CompanyContact;
 import org.springframework.stereotype.Component;
 

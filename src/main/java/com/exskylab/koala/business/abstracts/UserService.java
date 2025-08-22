@@ -2,10 +2,16 @@ package com.exskylab.koala.business.abstracts;
 
 
 import com.exskylab.koala.core.dtos.user.UpdateUserDto;
+import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
+import com.exskylab.koala.core.dtos.user.request.UserMePatchRequestDto;
+import com.exskylab.koala.core.dtos.user.response.UserUpdateResponseDto;
 import com.exskylab.koala.entities.User;
+import jakarta.validation.Valid;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService extends UserDetailsService {
@@ -32,4 +38,10 @@ public interface UserService extends UserDetailsService {
 
 
     User getSystemUser();
+
+    UserUpdateResponseDto patchCurrentUser(UserMePatchRequestDto userMePatchRequestDto);
+
+    void updateCurrentUserPassword(UserMeChangePasswordPutRequestDto userMeChangePasswordPutRequestDto, UUID currentSessionId);
+
+    void updateProfilePicture(MultipartFile image);
 }

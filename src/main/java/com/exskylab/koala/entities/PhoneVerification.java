@@ -3,10 +3,14 @@ package com.exskylab.koala.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
 @DiscriminatorValue("PHONE")
 public class PhoneVerification extends UserVerification{
 

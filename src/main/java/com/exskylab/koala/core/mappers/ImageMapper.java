@@ -1,11 +1,9 @@
-package com.exskylab.koala.core.mappers.image;
+package com.exskylab.koala.core.mappers;
 
 import com.exskylab.koala.core.dtos.images.response.UploadImageResponseDto;
 import com.exskylab.koala.core.properties.R2Properties;
 import com.exskylab.koala.entities.Image;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 public class ImageMapper {

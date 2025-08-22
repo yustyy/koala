@@ -93,6 +93,25 @@ public class SessionManager implements SessionService {
         logger.info("Invalidated {} active sessions for device with id: {}", activeSessions.size(), deviceId);
     }
 
+    @Override
+    @Transactional
+    public void invalidateActiveSessionsForUserIdExcludingSessionId(UUID userId, UUID currentSessionId) {
+        logger.info("Invalidating active sessions for user with id: {}, currentSessionId: {}", userId, currentSessionId);
+
+        var activeSessions = sessionDao.findAllByUserIdAndActive(userId, true);
+
+        for (var session : activeSessions){
+            if (currentSessionId != null && session.getId().equals(currentSessionId)){
+                continue;
+            }
+            session.setActive(false);
+            sessionDao.save(session);
+            logger.info("Invalidated session with id: {}", session.getId());
+        }
+
+        logger.info("Invalidated {} active sessions for user with id: {}", activeSessions.size(), userId);
+    }
+
     private String generateSecureRandomToken() {
         SecureRandom secureRandom = new SecureRandom();
         byte[] randomBytes = new byte[32];

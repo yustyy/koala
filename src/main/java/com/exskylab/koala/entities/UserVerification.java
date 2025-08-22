@@ -1,12 +1,16 @@
 package com.exskylab.koala.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Getter
+@Setter
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "verification_type", discriminatorType = DiscriminatorType.STRING)
 @Table(name = "user_verifications")

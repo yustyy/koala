@@ -1,7 +1,10 @@
 package com.exskylab.koala.core.utilities.results;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
 
@@ -37,18 +40,20 @@ public class Result {
         return correlationId;
     }
 
-    public Result(boolean success, String message, HttpStatus httpStatus, String path) {
+    public Result(boolean success, String message, HttpStatus httpStatus) {
         this.success = success;
         this.message = message;
         this.httpStatus = httpStatus;
-        this.path = path;
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        this.path = request.getRequestURI();
         this.correlationId = MDC.get("correlationId");
     }
 
-    public Result(boolean success, HttpStatus httpStatus, String path) {
+    public Result(boolean success, HttpStatus httpStatus) {
         this.success = success;
         this.httpStatus = httpStatus;
-        this.path = path;
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        this.path = request.getRequestURI();
         this.correlationId = MDC.get("correlationId");
     }
 }

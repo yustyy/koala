@@ -26,15 +26,14 @@ public class CompanyContactsControler {
 
 
     @PostMapping("/addContactToCompany")
-    public ResponseEntity<SuccessResult> addContactToCompany(@RequestBody @Valid InviteContactToCompanyDto inviteContactToCompanyDto, HttpServletRequest request){
+    public ResponseEntity<SuccessResult> addContactToCompany(@RequestBody @Valid InviteContactToCompanyDto inviteContactToCompanyDto){
 
         companyContactService.inviteContactToCompany(inviteContactToCompanyDto);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new SuccessResult(
                         CompanyContactMessages.CONTACT_INVITED_SUCCESS,
-                        HttpStatus.OK,
-                        request.getRequestURI()
+                        HttpStatus.OK
                         ));
 
 

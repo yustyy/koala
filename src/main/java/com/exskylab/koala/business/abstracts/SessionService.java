@@ -4,6 +4,7 @@ import com.exskylab.koala.core.dtos.session.response.CreatedSessionInfo;
 import com.exskylab.koala.entities.Device;
 import com.exskylab.koala.entities.Session;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface SessionService {
@@ -15,4 +16,5 @@ public interface SessionService {
 
     public void invalidateActiveSessionsForDevice(UUID deviceId);
 
+    void invalidateActiveSessionsForUserIdExcludingSessionId(UUID userId, UUID sessionId);
 }

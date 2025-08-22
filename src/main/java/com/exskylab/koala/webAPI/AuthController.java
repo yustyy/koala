@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Validated
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     private final AuthService authService;
@@ -32,24 +32,22 @@ public class AuthController {
     }
 
     @PostMapping("/start-registration")
-    public ResponseEntity<SuccessResult> startRegistration(@RequestBody @Valid AuthStartRegistrationDto authStartRegistrationDto,
-                                                    HttpServletRequest request){
+    public ResponseEntity<SuccessResult> startRegistration(@RequestBody @Valid AuthStartRegistrationDto authStartRegistrationDto){
         authService.startRegistration(authStartRegistrationDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(new SuccessResult(AuthMessages.START_REGISTRATION_SUCCESS,
-                HttpStatus.OK, request.getRequestURI()));
+                HttpStatus.OK));
 
     }
 
     @PostMapping("/verify-registration-token")
     public ResponseEntity<SuccessDataResult<AuthSetPasswordDto>>
-                            verifyRegistrationToken(@RequestBody @Valid AuthVerifyRegistrationTokenDto authVerifyRegistrationTokenDto,
-                                                    HttpServletRequest request){
+                            verifyRegistrationToken(@RequestBody @Valid AuthVerifyRegistrationTokenDto authVerifyRegistrationTokenDto){
 
 
         var response = authService.verifyRegistrationToken(authVerifyRegistrationTokenDto);
         return ResponseEntity.status(HttpStatus.OK).body(new SuccessDataResult<>(response,
-                AuthMessages.VERIFY_REGISTRATION_TOKEN_SUCCESS, HttpStatus.OK, request.getRequestURI()));
+                AuthMessages.VERIFY_REGISTRATION_TOKEN_SUCCESS, HttpStatus.OK));
 
 
 
@@ -69,8 +67,7 @@ public class AuthController {
                 new SuccessDataResult<>(
                         response,
                         AuthMessages.COMPLETE_REGISTRATION_SUCCESS,
-                        HttpStatus.CREATED,
-                        request.getRequestURI()
+                        HttpStatus.CREATED
             )
         );
 
@@ -89,8 +86,7 @@ public class AuthController {
                 new SuccessDataResult<>(
                         response,
                         AuthMessages.LOGIN_SUCCESS,
-                        HttpStatus.OK,
-                        request.getRequestURI()
+                        HttpStatus.OK
                 )
         );
 
@@ -111,8 +107,7 @@ public class AuthController {
                 new SuccessDataResult<>(
                         response,
                         AuthMessages.REFRESH_TOKEN_SUCCESS,
-                        HttpStatus.OK,
-                        request.getRequestURI()
+                        HttpStatus.OK
                 )
         );
     }
@@ -127,7 +122,7 @@ public class AuthController {
         authService.logout(sessionId);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new SuccessResult(AuthMessages.LOGOUT_SUCCESS, HttpStatus.OK, request.getRequestURI())
+                new SuccessResult(AuthMessages.LOGOUT_SUCCESS, HttpStatus.OK)
         );
     }
 

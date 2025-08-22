@@ -3,7 +3,10 @@ package com.exskylab.koala.business.concretes;
 import com.exskylab.koala.business.abstracts.*;
 import com.exskylab.koala.core.constants.CompanyMessages;
 import com.exskylab.koala.core.dtos.company.request.CreateCompanyRequestDto;
+import com.exskylab.koala.core.dtos.companyContact.request.InviteContactToCompanyDto;
 import com.exskylab.koala.core.dtos.notification.request.SendEmailDto;
+import com.exskylab.koala.core.exceptions.CompanyNotFoundException;
+import com.exskylab.koala.core.exceptions.UserNotAssosiatedWithCompanyException;
 import com.exskylab.koala.dataAccess.CompanyDao;
 import com.exskylab.koala.entities.*;
 import org.slf4j.Logger;
@@ -12,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.bind.ValidationException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,17 +27,20 @@ public class CompanyManager implements CompanyService {
     private final NotificationService notificationService;
     private final ImageService imageService;
     private final CompanyContactService companyContactService;
+    private final CompanyContactInvitationService companyContactInvitationService;
 
     private final static Logger logger = LoggerFactory.getLogger(CompanyManager.class);
 
     public CompanyManager(CompanyDao companyDao, UserService userService,
                           NotificationService notificationService, ImageService imageService,
-                          CompanyContactService companyContactService) {
+                          CompanyContactService companyContactService,
+                          CompanyContactInvitationService companyContactInvitationService) {
         this.companyDao = companyDao;
         this.userService = userService;
         this.notificationService = notificationService;
         this.imageService = imageService;
         this.companyContactService = companyContactService;
+        this.companyContactInvitationService = companyContactInvitationService;
     }
 
     @Override
@@ -87,6 +92,90 @@ public class CompanyManager implements CompanyService {
 
         return savedCompany;
 
+    }
+
+    @Override
+    @Transactional
+    public void inviteContactToCompany(UUID companyId, InviteContactToCompanyDto contactToCompanyDto) {
+        logger.info("Inviting contact to company with id: {}", companyId);
+
+
+        CompanyContactRole role;
+        try {
+            role = CompanyContactRole.valueOf(contactToCompanyDto.getRole());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(CompanyMessages.INVALID_COMPANY_CONTACT_ROLE);
+        }
+
+
+        var currentUser = userService.getAuthenticatedUser();
+
+
+        var company = companyDao.findById(companyId).orElseThrow(() -> {
+            logger.error("Company with id: {} not found.", companyId);
+            return new CompanyNotFoundException(CompanyMessages.COMPANY_NOT_FOUND);
+        });
+
+        boolean isAdmin = company.getContacts().stream()
+                .anyMatch(contact ->
+                        contact.getUser().getId().equals(currentUser.getId()) &&
+                        contact.getRole().equals(CompanyContactRole.ADMIN));
+
+        if (!isAdmin){
+            logger.warn("User with id: {} is not an admin of company with id: {}, terminating request!", currentUser.getId(), companyId);
+            throw new UserNotAssosiatedWithCompanyException(CompanyMessages.USER_NOT_ASSOCIATED_WITH_COMPANY);
+        }
+
+        var userToInvite = userService.getByEmail(contactToCompanyDto.getEmail());
+
+        boolean isContactAlreadyExists = company.getContacts().stream()
+                .anyMatch(contact -> contact.getUser().getId().equals(userToInvite.getId()));
+
+        if (isContactAlreadyExists){
+            logger.warn("User with id: {} is already a contact of company with id: {}, terminating request!", userToInvite.getId(), companyId);
+            throw new IllegalArgumentException(CompanyMessages.USER_ALREADY_A_CONTACT);
+        }
+
+        if (userToInvite.getTcIdentityNumber() == null) {
+            throw new IllegalArgumentException(CompanyMessages.USER_MUST_VERIFY_IDENTITY);
+        }
+
+        if (!userToInvite.getTcIdentityNumber().equals(contactToCompanyDto.getTcIdentityNumber())){
+            throw new IllegalArgumentException(CompanyMessages.USER_TC_IDENTITY_DOES_NOT_MATCH);
+        }
+
+        companyContactInvitationService.inviteUserToCompany(currentUser, userToInvite, company, role);
+
+        logger.info("Contact with user id: {} invited to company with id: {} successfully.", userToInvite.getId(), companyId);
+
+    }
+
+    @Override
+    public List<CompanyContactInvitation> getCompanyContactInvitations(UUID companyId) {
+        logger.info("Getting company contact invitations for company with id: {}", companyId);
+        var currentUser = userService.getAuthenticatedUser();
+
+        var company = companyDao.findById(companyId).orElseThrow(() -> {
+            logger.error("Company with id: {} not found.", companyId);
+            return new CompanyNotFoundException(CompanyMessages.COMPANY_NOT_FOUND);
+        });
+
+        boolean isAdmin = company.getContacts().stream()
+                .anyMatch(contact ->
+                        contact.getUser().getId().equals(currentUser.getId())
+                                && contact.getRole().equals(CompanyContactRole.ADMIN)
+                );
+
+        if (!isAdmin){
+            logger.warn("User with id: {} is not a contact of company with id: {}, terminating request!", currentUser.getId(), companyId);
+            throw new UserNotAssosiatedWithCompanyException(CompanyMessages.USER_NOT_ASSOCIATED_WITH_COMPANY);
+        }
+
+        var invitations = companyContactInvitationService.getInvitationsByCompany(company);
+
+        logger.info("Company contact invitations for company with id: {} retrieved successfully.", companyId);
+
+        return invitations;
     }
 
     private void sendCompanyCreatedMail(Company savedCompany, CompanyContact contact ) {
