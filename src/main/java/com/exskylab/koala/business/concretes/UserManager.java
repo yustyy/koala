@@ -124,7 +124,7 @@ public class UserManager implements UserService {
     @Transactional
         public UserUpdateResponseDto patchCurrentUser(UserMePatchRequestDto userMePatchRequestDto) {
         logger.info("Patching current user.");
-        User currentUser = securityService.getAuthenticatedUser();
+        User currentUser = securityService.getAuthenticatedUserFromContext();
 
         List<UserVerification> pendingVerifications = new ArrayList<>();
 
@@ -229,7 +229,7 @@ public class UserManager implements UserService {
     @Override
     public void updateCurrentUserPassword(UserMeChangePasswordPutRequestDto userMeChangePasswordPutRequestDto, UUID currentSessionId) {
         logger.info("Updating current user password.");
-        User currentUser = securityService.getAuthenticatedUser();
+        User currentUser = securityService.getAuthenticatedUserFromContext();
         logger.info("Updating password for user with ID: {}", currentUser.getId());
 
         if (userMeChangePasswordPutRequestDto.getConfirmNewPassword().equals(userMeChangePasswordPutRequestDto.getCurrentPassword())){
@@ -264,7 +264,7 @@ public class UserManager implements UserService {
     @Transactional
     public void updateProfilePicture(MultipartFile image) {
         logger.info("Updating profile picture for current user.");
-        var currentUser = securityService.getAuthenticatedUser();
+        var currentUser = securityService.getAuthenticatedUserFromContext();
         logger.info("Uploading new profile picture for user with ID: {}", currentUser.getId());
 
         Image savedProfilePicture = imageService.uploadImage(image);

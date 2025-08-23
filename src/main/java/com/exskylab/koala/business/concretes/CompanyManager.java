@@ -57,7 +57,7 @@ public class CompanyManager implements CompanyService {
         }
 
         logger.info("Adding new company with name: {}", createCompanyRequestDto.getName());
-        var user = securityService.getAuthenticatedUser();
+        var user = securityService.getAuthenticatedUserFromContext();
         logger.info("User with id: {} is adding a new company.", user.getId());
 
         if (!user.isIdentityVerified()){
@@ -115,7 +115,7 @@ public class CompanyManager implements CompanyService {
         }
 
 
-        var currentUser = securityService.getAuthenticatedUser();
+        var currentUser = securityService.getAuthenticatedUserFromContext();
 
 
         var company = companyDao.findById(companyId).orElseThrow(() -> {
@@ -160,7 +160,7 @@ public class CompanyManager implements CompanyService {
     @Override
     public List<CompanyContactInvitation> getCompanyContactInvitations(UUID companyId) {
         logger.info("Getting company contact invitations for company with id: {}", companyId);
-        var currentUser = securityService.getAuthenticatedUser();
+        var currentUser = securityService.getAuthenticatedUserFromContext();
 
         var company = companyDao.findById(companyId).orElseThrow(() -> {
             logger.error("Company with id: {} not found.", companyId);

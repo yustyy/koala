@@ -86,7 +86,7 @@ public class ImageManager implements ImageService {
             throw new ImageUploadError(ImageMessages.IMAGE_NOT_FOUND_ERROR);
         }
 
-        User user = securityService.getAuthenticatedUser();
+        User user = securityService.getAuthenticatedUserFromContext();
         if (!image.get().getCreatedBy().getId().equals(user.getId()) && !user.getAuthorities().contains(Role.ROLE_ADMIN)) {
             logger.error("Image deletion failed: User {} does not have permission to delete image with ID {}. Image creator ID: {}", user.getId(), imageId, image.get().getCreatedBy().getId());
             throw new ImageUploadError(ImageMessages.IMAGE_PERMISSION_ERROR);

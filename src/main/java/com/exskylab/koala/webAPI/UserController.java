@@ -42,7 +42,7 @@ public class UserController {
    @GetMapping("/me")
     public ResponseEntity<SuccessDataResult<UserMeResponseDto>> getCurrentUser(){
 
-        User currentUser = securityService.getAuthenticatedUser();
+        User currentUser = securityService.getAuthenticatedUserFromDatabase();
 
         var userDto =  userMapper.toUserMeResponseDto(currentUser);
 

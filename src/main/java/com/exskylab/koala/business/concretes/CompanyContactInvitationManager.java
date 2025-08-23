@@ -85,7 +85,7 @@ public class CompanyContactInvitationManager implements CompanyContactInvitation
         CompanyContactInvitation invitation = companyContactInvitationDao.findById(invitationId)
                 .orElseThrow(() -> new CompanyContactInvitationNotFoundException(CompanyContactInvitationMessages.COMPANY_CONTACT_INVITATION_NOT_FOUND));
 
-        var currentUser = securityService.getAuthenticatedUser();
+        var currentUser = securityService.getAuthenticatedUserFromContext();
 
         if (!invitation.getInvitedUser().getId().equals(currentUser.getId())){
             throw new UserNotAssosiatedWithInvitationException(CompanyContactInvitationMessages.USER_NOT_ASSOCIATED_WITH_INVITATION);

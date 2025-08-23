@@ -63,7 +63,7 @@ public class NotificationManager implements NotificationService {
         if (isSystemMail) {
             sender = securityService.getSystemUser();
         } else {
-            sender = securityService.getAuthenticatedUser();
+            sender = securityService.getAuthenticatedUserFromContext();
         }
 
 
@@ -131,7 +131,7 @@ public class NotificationManager implements NotificationService {
         if (isSystemSms) {
             sender = securityService.getSystemUser();
         } else {
-            sender = securityService.getAuthenticatedUser();
+            sender = securityService.getAuthenticatedUserFromContext();
         }
 
 
@@ -195,7 +195,7 @@ public class NotificationManager implements NotificationService {
             throw new ArgumentCannotBeNullException(NotificationMessages.USER_ID_CANNOT_BE_NULL);
         }
 
-        User sender = isSystemPush ? securityService.getSystemUser(): securityService.getAuthenticatedUser();
+        User sender = isSystemPush ? securityService.getSystemUser(): securityService.getAuthenticatedUserFromContext();
         User recipient = sendPushToUserDto.getRecipient();
 
         List<Device> usersDevices = deviceService.getDevicesByUserIdAndPushTokenNotNull(recipient.getId());

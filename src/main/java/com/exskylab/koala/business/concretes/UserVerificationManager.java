@@ -47,7 +47,7 @@ public class UserVerificationManager implements UserVerificationService {
             return new UserVerificationNotFoundException(UserVerificationMessages.USER_VERIFICATION_NOT_FOUND_BY_ID);
         });
 
-        User currentUser = securityService.getAuthenticatedUser();
+        User currentUser = securityService.getAuthenticatedUserFromContext();
         if (!userVerification.getUser().getId().equals(currentUser.getId())) {
             logger.error("Verification ID: {} does not belong to the authenticated user", verificationId);
             throw new UserVerificationNotAssociatedWithUserException(UserVerificationMessages.VERIFICATION_NOT_ASSOCIATED_WITH_USER);

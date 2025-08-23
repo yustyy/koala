@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Service
-@Transactional(readOnly = true)
 public class SecurityManager implements SecurityService {
 
     private final UserDao userDao;
@@ -26,7 +25,7 @@ public class SecurityManager implements SecurityService {
     }
 
     @Override
-    public User getAuthenticatedUser() {
+    public User getAuthenticatedUserFromContext() {
         logger.info("Getting authenticated user");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -35,10 +34,15 @@ public class SecurityManager implements SecurityService {
             throw new UserNotFoundException("{user.not.authenticated}");
         }
         User user = (User) authentication.getPrincipal();
-        user = userDao.findById(user.getId()).orElseThrow(() ->
-                new UserNotFoundException("{user.not.found}"));
-        logger.info("Authenticated user found: {}", user.getId());
         return user;
+    }
+
+    @Override
+    public User getAuthenticatedUserFromDatabase() {
+        User userFromContext = getAuthenticatedUserFromContext();
+        UUID userId = userFromContext.getId();
+
+        return userDao.findById(userId).orElseThrow(() -> new UserNotFoundException("{user.not.found}"));
     }
 
     @Override
