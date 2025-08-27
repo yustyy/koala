@@ -43,7 +43,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/auth/verify-registration-token").permitAll()
                         .requestMatchers(HttpMethod.POST,"/auth/complete-registration").permitAll()
                         .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/auth/refreshToken").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/auth/refresh-token").permitAll()
                         .requestMatchers(HttpMethod.POST,"/auth/logout").authenticated()
 
                         //companycontactinvitation endpoints
