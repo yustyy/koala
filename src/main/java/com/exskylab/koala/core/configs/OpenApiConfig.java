@@ -19,7 +19,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info().title("Koala API").version("v1.0"))
                 .servers(List.of(
-                        new Server().url("https//api.iskoala.com")
+                        new Server().url("https://api.iskoala.com")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
