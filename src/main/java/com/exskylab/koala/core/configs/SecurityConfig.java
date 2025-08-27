@@ -64,10 +64,10 @@ public class SecurityConfig {
 
                         //user endpoints
                         .requestMatchers(HttpMethod.GET, "/users/me").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/users/me").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/users/me/password").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/users/me/profile-picture").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/users/me/identity-verification").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/users/me").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users/me/password").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users/me/profile-picture").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users/me/identity-verification").hasAnyRole("USER", "ADMIN")
 
                         //verification endpoints
                         .requestMatchers(HttpMethod.POST, "/user-verifications/{id}").hasAnyRole("USER", "ADMIN")
