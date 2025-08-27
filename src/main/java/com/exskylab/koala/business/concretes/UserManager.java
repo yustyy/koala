@@ -4,17 +4,17 @@ package com.exskylab.koala.business.concretes;
 import com.exskylab.koala.business.abstracts.*;
 
 import com.exskylab.koala.core.constants.UserMessages;
+import com.exskylab.koala.core.dtos.address.request.CreateAddressRequestDto;
 import com.exskylab.koala.core.dtos.user.UpdateUserDto;
 import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UserMePatchRequestDto;
+import com.exskylab.koala.core.dtos.user.request.UsersMeIdentityVerificationRequestDto;
 import com.exskylab.koala.core.dtos.user.response.UserUpdateResponseDto;
 import com.exskylab.koala.core.exceptions.UserNotFoundException;
 import com.exskylab.koala.core.mappers.UserMapper;
+import com.exskylab.koala.core.utilities.kps.KimlikPaylasimSistemiService;
 import com.exskylab.koala.dataAccess.UserDao;
-import com.exskylab.koala.entities.Gender;
-import com.exskylab.koala.entities.Image;
-import com.exskylab.koala.entities.User;
-import com.exskylab.koala.entities.UserVerification;
+import com.exskylab.koala.entities.*;
 import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +41,8 @@ public class UserManager implements UserService {
     private final SessionService sessionService;
     private final ImageService imageService;
     private final SecurityService securityService;
+    private final AddressService addressService;
+    private final KimlikPaylasimSistemiService kimlikPaylasimSistemiService;
 
     public UserManager(UserDao userDao,
                        EmailVerificationService emailVerificationService,
@@ -48,7 +50,9 @@ public class UserManager implements UserService {
                        PasswordEncoder passwordEncoder,
                        SessionService sessionService,
                        ImageService imageService,
-                       SecurityService securityService) {
+                       SecurityService securityService,
+                       AddressService addressService,
+                       KimlikPaylasimSistemiService kimlikPaylasimSistemiService) {
         this.userDao = userDao;
         this.emailVerificationService = emailVerificationService;
         this.userMapper = userMapper;
@@ -56,6 +60,8 @@ public class UserManager implements UserService {
         this.sessionService = sessionService;
         this.imageService = imageService;
         this.securityService = securityService;
+        this.addressService = addressService;
+        this.kimlikPaylasimSistemiService = kimlikPaylasimSistemiService;
     }
 
     @Override
@@ -163,9 +169,11 @@ public class UserManager implements UserService {
         }
 
         if (userMePatchRequestDto.getGender() != null){
+            /*
             if (currentUser.isIdentityVerified()){
                 throw new ValidationException(UserMessages.IDENTITY_VERIFIED_CANNOT_CHANGE_GENDER);
             }
+             */
             Gender gender;
             try{
                 gender = Gender.valueOf(userMePatchRequestDto.getGender().toUpperCase());
@@ -294,7 +302,60 @@ public class UserManager implements UserService {
     }
 
     @Override
+    public Address addAddressToAuthenticatedUser(CreateAddressRequestDto createAddressRequestDto) {
+        logger.info("Adding new address to authenticated user.");
+        User currentUser = securityService.getAuthenticatedUserFromContext();
+        logger.info("Adding address for user with ID: {}", currentUser.getId());
+
+        var address = addressService.createAddress(createAddressRequestDto);
+        return null;
+    }
+
+    @Override
+    public void verificateIdentityofAuthenticatedUser(UsersMeIdentityVerificationRequestDto usersMeIdentityVerificationRequestDto) {
+        logger.info("Verificating identity of authenticated user.");
+        User currentUser = securityService.getAuthenticatedUserFromContext();
+        logger.info("Verificating identity for user with ID: {}", currentUser.getId());
+
+        if (currentUser.isIdentityVerified()){
+            logger.warn("User with ID: {} is already identity verified.", currentUser.getId());
+            throw new ValidationException(UserMessages.USER_ALREADY_IDENTITY_VERIFIED);
+        }
+
+        boolean isVerified = kimlikPaylasimSistemiService.kimlikDogrula(
+                usersMeIdentityVerificationRequestDto.getTcIdentityNumber(),
+                usersMeIdentityVerificationRequestDto.getFirstName(),
+                usersMeIdentityVerificationRequestDto.getLastName(),
+                usersMeIdentityVerificationRequestDto.getBirthDate(),
+                usersMeIdentityVerificationRequestDto.getTcDocumentNumber()
+        );
+
+        if (!isVerified){
+            logger.warn("Identity verification failed for user with ID: {}", currentUser.getId());
+            throw new ValidationException(UserMessages.IDENTITY_VERIFICATION_FAILED);
+        }
+
+        currentUser.setIdentityVerified(true);
+        currentUser.setFirstName(capitalizeFirstLetter(usersMeIdentityVerificationRequestDto.getFirstName()));
+        currentUser.setLastName(capitalizeFirstLetter(usersMeIdentityVerificationRequestDto.getLastName()));
+        currentUser.setBirthDate(usersMeIdentityVerificationRequestDto.getBirthDate());
+        currentUser.setTcIdentityNumber(usersMeIdentityVerificationRequestDto.getTcIdentityNumber());
+        userDao.save(currentUser);
+        logger.info("Identity verification successful for user with ID: {}", currentUser.getId());
+
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return null;
     }
+
+    private String capitalizeFirstLetter(String input) {
+        if (input == null || input.isBlank()) {
+            return input;
+        }
+        input = input.trim();
+        return input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
+    }
+
 }

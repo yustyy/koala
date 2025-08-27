@@ -93,7 +93,7 @@ public class AuthController {
     }
 
 
-    @PostMapping("/refreshToken")
+    @PostMapping("/refresh-token")
     public ResponseEntity<SuccessDataResult<TokenResponseDto>> refreshToken(@RequestBody @Valid RefreshTokenDto refreshTokenDto, HttpServletRequest request){
         String ipAddress = getClientIpAddress(request);
         String userAgent = request.getHeader("User-Agent");

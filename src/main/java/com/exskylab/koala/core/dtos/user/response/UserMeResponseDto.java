@@ -40,8 +40,4 @@ public class UserMeResponseDto {
     private String interests;
 
 
-
-
-
-
 }

@@ -3,8 +3,11 @@ package com.exskylab.koala.webAPI;
 import com.exskylab.koala.business.abstracts.SecurityService;
 import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.core.constants.UserMessages;
+import com.exskylab.koala.core.dtos.address.request.CreateAddressRequestDto;
+import com.exskylab.koala.core.dtos.address.response.AddressDto;
 import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UserMePatchRequestDto;
+import com.exskylab.koala.core.dtos.user.request.UsersMeIdentityVerificationRequestDto;
 import com.exskylab.koala.core.dtos.user.response.UserMeResponseDto;
 import com.exskylab.koala.core.dtos.user.response.UserUpdateResponseDto;
 import com.exskylab.koala.core.mappers.UserMapper;
@@ -56,7 +59,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/me")
+    @PatchMapping("/me")
     public ResponseEntity<SuccessDataResult<UserUpdateResponseDto>> patchCurrentUser(@RequestBody @Valid UserMePatchRequestDto userMePatchRequestDto){
 
         UserUpdateResponseDto patchedUser = userService.patchCurrentUser(userMePatchRequestDto);
@@ -69,7 +72,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/me/password")
+    @PutMapping("/me/password")
     public ResponseEntity<SuccessResult> updateCurrentUserPassword(@RequestBody @Valid UserMeChangePasswordPutRequestDto userMeChangePasswordPutRequestDto,
                                                                    HttpServletRequest request){
         String authHeader = request.getHeader("Authorization");
@@ -84,7 +87,7 @@ public class UserController {
                         HttpStatus.OK));
     }
 
-    @PostMapping("/me/profile-picture")
+    @PutMapping("/me/profile-picture")
     public ResponseEntity<SuccessResult> uploadProfilePicture(@RequestParam("image") MultipartFile image){
 
         userService.updateProfilePicture(image);
@@ -95,6 +98,28 @@ public class UserController {
                         HttpStatus.OK));
     }
 
+    @PutMapping("/me/identity-verification")
+    public ResponseEntity<SuccessResult> verifyIdentity(@RequestBody @Valid UsersMeIdentityVerificationRequestDto usersMeIdentityVerificationRequestDto){
+
+        userService.verificateIdentityofAuthenticatedUser(usersMeIdentityVerificationRequestDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new SuccessResult(
+                        UserMessages.USER_IDENTITY_VERIFICATED_SUCCESSFULLY,
+                        HttpStatus.OK));
+    }
+
+
+
+    @PostMapping("/me/addresses")
+    public ResponseEntity<SuccessDataResult<AddressDto>> addAddress(@RequestBody @Valid CreateAddressRequestDto createAddressRequestDto){
+
+        var response = userService.addAddressToAuthenticatedUser(createAddressRequestDto);
+
+        return null;
+
+
+    }
 
 
 

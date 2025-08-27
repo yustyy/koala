@@ -23,4 +23,13 @@ public class UserMessages {
     public static final String NEW_PASSWORD_CANNOT_BE_SAME_AS_CURRENT_PASSWORD = "{user.new.password.cannot.be.same.as.current.password}";
     public static final String USER_PASSWORD_UPDATED_SUCCESSFULLY = "{user.password.updated.successfully}";
     public static final String USER_PROFILE_PICTURE_UPLOADED_SUCCESSFULLY = "{user.profile.picture.uploaded.successfully}";
+    public static final String INVALID_TC_IDENTITY_NUMBER = "{user.invalid.tc.identity.number}";
+    public static final String TC_DOCUMENT_NUMBER_CANNOT_BE_BLANK = "{user.tc.document.number.cannot.be.blank}";
+    public static final String TC_IDENTITY_NUMBER_CANNOT_BE_BLANK = "{user.tc.identity.number.cannot.be.blank}";
+    public static final String BIRTHDATE_CANNOT_BE_BLANK = "{user.birthdate.cannot.be.blank}";
+    public static final String LAST_NAME_CANNOT_BE_BLANK = "{user.last.name.cannot.be.blank}";
+    public static final String FIRST_NAME_CANNOT_BE_BLANK = "{user.first.name.cannot.be.blank}";
+    public static final String USER_ALREADY_IDENTITY_VERIFIED = "{user.already.identity.verified}";
+    public static final String IDENTITY_VERIFICATION_FAILED = "{user.identity.verification.failed}";
+    public static final String USER_IDENTITY_VERIFICATED_SUCCESSFULLY = "{user.identity.verificated.successfully}";
 }

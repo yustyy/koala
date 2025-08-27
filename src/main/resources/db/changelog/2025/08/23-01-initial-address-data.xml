@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="4-load-countries-data" author="yustyy">
+        <loadData
+                encoding="UTF-8"
+                file="db/changelog/data/countries.csv"
+                separator=","
+                tableName="countries">
+            <column name="id" type="UUID"/>
+            <column name="name" type="STRING"/>
+            <column name="code" type="STRING"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="created_by_id" type="UUID"/>
+            <column name="updated_by_id" type="UUID"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="5-load-cities-data" author="yustyy">
+        <loadData
+                encoding="UTF-8"
+                file="db/changelog/data/cities.csv"
+                separator=","
+                tableName="cities">
+            <column name="id" type="UUID"/>
+            <column name="name" type="STRING"/>
+            <column name="country_id" type="UUID"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="created_by_id" type="UUID"/>
+            <column name="updated_by_id" type="UUID"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="6-load-districts-data" author="yustyy">
+        <loadData
+                encoding="UTF-8"
+                file="db/changelog/data/districts.csv"
+                separator=","
+                tableName="districts">
+            <column name="id" type="UUID"/>
+            <column name="name" type="STRING"/>
+            <column name="city_id" type="UUID"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="created_by_id" type="UUID"/>
+            <column name="updated_by_id" type="UUID"/>
+        </loadData>
+    </changeSet>
+
+</databaseChangeLog>

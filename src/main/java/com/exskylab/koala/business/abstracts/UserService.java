@@ -1,11 +1,15 @@
 package com.exskylab.koala.business.abstracts;
 
 
+import com.exskylab.koala.core.dtos.address.request.CreateAddressRequestDto;
 import com.exskylab.koala.core.dtos.user.UpdateUserDto;
 import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UserMePatchRequestDto;
+import com.exskylab.koala.core.dtos.user.request.UsersMeIdentityVerificationRequestDto;
 import com.exskylab.koala.core.dtos.user.response.UserUpdateResponseDto;
+import com.exskylab.koala.entities.Address;
 import com.exskylab.koala.entities.User;
+import jakarta.validation.Valid;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,4 +46,9 @@ public interface UserService extends UserDetailsService {
     void updatePhoneVerification(User user, String newPhoneNumber);
 
     void updateEmailVerification(User user, String newEmail);
+
+    Address addAddressToAuthenticatedUser(@Valid CreateAddressRequestDto createAddressRequestDto);
+
+    void verificateIdentityofAuthenticatedUser(UsersMeIdentityVerificationRequestDto usersMeIdentityVerificationRequestDto);
+
 }
