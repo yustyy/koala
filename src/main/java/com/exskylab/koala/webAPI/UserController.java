@@ -15,6 +15,8 @@ import com.exskylab.koala.core.security.JwtService;
 import com.exskylab.koala.core.utilities.results.SuccessDataResult;
 import com.exskylab.koala.core.utilities.results.SuccessResult;
 import com.exskylab.koala.entities.User;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -88,6 +90,12 @@ public class UserController {
     }
 
     @PutMapping("/me/profile-picture")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = @Content(
+                    mediaType = "multipart/form-data",
+                    schema = @Schema(type = "string", format = "binary")
+            )
+    )
     public ResponseEntity<SuccessResult> uploadProfilePicture(@RequestParam("image") MultipartFile image){
 
         userService.updateProfilePicture(image);
