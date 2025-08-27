@@ -15,11 +15,13 @@ import com.exskylab.koala.core.security.JwtService;
 import com.exskylab.koala.core.utilities.results.SuccessDataResult;
 import com.exskylab.koala.core.utilities.results.SuccessResult;
 import com.exskylab.koala.entities.User;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -89,14 +91,12 @@ public class UserController {
                         HttpStatus.OK));
     }
 
-    @PutMapping("/me/profile-picture")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            content = @Content(
-                    mediaType = "multipart/form-data",
-                    schema = @Schema(type = "string", format = "binary")
-            )
-    )
-    public ResponseEntity<SuccessResult> uploadProfilePicture(@RequestParam("image") MultipartFile image){
+    @PutMapping(value = "/me/profile-picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<SuccessResult> uploadProfilePicture(@Parameter(
+            description = "Profile picture",
+            required = true,
+            content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+                                                                  @RequestPart("image") MultipartFile image){
 
         userService.updateProfilePicture(image);
 

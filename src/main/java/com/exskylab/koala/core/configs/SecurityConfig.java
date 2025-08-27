@@ -78,6 +78,9 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/v3/api-docs.yaml").permitAll()
 
+                        //allow preflight requests
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
+
 
 
                         .anyRequest().authenticated()

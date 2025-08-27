@@ -1,5 +1,6 @@
 package com.exskylab.koala.core.configs;
 
+import com.exskylab.koala.core.properties.AppProperties;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -14,12 +15,18 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
+    private final AppProperties appProperties;
+
+    public OpenApiConfig(AppProperties appProperties) {
+        this.appProperties = appProperties;
+    }
+
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info().title("Koala API").version("v1.0"))
                 .servers(List.of(
-                        new Server().url("https://api.iskoala.com")
+                        new Server().url(appProperties.apiUrl())
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
