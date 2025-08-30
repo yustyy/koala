@@ -15,4 +15,6 @@ public interface CountryDao extends JpaRepository<Country, UUID> {
 
     Optional<Country> findByCodeAndNameAllIgnoreCase(String code, String name);
 
+    Optional<Country> findByCodeAllIgnoreCase(String code);
+
 }

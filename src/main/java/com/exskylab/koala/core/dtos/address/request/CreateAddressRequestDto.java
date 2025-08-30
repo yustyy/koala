@@ -15,9 +15,6 @@ import org.springframework.stereotype.Service;
 @NoArgsConstructor
 public class CreateAddressRequestDto {
 
-    @NotBlank(message = AddressMessages.COUNTRY_NAME_NOT_BLANK)
-    private String countryName;
-
     @NotBlank(message = AddressMessages.COUNTRY_CODE_NOT_BLANK)
     @Size(min = 2, max = 3, message = AddressMessages.COUNTRY_CODE_MIN_MAX_LENGTH)
     private String countryCode;

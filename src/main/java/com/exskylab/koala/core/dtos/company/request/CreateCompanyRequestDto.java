@@ -2,6 +2,7 @@ package com.exskylab.koala.core.dtos.company.request;
 
 import com.exskylab.koala.core.constants.CompanyMessages;
 import com.exskylab.koala.core.customValidations.ValidEnum;
+import com.exskylab.koala.core.dtos.address.request.CreateAddressRequestDto;
 import com.exskylab.koala.entities.CompanyType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -24,6 +25,9 @@ public class CreateCompanyRequestDto {
     @Email(message = CompanyMessages.INVALID_EMAIL)
     @NotBlank(message = CompanyMessages.COMPANY_EMAIL_NOT_BLANK)
     private String email;
+
+    @NotNull(message = CompanyMessages.COMPANY_ADDRESS_NOT_NULL)
+    private CreateAddressRequestDto address;
 
     @NotBlank(message = CompanyMessages.COMPANY_PHONE_NUMBER_NOT_BLANK)
     private String phoneNumber;

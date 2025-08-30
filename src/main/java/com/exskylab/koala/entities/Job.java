@@ -24,8 +24,19 @@ public class Job extends BaseEntity{
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false)
+    @JoinColumn(name = "company_id")
     private Company company;
+
+    @ManyToOne
+    @JoinColumn(name = "creator_id")
+    private User creator;
+
+    @ManyToOne
+    @JoinColumn(name = "job_category_id")
+    private JobCategory category;
+
+    @Enumerated(EnumType.STRING)
+    private JobEmployerType employerType;
 
     @Column(name = "title")
     private String title;
@@ -42,6 +53,9 @@ public class Job extends BaseEntity{
     @Column(name = "location")
     private String duties;
 
+    @Column(name = "insurance_required")
+    private boolean insuranceRequired;
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Address address;
 
@@ -56,6 +70,9 @@ public class Job extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     private SalaryType salaryType;
+
+    @Column(name = "salary")
+    private double salary;
 
     @Column(name = "min_age")
     private int minAge;

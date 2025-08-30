@@ -11,10 +11,12 @@ public class CompanyMapper {
 
     private final R2Properties r2Properties;
     private final CompanyContactMapper companyContactMapper;
+    private final AddressMapper addressMapper;
 
-    public CompanyMapper(R2Properties r2Properties, CompanyContactMapper companyContactMapper) {
+    public CompanyMapper(R2Properties r2Properties, CompanyContactMapper companyContactMapper, AddressMapper addressMapper) {
         this.r2Properties = r2Properties;
         this.companyContactMapper = companyContactMapper;
+        this.addressMapper = addressMapper;
     }
 
     public CompanyDto toCompanyDto(Company company) {
@@ -30,6 +32,7 @@ public class CompanyMapper {
         companyDto.setTaxNumber(company.getTaxNumber());
         companyDto.setType(company.getType());
         companyDto.setCompanyContacts(companyContactMapper.toCompanyContactWithoutCompanyDtoList(company.getContacts()));
+        companyDto.setAddress(addressMapper.toAddressDto(company.getAddress()));
 
         return companyDto;
     }
@@ -45,6 +48,7 @@ public class CompanyMapper {
         dto.setDescription(company.getDescription());
         dto.setTaxNumber(company.getTaxNumber());
         dto.setType(company.getType());
+        dto.setAddress(addressMapper.toAddressDto(company.getAddress()));
         return dto;
     }
 }

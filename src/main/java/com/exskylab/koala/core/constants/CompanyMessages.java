@@ -17,4 +17,6 @@ public class CompanyMessages {
     public static final String USER_ALREADY_A_CONTACT = "{user.already.a.contact}";
     public static final String INVALID_COMPANY_CONTACT_ROLE = "{invalid.company.contact.role}";
     public static final String COMPANY_CONTACT_INVITATIONS_LISTED_SUCCESS = "{company.contact.invitations.listed.success}";
+    public static final String JOB_CREATED_SUCCESS =  "{job.created.success}";
+    public static final String COMPANY_ADDRESS_NOT_NULL = "{company.address.not.null}";
 }

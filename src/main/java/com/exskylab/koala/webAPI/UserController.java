@@ -1,19 +1,22 @@
 package com.exskylab.koala.webAPI;
 
+import com.exskylab.koala.business.abstracts.JobService;
 import com.exskylab.koala.business.abstracts.SecurityService;
 import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.core.constants.UserMessages;
-import com.exskylab.koala.core.dtos.address.request.CreateAddressRequestDto;
-import com.exskylab.koala.core.dtos.address.response.AddressDto;
+import com.exskylab.koala.core.dtos.job.request.UsersMeJobsPostRequestDto;
+import com.exskylab.koala.core.dtos.job.response.UsersMeJobsPostResponseDto;
 import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UserMePatchRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UsersMeIdentityVerificationRequestDto;
 import com.exskylab.koala.core.dtos.user.response.UserMeResponseDto;
 import com.exskylab.koala.core.dtos.user.response.UserUpdateResponseDto;
+import com.exskylab.koala.core.mappers.JobMapper;
 import com.exskylab.koala.core.mappers.UserMapper;
 import com.exskylab.koala.core.security.JwtService;
 import com.exskylab.koala.core.utilities.results.SuccessDataResult;
 import com.exskylab.koala.core.utilities.results.SuccessResult;
+import com.exskylab.koala.entities.Job;
 import com.exskylab.koala.entities.User;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -38,12 +41,16 @@ public class UserController {
     private final UserMapper userMapper;
     private final JwtService jwtService;
     private final SecurityService securityService;
+    private final JobService jobService;
+    private final JobMapper jobMapper;
 
-    public UserController(UserService userService, UserMapper userMapper, JwtService jwtService, SecurityService securityService) {
+    public UserController(UserService userService, UserMapper userMapper, JwtService jwtService, SecurityService securityService, JobService jobService, JobMapper jobMapper) {
         this.userService = userService;
         this.userMapper= userMapper;
         this.jwtService = jwtService;
         this.securityService = securityService;
+        this.jobService = jobService;
+        this.jobMapper = jobMapper;
     }
 
    @GetMapping("/me")
@@ -119,6 +126,7 @@ public class UserController {
 
 
 
+    /*
     @PostMapping("/me/addresses")
     public ResponseEntity<SuccessDataResult<AddressDto>> addAddress(@RequestBody @Valid CreateAddressRequestDto createAddressRequestDto){
 
@@ -129,7 +137,25 @@ public class UserController {
 
     }
 
+     */
 
+
+    @PostMapping("/me/jobs")
+    public ResponseEntity<SuccessDataResult<UsersMeJobsPostResponseDto>> createJobForCurrentUser(@RequestBody @Valid UsersMeJobsPostRequestDto usersMeJobsPostRequestDto){
+
+        Job createdJob = jobService.createIndividualJob(usersMeJobsPostRequestDto);
+
+        var responseDto = jobMapper.toUsersMeJobsPostResponseDto(createdJob);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                new SuccessDataResult<UsersMeJobsPostResponseDto>(
+                        responseDto,
+                        UserMessages.JOB_CREATED_SUCCESSFULLY,
+                        HttpStatus.CREATED
+                ));
+
+
+    }
 
 
 }

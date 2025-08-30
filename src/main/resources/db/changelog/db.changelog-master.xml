@@ -11,4 +11,5 @@
     <include file="/db/changelog/2025/08/21-01-initial-education-data.xml"/>
     <include file="db/changelog/2025/08/22-01-changelog.xml"/>
     <include file="db/changelog/2025/08/23-01-initial-address-data.xml"/>
+    <include file="db/changelog/2025/08/29-01-updates-on-job-entity-changelog.xml"/>
 </databaseChangeLog>

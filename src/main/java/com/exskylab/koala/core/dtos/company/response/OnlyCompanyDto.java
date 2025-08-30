@@ -1,5 +1,6 @@
 package com.exskylab.koala.core.dtos.company.response;
 
+import com.exskylab.koala.core.dtos.address.response.AddressDto;
 import com.exskylab.koala.entities.CompanyType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,5 +32,7 @@ public class OnlyCompanyDto {
     private String taxNumber;
 
     private CompanyType type;
+
+    private AddressDto address;
 
 }

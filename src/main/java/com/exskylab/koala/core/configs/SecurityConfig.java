@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/companies/").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/companies/{companyId}/contact-invitations").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/companies/{companyId}/contact-invitations").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/companies/{companyId}/jobs").hasAnyRole("USER", "ADMIN")
 
                         //image endpoints
                         .requestMatchers(HttpMethod.POST,"/images/").hasAnyRole("ADMIN")
@@ -68,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/users/me/password").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/users/me/profile-picture").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/users/me/identity-verification").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/users/me/jobs").hasAnyRole("USER", "ADMIN")
 
                         //verification endpoints
                         .requestMatchers(HttpMethod.POST, "/user-verifications/{id}").hasAnyRole("USER", "ADMIN")

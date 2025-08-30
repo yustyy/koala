@@ -19,4 +19,6 @@ public interface CompanyService {
 
     List<CompanyContactInvitation> getCompanyContactInvitations(UUID companyId);
 
+    Company getCompanyById(UUID companyId);
+
 }

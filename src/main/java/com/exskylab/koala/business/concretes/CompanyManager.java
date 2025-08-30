@@ -9,6 +9,8 @@ import com.exskylab.koala.core.exceptions.CompanyNotFoundException;
 import com.exskylab.koala.core.exceptions.UserNotAssosiatedWithCompanyException;
 import com.exskylab.koala.dataAccess.CompanyDao;
 import com.exskylab.koala.entities.*;
+import jakarta.persistence.EntityManager;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,12 +33,16 @@ public class CompanyManager implements CompanyService {
     private final SecurityService securityService;
 
     private final static Logger logger = LoggerFactory.getLogger(CompanyManager.class);
+    private final AddressService addressService;
+
+    private final EntityManager entityManager;
 
     public CompanyManager(CompanyDao companyDao, UserService userService,
                           NotificationService notificationService, ImageService imageService,
                           CompanyContactService companyContactService,
                           CompanyContactInvitationService companyContactInvitationService,
-                          SecurityService securityService) {
+                          SecurityService securityService, AddressService addressService,
+                          EntityManager entityManager) {
         this.companyDao = companyDao;
         this.userService = userService;
         this.notificationService = notificationService;
@@ -44,6 +50,8 @@ public class CompanyManager implements CompanyService {
         this.companyContactService = companyContactService;
         this.companyContactInvitationService = companyContactInvitationService;
         this.securityService = securityService;
+        this.addressService = addressService;
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -64,6 +72,11 @@ public class CompanyManager implements CompanyService {
             throw new IllegalArgumentException(CompanyMessages.USER_MUST_VERIFY_IDENTITY);
         }
 
+        Address address = addressService.createAddress(createCompanyRequestDto.getAddress());
+        logger.info("Address created for company with addressId: {}", address.getId());
+
+
+
         var company = new Company();
         company.setName(createCompanyRequestDto.getName());
         company.setEmail(createCompanyRequestDto.getEmail());
@@ -72,6 +85,7 @@ public class CompanyManager implements CompanyService {
         company.setDescription(createCompanyRequestDto.getDescription());
         company.setTaxNumber(createCompanyRequestDto.getTaxNumber());
         company.setType(companyType);
+        company.setAddress(address);
         company.setApproved(false);
 
         if (logo != null && !logo.isEmpty()) {
@@ -91,13 +105,25 @@ public class CompanyManager implements CompanyService {
         var savedCompany = companyDao.save(company);
         logger.info("Company contact created for user with id: {} and company with id: {}", user.getId(), company.getId());
 
+        entityManager.flush();
+
+        entityManager.clear();
+
 
         sendCompanyCreatedMail(savedCompany, companyContact);
 
         logger.info("Notification sent to user with id: {} for company with id: {}", user.getId(), company.getId());
 
 
-        return savedCompany;
+
+        var returnCompany = companyDao.findById(savedCompany.getId()).orElseThrow(() -> {
+            logger.error("Company with id: {} not found after saving.", company.getId());
+            return new CompanyNotFoundException(CompanyMessages.COMPANY_NOT_FOUND);
+        });
+
+
+
+        return returnCompany;
 
     }
 
@@ -183,6 +209,16 @@ public class CompanyManager implements CompanyService {
         logger.info("Company contact invitations for company with id: {} retrieved successfully.", companyId);
 
         return invitations;
+    }
+
+    @Override
+    public Company getCompanyById(UUID companyId) {
+        logger.info("Getting company with id: {}", companyId);
+
+        return companyDao.findById(companyId).orElseThrow(() -> {
+            logger.error("Company with id: {} not found.", companyId);
+            return new CompanyNotFoundException(CompanyMessages.COMPANY_NOT_FOUND);
+        });
     }
 
     private void sendCompanyCreatedMail(Company savedCompany, CompanyContact contact ) {

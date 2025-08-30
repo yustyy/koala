@@ -8,4 +8,7 @@ public class AddressMessages {
     public static final String ADDRESS_LINE_NOT_BLANK = "{address.addressLine.notBlank}";
     public static final String LATITUDE_NOT_NULL = "{address.latitude.notNull}";
     public static final String LONGITUDE_NOT_NULL = "{address.longitude.notNull}";
+    public static final String COUNTRY_NOT_FOUND = "{address.country.notFound}";
+    public static final String CITY_NOT_FOUND = "{address.city.notFound}";
+    public static final String DISTRICT_NOT_FOUND = "{address.district.notFound}";
 }

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1756494070152-2" author="yusssss">
+        <createTable tableName="job_categories">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_job_categorıes"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="requires_insurance" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756494070152-3" author="yusssss">
+        <createTable tableName="users_saved_jobs">
+            <column name="job_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756494070152-4" author="yusssss">
+        <addColumn tableName="jobs">
+            <column name="creator_id" type="UUID"/>
+            <column name="employer_type" type="VARCHAR(255)"/>
+            <column name="insurance_required" type="BOOLEAN"/>
+            <column name="job_category_id" type="UUID"/>
+            <column name="salary" type="DOUBLE"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1756494070152-7" author="yusssss">
+        <addColumn tableName="users">
+            <column name="is_employer" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1756494070152-10" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="creator_id" baseTableName="jobs" constraintName="FK_JOBS_ON_CREATOR"
+                                 referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1756494070152-11" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="job_category_id" baseTableName="jobs"
+                                 constraintName="FK_JOBS_ON_JOB_CATEGORY" referencedColumnNames="id"
+                                 referencedTableName="job_categories"/>
+    </changeSet>
+    <changeSet id="1756494070152-12" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="job_id" baseTableName="users_saved_jobs"
+                                 constraintName="fk_usesavjob_on_job" referencedColumnNames="id"
+                                 referencedTableName="jobs"/>
+    </changeSet>
+    <changeSet id="1756494070152-13" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="users_saved_jobs"
+                                 constraintName="fk_usesavjob_on_user" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1756494070152-1" author="yusssss">
+        <dropNotNullConstraint columnDataType="uuid" columnName="company_id" tableName="jobs"/>
+    </changeSet>
+
+</databaseChangeLog>
