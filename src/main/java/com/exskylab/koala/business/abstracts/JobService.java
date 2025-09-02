@@ -12,4 +12,7 @@ public interface JobService {
     Job createCorporateJob(String companyId, CompaniesCompanyIdJobsPostRequestDto companiesCompanyIdJobsPostRequestDto);
 
     Job getById(String jobId);
+
+    boolean existsById(String jobId);
+
 }

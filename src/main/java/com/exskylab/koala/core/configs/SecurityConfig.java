@@ -75,9 +75,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user-verifications/{id}").hasAnyRole("USER", "ADMIN")
 
 
-
                         //job endpoints
                         .requestMatchers(HttpMethod.POST, "/jobs/{jobId}/applications").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/jobs/{jobId}/applications").hasAnyRole("USER", "ADMIN")
+
+
+                        //job-application endpoints
+                        .requestMatchers(HttpMethod.PATCH, "/job-applications/{applicationId}").hasAnyRole("USER", "ADMIN")
 
 
                         //swagger

@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NotNull
-public class JobsJobIdApplicationsRequestDto {
+public class JobsJobIdApplicationsPostRequestDto {
 
     private String notes;
 

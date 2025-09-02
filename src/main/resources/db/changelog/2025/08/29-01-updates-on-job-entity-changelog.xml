@@ -33,11 +33,6 @@
             <column name="salary" type="DOUBLE"/>
         </addColumn>
     </changeSet>
-    <changeSet id="1756494070152-7" author="yusssss">
-        <addColumn tableName="users">
-            <column name="is_employer" type="BOOLEAN"/>
-        </addColumn>
-    </changeSet>
     <changeSet id="1756494070152-10" author="yusssss">
         <addForeignKeyConstraint baseColumnNames="creator_id" baseTableName="jobs" constraintName="FK_JOBS_ON_CREATOR"
                                  referencedColumnNames="id" referencedTableName="users"/>

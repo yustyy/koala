@@ -494,6 +494,7 @@
             <column name="email_verified" type="BOOLEAN"/>
             <column name="phone_verified" type="BOOLEAN"/>
             <column name="identity_verified" type="BOOLEAN"/>
+            <column name="is_employer" type="BOOLEAN"/>
         </createTable>
     </changeSet>
     <changeSet id="1755816301696-25" author="yusssss">

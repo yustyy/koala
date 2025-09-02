@@ -1,22 +1,21 @@
 package com.exskylab.koala.business.concretes;
 
-import com.exskylab.koala.business.abstracts.CompanyContactService;
-import com.exskylab.koala.business.abstracts.JobApplicationService;
-import com.exskylab.koala.business.abstracts.JobService;
-import com.exskylab.koala.business.abstracts.SecurityService;
+import com.exskylab.koala.business.abstracts.*;
 import com.exskylab.koala.core.constants.JobApplicationMessages;
-import com.exskylab.koala.core.dtos.jobApplication.request.JobsJobIdApplicationsRequestDto;
+import com.exskylab.koala.core.dtos.jobApplication.request.JobApplicationsApplicationIdPatchRequestDto;
+import com.exskylab.koala.core.dtos.jobApplication.request.JobsJobIdApplicationsPostRequestDto;
+import com.exskylab.koala.core.dtos.jobApplication.response.JobApplicationsApplicationIdPatchResponseDto;
+import com.exskylab.koala.core.exceptions.ResourceNotFoundException;
+import com.exskylab.koala.core.mappers.JobApplicationMapper;
 import com.exskylab.koala.dataAccess.JobApplicationDao;
-import com.exskylab.koala.entities.ApplicationStatus;
-import com.exskylab.koala.entities.JobApplication;
-import com.exskylab.koala.entities.JobEmployerType;
-import com.exskylab.koala.entities.User;
+import com.exskylab.koala.entities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,20 +25,26 @@ public class JobApplicationManager implements JobApplicationService {
     private final JobService jobService;
     private final CompanyContactService companyContactService;
     private final SecurityService securityService;
+    private final JobAssignmentService jobAssignmentService;
 
     private final Logger logger = LoggerFactory.getLogger(JobApplicationManager.class);
+    private final JobApplicationMapper jobApplicationMapper;
 
 
-    public JobApplicationManager(JobApplicationDao jobApplicationDao, JobService jobService, SecurityService securityService, CompanyContactService companyContactService) {
+    public JobApplicationManager(JobApplicationDao jobApplicationDao, JobService jobService,
+                                 SecurityService securityService, CompanyContactService companyContactService,
+                                 JobAssignmentService jobAssignmentService, JobApplicationMapper jobApplicationMapper) {
         this.jobApplicationDao = jobApplicationDao;
         this.jobService = jobService;
         this.securityService = securityService;
         this.companyContactService = companyContactService;
+        this.jobAssignmentService = jobAssignmentService;
+        this.jobApplicationMapper = jobApplicationMapper;
     }
 
     @Override
     @Transactional
-    public JobApplication applyToJob(String jobId, JobsJobIdApplicationsRequestDto jobsJobIdApplicationsRequestDto) {
+    public JobApplication applyToJob(String jobId, JobsJobIdApplicationsPostRequestDto jobsJobIdApplicationsPostRequestDto) {
         logger.info("Applying to job with id: {}", jobId);
         var job = jobService.getById(jobId);
 
@@ -63,7 +68,7 @@ public class JobApplicationManager implements JobApplicationService {
         JobApplication jobApplication = new JobApplication();
         jobApplication.setJob(job);
         jobApplication.setUser(authenticatedUser);
-        jobApplication.setNotes(jobsJobIdApplicationsRequestDto.getNotes());
+        jobApplication.setNotes(jobsJobIdApplicationsPostRequestDto.getNotes());
         jobApplication.setStatus(ApplicationStatus.APPLIED);
         jobApplication.setApplicationDateTime(LocalDateTime.now());
         jobApplication.setAssignment(null);
@@ -72,6 +77,76 @@ public class JobApplicationManager implements JobApplicationService {
         logger.info("Saved job application with id: {}", jobApplication.getId());
 
         return savedJobApplication;
+
+    }
+
+    @Override
+    public List<JobApplication> getJobApplicationsByIdJobId(String jobId) {
+        logger.info("Fetching job applications for job id: {}", jobId);
+        Job job = jobService.getById(jobId);
+
+        if (job.getEmployerType().equals(JobEmployerType.COMPANY)) {
+            if (!companyContactService.isUserAContactOfCompany(job.getCompany().getId(), securityService.getAuthenticatedUserFromContext().getId())) {
+                throw new IllegalArgumentException(JobApplicationMessages.USER_NOT_CONTACT_OF_COMPANY_TO_VIEW_APPLICATIONS);
+            }
+        } else if (job.getEmployerType().equals(JobEmployerType.INDIVIDUAL)) {
+            if (!job.getCreator().getId().equals(securityService.getAuthenticatedUserFromContext().getId())) {
+                throw new ResourceNotFoundException(JobApplicationMessages.USER_NOT_CREATOR_OF_INDIVIDUAL_JOB_TO_VIEW_APPLICATIONS);
+            }
+        }
+
+        List<JobApplication> jobApplications = jobApplicationDao.findAllByJobId(UUID.fromString(jobId));
+        logger.info("Found {} applications for job id: {}", jobApplications.size(), jobId);
+        return jobApplications;
+    }
+
+    @Override
+    public JobApplicationsApplicationIdPatchResponseDto respondToApplication(String applicationId, JobApplicationsApplicationIdPatchRequestDto jobApplicationsApplicationIdPatchRequestDto) {
+        logger.info("Responding to application with id: {}", applicationId);
+
+
+        ApplicationStatus status;
+        try{
+            status = ApplicationStatus.valueOf(jobApplicationsApplicationIdPatchRequestDto.getStatus());
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid status value: {}", jobApplicationsApplicationIdPatchRequestDto.getStatus());
+            throw new IllegalArgumentException(JobApplicationMessages.INVALID_APPLICATION_STATUS);
+        }
+
+        JobApplication jobApplication = jobApplicationDao.findById(UUID.fromString(applicationId)).orElseThrow(() -> {
+            logger.error("Job application with id: {} not found", applicationId);
+            return new ResourceNotFoundException(JobApplicationMessages.JOB_APPLICATION_NOT_FOUND);
+        });
+
+
+        jobApplication.setStatus(status);
+        jobApplication.setAnsweredDateTime(LocalDateTime.now());
+        JobAssignment assignmentToReturn = null;
+
+        if (status.equals(ApplicationStatus.ACCEPTED)){
+            JobAssignment jobAssignment = new JobAssignment();
+            jobAssignment.setJob(jobApplication.getJob());
+            jobAssignment.setWorker(jobApplication.getUser());
+            jobAssignment.setApplication(jobApplication);
+            jobAssignment.setStatus(AssignmentStatus.PENDING_CONFIRMATION);
+            jobAssignment.setPaymentStatus(PaymentStatus.PENDING);
+
+            assignmentToReturn = jobAssignmentService.createJobAssignmentFromApplication(jobAssignment);
+            logger.info("Job application with id: {} accepted", applicationId);
+
+        }else if (status.equals(ApplicationStatus.REJECTED)){
+            jobApplication.setRejectionReason(jobApplicationsApplicationIdPatchRequestDto.getRejectionReason());
+            logger.info("Job application with id: {} rejected", applicationId);
+
+        } else {
+            logger.error("Invalid status transition attempted: {}", status);
+            throw new IllegalArgumentException(JobApplicationMessages.INVALID_STATUS_TRANSITION);
+        }
+
+        jobApplicationDao.save(jobApplication);
+        logger.info("Saved job application with id: {}", jobApplication.getId());
+
+        return jobApplicationMapper.toJobApplicationsApplicationIdPatchResponseDto(jobApplication);
 
     }
 }

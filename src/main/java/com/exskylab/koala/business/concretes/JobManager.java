@@ -190,4 +190,10 @@ public class JobManager implements JobService {
             return new ResourceNotFoundException(JobMessages.JOB_NOT_FOUND);
         });
     }
+
+    @Override
+    public boolean existsById(String jobId) {
+        logger.info("Checking existence of job with id: {}", jobId);
+        return jobDao.existsById(UUID.fromString(jobId));
+    }
 }

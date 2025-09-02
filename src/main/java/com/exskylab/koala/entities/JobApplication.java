@@ -39,6 +39,12 @@ public class JobApplication extends BaseEntity{
     @Column(name = "notes")
     private String notes;
 
+    @Column(name = "rejection_reason")
+    private String rejectionReason;
+
+    @Column(name = "answered_date_time")
+    private LocalDateTime answeredDateTime;
+
     @OneToOne(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private JobAssignment assignment;
 
