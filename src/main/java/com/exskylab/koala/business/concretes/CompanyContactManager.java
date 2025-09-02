@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class CompanyContactManager implements CompanyContactService {
 
@@ -33,5 +35,13 @@ public class CompanyContactManager implements CompanyContactService {
 
         logger.info("Saved company contact with id: {}", savedContact.getId());
         return savedContact;
+    }
+
+    @Override
+    public boolean isUserAContactOfCompany(UUID companyId, UUID userId) {
+        logger.info("Checking if user with id: {} is a contact of company with id: {}", userId, companyId);
+        boolean isContact = companyContactDao.existsByCompanyIdAndUserId(companyId, userId);
+        logger.info("Is user with id: {} a contact of company with id: {}: {}", userId, companyId, isContact);
+        return isContact;
     }
 }

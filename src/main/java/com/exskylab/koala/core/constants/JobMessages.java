@@ -21,4 +21,6 @@ public class JobMessages {
     public static final String INSURANCE_REQUIRED_NOT_NULL = "{job.insurance.required.not.null}";
     public static final String USER_IS_NOT_A_CONTACT_OF_COMPANY = "{job.user.is.not.a.contact.of.company}";
     public static final String JOB_CATEGORY_REQUIRES_INSURANCE = "{job.job.category.requires.insurance}";
+    public static final String JOB_NOT_FOUND = "{job.not.found}";
+    public static final String USER_CANNOT_APPLY_TO_OWN_JOB = "{job.user.cannot.apply.to.own.job}";
 }

@@ -1,6 +1,7 @@
 package com.exskylab.koala.core.mappers;
 
 import com.exskylab.koala.core.dtos.job.response.CompaniesCompanyIdJobsPostResponseDto;
+import com.exskylab.koala.core.dtos.job.response.ShortJobDto;
 import com.exskylab.koala.core.dtos.job.response.UsersMeJobsPostResponseDto;
 import com.exskylab.koala.entities.Job;
 import org.springframework.stereotype.Component;
@@ -74,6 +75,13 @@ public class JobMapper {
         dto.setExperienceRequired(job.isExperienceRequired());
         dto.setDressCode(job.getDressCode());
         dto.setStatus(job.getStatus());
+        return dto;
+    }
+
+    public ShortJobDto toShortJobDto(Job job) {
+        ShortJobDto dto = new ShortJobDto();
+        dto.setId(job.getId());
+        dto.setTitle(job.getTitle());
         return dto;
     }
 }

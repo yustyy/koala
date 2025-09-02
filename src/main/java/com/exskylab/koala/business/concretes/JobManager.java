@@ -4,6 +4,7 @@ import com.exskylab.koala.business.abstracts.*;
 import com.exskylab.koala.core.constants.JobMessages;
 import com.exskylab.koala.core.dtos.job.request.CompaniesCompanyIdJobsPostRequestDto;
 import com.exskylab.koala.core.dtos.job.request.UsersMeJobsPostRequestDto;
+import com.exskylab.koala.core.exceptions.ResourceNotFoundException;
 import com.exskylab.koala.core.exceptions.UserIsNotEmployerException;
 import com.exskylab.koala.dataAccess.JobDao;
 import com.exskylab.koala.entities.*;
@@ -178,5 +179,15 @@ public class JobManager implements JobService {
 
         return savedJob;
 
+    }
+
+    @Override
+    public Job getById(String jobId) {
+        logger.info("Getting job with id: {}", jobId);
+
+        return jobDao.findById(UUID.fromString(jobId)).orElseThrow(() -> {
+            logger.error("Job with id: {} not found.", jobId);
+            return new ResourceNotFoundException(JobMessages.JOB_NOT_FOUND);
+        });
     }
 }

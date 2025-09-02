@@ -23,11 +23,11 @@ public class JobApplication extends BaseEntity{
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "job_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "job_id", nullable = false)
     private Job job;
 
     @Column(name = "application_date_time")

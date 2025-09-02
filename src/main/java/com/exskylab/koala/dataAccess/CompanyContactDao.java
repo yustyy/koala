@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface CompanyContactDao extends JpaRepository<CompanyContact, UUID> {
+    boolean existsByCompanyIdAndUserId(UUID companyId, UUID userId);
 }
