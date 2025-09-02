@@ -20,7 +20,7 @@ import java.util.UUID;
 @Service
 public class DeviceManager implements DeviceService {
 
-    private DeviceDao deviceDao;
+    private final DeviceDao deviceDao;
     private final UserAgentAnalyzer userAgentAnalyzer;
 
     public DeviceManager(DeviceDao deviceDao) {

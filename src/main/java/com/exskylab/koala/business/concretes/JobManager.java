@@ -22,7 +22,7 @@ public class JobManager implements JobService {
     private final Logger logger = LoggerFactory.getLogger(JobManager.class);
     private final CompanyService companyService;
 
-    private SecurityService securityService;
+    private final SecurityService securityService;
 
     private final JobCategoryService jobCategoryService;
 

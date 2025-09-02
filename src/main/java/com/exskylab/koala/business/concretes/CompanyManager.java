@@ -28,7 +28,6 @@ public class CompanyManager implements CompanyService {
     private final UserService userService;
     private final NotificationService notificationService;
     private final ImageService imageService;
-    private final CompanyContactService companyContactService;
     private final CompanyContactInvitationService companyContactInvitationService;
     private final SecurityService securityService;
 
@@ -39,7 +38,6 @@ public class CompanyManager implements CompanyService {
 
     public CompanyManager(CompanyDao companyDao, UserService userService,
                           NotificationService notificationService, ImageService imageService,
-                          CompanyContactService companyContactService,
                           CompanyContactInvitationService companyContactInvitationService,
                           SecurityService securityService, AddressService addressService,
                           EntityManager entityManager) {
@@ -47,7 +45,6 @@ public class CompanyManager implements CompanyService {
         this.userService = userService;
         this.notificationService = notificationService;
         this.imageService = imageService;
-        this.companyContactService = companyContactService;
         this.companyContactInvitationService = companyContactInvitationService;
         this.securityService = securityService;
         this.addressService = addressService;
