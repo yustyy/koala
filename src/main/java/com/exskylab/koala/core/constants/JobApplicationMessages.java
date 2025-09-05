@@ -14,4 +14,5 @@ public class JobApplicationMessages {
     public static final String INVALID_APPLICATION_STATUS = "{job.application.invalid.application.status}";
     public static final String INVALID_STATUS_TRANSITION = "{job.application.invalid.status.transition}";
     public static final String JOB_APPLICATION_RESPONDED_SUCCESS = "{job.application.responded.success}";
+    public static final String JOB_APPLICATION_ALREADY_RESPONDED = "{job.application.already.responded}";
 }

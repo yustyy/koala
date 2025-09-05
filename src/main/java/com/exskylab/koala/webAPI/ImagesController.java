@@ -34,12 +34,10 @@ public class ImagesController {
     @PostMapping("/")
     public ResponseEntity<SuccessDataResult<UploadImageResponseDto>> uploadImage(@RequestParam("image") MultipartFile image){
 
-        Image responseImage = imageService.uploadImage(image);
-
-        var imageDto = imageMapper.toUploadImageResponseDto(responseImage);
+        UploadImageResponseDto responseImage = imageService.uploadImageDto(image);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                new SuccessDataResult<UploadImageResponseDto>(imageDto,
+                new SuccessDataResult<UploadImageResponseDto>(responseImage,
                         ImageMessages.UPLOAD_IMAGE_SUCCESS,
                         HttpStatus.CREATED
         ));

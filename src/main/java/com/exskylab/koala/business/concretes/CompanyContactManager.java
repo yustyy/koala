@@ -1,6 +1,7 @@
 package com.exskylab.koala.business.concretes;
 
 import com.exskylab.koala.business.abstracts.CompanyContactService;
+import com.exskylab.koala.business.abstracts.CompanyService;
 import com.exskylab.koala.dataAccess.CompanyContactDao;
 import com.exskylab.koala.entities.Company;
 import com.exskylab.koala.entities.CompanyContact;
@@ -43,5 +44,13 @@ public class CompanyContactManager implements CompanyContactService {
         boolean isContact = companyContactDao.existsByCompanyIdAndUserId(companyId, userId);
         logger.info("Is user with id: {} a contact of company with id: {}: {}", userId, companyId, isContact);
         return isContact;
+    }
+
+    @Override
+    public boolean isUserAdminOfCompany(UUID companyId, UUID userId) {
+        logger.info("Checking if user with id: {} is an admin of company with id: {}", userId, companyId);
+        boolean isAdmin = companyContactDao.existsByCompanyIdAndUserIdAndRole(companyId, userId, CompanyContactRole.ADMIN);
+        logger.info("Is user with id: {} an admin of company with id: {}: {}", userId, companyId, isAdmin);
+        return isAdmin;
     }
 }

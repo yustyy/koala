@@ -1,5 +1,6 @@
 package com.exskylab.koala.webAPI;
 
+import com.exskylab.koala.business.abstracts.CompanyContactInvitationService;
 import com.exskylab.koala.business.abstracts.CompanyService;
 import com.exskylab.koala.business.abstracts.JobService;
 import com.exskylab.koala.core.constants.CompanyMessages;
@@ -14,11 +15,8 @@ import com.exskylab.koala.core.mappers.CompanyMapper;
 import com.exskylab.koala.core.mappers.JobMapper;
 import com.exskylab.koala.core.utilities.results.SuccessDataResult;
 import com.exskylab.koala.core.utilities.results.SuccessResult;
-import com.exskylab.koala.entities.Company;
 import com.exskylab.koala.entities.CompanyContactInvitation;
 import com.exskylab.koala.entities.Job;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,18 +32,14 @@ import java.util.UUID;
 public class CompanyController {
 
     private final CompanyService companyService;
-    private final CompanyMapper companyMapper;
-    private final CompanyContactInvitationMapper companyContactInvitationMapper;
     private final JobService jobService;
-    private final JobMapper jobMapper;
+    private final CompanyContactInvitationService companyContactInvitationService;
 
 
-    public CompanyController(CompanyService companyService, CompanyMapper companyMapper, CompanyContactInvitationMapper companyContactInvitationMapper, JobService jobService, JobMapper jobMapper) {
+    public CompanyController(CompanyService companyService, JobService jobService, CompanyContactInvitationService companyContactInvitationService) {
         this.companyService = companyService;
-        this.companyMapper = companyMapper;
-        this.companyContactInvitationMapper = companyContactInvitationMapper;
         this.jobService = jobService;
-        this.jobMapper = jobMapper;
+        this.companyContactInvitationService = companyContactInvitationService;
     }
 
 
@@ -56,10 +50,8 @@ public class CompanyController {
 
         var response = companyService.addCompany(createCompanyRequestDto, logo);
 
-        var dto = companyMapper.toCompanyDto(response);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                new SuccessDataResult<CompanyDto>(dto, CompanyMessages.COMPANY_ADDED_SUCCESS, HttpStatus.CREATED)
+                new SuccessDataResult<CompanyDto>(response, CompanyMessages.COMPANY_ADDED_SUCCESS, HttpStatus.CREATED)
         );
 
     }
@@ -70,7 +62,6 @@ public class CompanyController {
 
         companyService.inviteContactToCompany(companyId, contactToCompanyDto);
 
-
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new SuccessResult(CompanyMessages.COMPANY_CONTACT_INVITATION_SENT_SUCCESS,
                         HttpStatus.CREATED));
@@ -79,13 +70,10 @@ public class CompanyController {
 
     @GetMapping("/{companyId}/contact-invitations")
     public ResponseEntity<SuccessDataResult<List<CompanyContactInvitationDto>>> getCompanyContactInvitations(@PathVariable UUID companyId){
-        List<CompanyContactInvitation> response = companyService.getCompanyContactInvitations(companyId);
-
-
-        var dtos = companyContactInvitationMapper.toCompanyContactInvitationDtoList(response);
+        List<CompanyContactInvitationDto> response = companyContactInvitationService.getCompanyContactInvitationsByCompanyIdDto(companyId);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new SuccessDataResult<List<CompanyContactInvitationDto>>(dtos,
+                new SuccessDataResult<List<CompanyContactInvitationDto>>(response,
                         CompanyMessages.COMPANY_CONTACT_INVITATIONS_LISTED_SUCCESS,
                         HttpStatus.OK
 
@@ -98,13 +86,10 @@ public class CompanyController {
     @PostMapping("/{companyId}/jobs")
     public ResponseEntity<SuccessDataResult<CompaniesCompanyIdJobsPostResponseDto>> createJobForCompany(@PathVariable String companyId,
                                                                                                         @RequestBody @Valid CompaniesCompanyIdJobsPostRequestDto companiesCompanyIdJobsPostRequestDto){
-        Job response = jobService.createCorporateJob(companyId, companiesCompanyIdJobsPostRequestDto);
-
-
-        var dto = jobMapper.toCompaniesCompanyIdJobsPostResponseDto(response);
+        CompaniesCompanyIdJobsPostResponseDto response = jobService.createCorporateJob(companyId, companiesCompanyIdJobsPostRequestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                new SuccessDataResult<CompaniesCompanyIdJobsPostResponseDto>(dto,
+                new SuccessDataResult<CompaniesCompanyIdJobsPostResponseDto>(response,
                         CompanyMessages.JOB_CREATED_SUCCESS,
                         HttpStatus.CREATED
                 ));

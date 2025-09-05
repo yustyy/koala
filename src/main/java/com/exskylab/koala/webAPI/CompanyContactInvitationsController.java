@@ -31,11 +31,9 @@ public class CompanyContactInvitationsController {
 
         var result = companyContactInvitationService.answerToInvitation(invitationId, answerToContactInvitationDto.isAccepted());
 
-        var dto = companyContactInvitationMapper.toGetCompanyContactInvitationDto(result);
-
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new SuccessDataResult<>(
-                        dto,
+                        result,
                         CompanyContactInvitationMessages.INVITATION_ANSWERED_SUCCESS,
                         HttpStatus.OK
                         ));
@@ -47,11 +45,9 @@ public class CompanyContactInvitationsController {
     public ResponseEntity<SuccessDataResult<GetCompanyContactInvitationDto>> getInvitation(@PathVariable UUID invitationId){
         var result = companyContactInvitationService.getInvitationById(invitationId);
 
-        var dto = companyContactInvitationMapper.toGetCompanyContactInvitationDto(result);
-
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new SuccessDataResult<>(
-                        dto,
+                        result,
                         CompanyContactInvitationMessages.INVITATION_FETCHED_SUCCESS,
                         HttpStatus.OK
                 ));

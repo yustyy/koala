@@ -6,6 +6,7 @@ import com.exskylab.koala.core.dtos.user.UpdateUserDto;
 import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UserMePatchRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UsersMeIdentityVerificationRequestDto;
+import com.exskylab.koala.core.dtos.user.response.UserMeResponseDto;
 import com.exskylab.koala.core.dtos.user.response.UserUpdateResponseDto;
 import com.exskylab.koala.entities.Address;
 import com.exskylab.koala.entities.User;
@@ -50,5 +51,7 @@ public interface UserService extends UserDetailsService {
     Address addAddressToAuthenticatedUser(@Valid CreateAddressRequestDto createAddressRequestDto);
 
     void verificateIdentityofAuthenticatedUser(UsersMeIdentityVerificationRequestDto usersMeIdentityVerificationRequestDto);
+
+    UserMeResponseDto getCurrentUserFromDatabaseDto();
 
 }

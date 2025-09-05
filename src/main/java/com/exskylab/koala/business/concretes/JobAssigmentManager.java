@@ -21,7 +21,7 @@ public class JobAssigmentManager implements JobAssignmentService {
 
 
     @Override
-    public JobAssignment createJobAssignmentFromApplication(JobAssignment jobAssignment) {
+    public JobAssignment save(JobAssignment jobAssignment) {
         logger.info("Creating job assignment from application...");
         return jobAssignmentDao.save(jobAssignment);
     }

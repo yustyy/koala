@@ -20,7 +20,6 @@ import com.exskylab.koala.entities.Job;
 import com.exskylab.koala.entities.User;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -56,13 +55,11 @@ public class UserController {
    @GetMapping("/me")
     public ResponseEntity<SuccessDataResult<UserMeResponseDto>> getCurrentUser(){
 
-        User currentUser = securityService.getAuthenticatedUserFromDatabase();
-
-        var userDto =  userMapper.toUserMeResponseDto(currentUser);
+       UserMeResponseDto currentUserDto = userService.getCurrentUserFromDatabaseDto();
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new SuccessDataResult<UserMeResponseDto>(
-                        userDto,
+                        currentUserDto,
                         UserMessages.USER_RETRIEVED_SUCCESSFULLY,
                         HttpStatus.OK
 
@@ -143,13 +140,11 @@ public class UserController {
     @PostMapping("/me/jobs")
     public ResponseEntity<SuccessDataResult<UsersMeJobsPostResponseDto>> createJobForCurrentUser(@RequestBody @Valid UsersMeJobsPostRequestDto usersMeJobsPostRequestDto){
 
-        Job createdJob = jobService.createIndividualJob(usersMeJobsPostRequestDto);
-
-        var responseDto = jobMapper.toUsersMeJobsPostResponseDto(createdJob);
+        UsersMeJobsPostResponseDto createdJob = jobService.createIndividualJob(usersMeJobsPostRequestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new SuccessDataResult<UsersMeJobsPostResponseDto>(
-                        responseDto,
+                        createdJob,
                         UserMessages.JOB_CREATED_SUCCESSFULLY,
                         HttpStatus.CREATED
                 ));

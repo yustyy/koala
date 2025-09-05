@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface CompanyContactInvitationDao extends JpaRepository<CompanyContactInvitation, UUID> {
     List<CompanyContactInvitation> findByCompany(Company company);
 
+    List<CompanyContactInvitation> findByCompanyId(UUID companyId);
+
 }

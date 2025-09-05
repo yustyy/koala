@@ -2,14 +2,14 @@ package com.exskylab.koala.business.abstracts;
 
 import com.exskylab.koala.core.dtos.job.request.CompaniesCompanyIdJobsPostRequestDto;
 import com.exskylab.koala.core.dtos.job.request.UsersMeJobsPostRequestDto;
+import com.exskylab.koala.core.dtos.job.response.CompaniesCompanyIdJobsPostResponseDto;
+import com.exskylab.koala.core.dtos.job.response.UsersMeJobsPostResponseDto;
 import com.exskylab.koala.entities.Job;
 
-import java.util.UUID;
-
 public interface JobService {
-    Job createIndividualJob(UsersMeJobsPostRequestDto usersMeJobsPostRequestDto);
+    UsersMeJobsPostResponseDto createIndividualJob(UsersMeJobsPostRequestDto usersMeJobsPostRequestDto);
 
-    Job createCorporateJob(String companyId, CompaniesCompanyIdJobsPostRequestDto companiesCompanyIdJobsPostRequestDto);
+    CompaniesCompanyIdJobsPostResponseDto createCorporateJob(String companyId, CompaniesCompanyIdJobsPostRequestDto companiesCompanyIdJobsPostRequestDto);
 
     Job getById(String jobId);
 

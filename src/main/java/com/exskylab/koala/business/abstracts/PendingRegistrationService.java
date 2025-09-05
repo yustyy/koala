@@ -2,8 +2,6 @@ package com.exskylab.koala.business.abstracts;
 
 import com.exskylab.koala.core.dtos.auth.request.AuthStartRegistrationDto;
 import com.exskylab.koala.entities.PendingRegistration;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 

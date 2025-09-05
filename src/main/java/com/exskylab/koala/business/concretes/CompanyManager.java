@@ -3,21 +3,21 @@ package com.exskylab.koala.business.concretes;
 import com.exskylab.koala.business.abstracts.*;
 import com.exskylab.koala.core.constants.CompanyMessages;
 import com.exskylab.koala.core.dtos.company.request.CreateCompanyRequestDto;
+import com.exskylab.koala.core.dtos.company.response.CompanyDto;
 import com.exskylab.koala.core.dtos.companyContact.request.InviteContactToCompanyDto;
 import com.exskylab.koala.core.dtos.notification.request.SendEmailDto;
 import com.exskylab.koala.core.exceptions.CompanyNotFoundException;
 import com.exskylab.koala.core.exceptions.UserNotAssosiatedWithCompanyException;
+import com.exskylab.koala.core.mappers.CompanyMapper;
 import com.exskylab.koala.dataAccess.CompanyDao;
 import com.exskylab.koala.entities.*;
 import jakarta.persistence.EntityManager;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -35,12 +35,13 @@ public class CompanyManager implements CompanyService {
     private final AddressService addressService;
 
     private final EntityManager entityManager;
+    private final CompanyMapper companyMapper;
 
     public CompanyManager(CompanyDao companyDao, UserService userService,
                           NotificationService notificationService, ImageService imageService,
                           CompanyContactInvitationService companyContactInvitationService,
                           SecurityService securityService, AddressService addressService,
-                          EntityManager entityManager) {
+                          EntityManager entityManager, CompanyMapper companyMapper) {
         this.companyDao = companyDao;
         this.userService = userService;
         this.notificationService = notificationService;
@@ -49,11 +50,12 @@ public class CompanyManager implements CompanyService {
         this.securityService = securityService;
         this.addressService = addressService;
         this.entityManager = entityManager;
+        this.companyMapper = companyMapper;
     }
 
     @Override
     @Transactional
-    public Company addCompany(CreateCompanyRequestDto createCompanyRequestDto, MultipartFile logo) {
+    public CompanyDto addCompany(CreateCompanyRequestDto createCompanyRequestDto, MultipartFile logo) {
         CompanyType companyType;
         try {
             companyType = CompanyType.valueOf(createCompanyRequestDto.getType());
@@ -120,7 +122,7 @@ public class CompanyManager implements CompanyService {
 
 
 
-        return returnCompany;
+        return companyMapper.toCompanyDto(returnCompany);
 
     }
 
@@ -178,34 +180,6 @@ public class CompanyManager implements CompanyService {
 
         logger.info("Contact with user id: {} invited to company with id: {} successfully.", userToInvite.getId(), companyId);
 
-    }
-
-    @Override
-    public List<CompanyContactInvitation> getCompanyContactInvitations(UUID companyId) {
-        logger.info("Getting company contact invitations for company with id: {}", companyId);
-        var currentUser = securityService.getAuthenticatedUserFromContext();
-
-        var company = companyDao.findById(companyId).orElseThrow(() -> {
-            logger.error("Company with id: {} not found.", companyId);
-            return new CompanyNotFoundException(CompanyMessages.COMPANY_NOT_FOUND);
-        });
-
-        boolean isAdmin = company.getContacts().stream()
-                .anyMatch(contact ->
-                        contact.getUser().getId().equals(currentUser.getId())
-                                && contact.getRole().equals(CompanyContactRole.ADMIN)
-                );
-
-        if (!isAdmin){
-            logger.warn("User with id: {} is not a contact of company with id: {}, terminating request!", currentUser.getId(), companyId);
-            throw new UserNotAssosiatedWithCompanyException(CompanyMessages.USER_NOT_ASSOCIATED_WITH_COMPANY);
-        }
-
-        var invitations = companyContactInvitationService.getInvitationsByCompany(company);
-
-        logger.info("Company contact invitations for company with id: {} retrieved successfully.", companyId);
-
-        return invitations;
     }
 
     @Override

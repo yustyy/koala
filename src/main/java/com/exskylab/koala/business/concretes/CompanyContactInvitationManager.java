@@ -2,10 +2,12 @@ package com.exskylab.koala.business.concretes;
 
 import com.exskylab.koala.business.abstracts.*;
 import com.exskylab.koala.core.constants.CompanyContactInvitationMessages;
+import com.exskylab.koala.core.constants.CompanyMessages;
+import com.exskylab.koala.core.dtos.companyContactInvitation.response.CompanyContactInvitationDto;
+import com.exskylab.koala.core.dtos.companyContactInvitation.response.GetCompanyContactInvitationDto;
 import com.exskylab.koala.core.dtos.notification.request.SendEmailDto;
-import com.exskylab.koala.core.exceptions.CompanyContactInvitationNotFoundException;
-import com.exskylab.koala.core.exceptions.InvitationAlreadyAnsweredException;
-import com.exskylab.koala.core.exceptions.UserNotAssosiatedWithInvitationException;
+import com.exskylab.koala.core.exceptions.*;
+import com.exskylab.koala.core.mappers.CompanyContactInvitationMapper;
 import com.exskylab.koala.dataAccess.CompanyContactInvitationDao;
 import com.exskylab.koala.entities.*;
 import org.slf4j.Logger;
@@ -27,14 +29,16 @@ public class CompanyContactInvitationManager implements CompanyContactInvitation
     private final CompanyContactService companyContactService;
 
     private final Logger logger = LoggerFactory.getLogger(CompanyContactInvitationManager.class);
+    private final CompanyContactInvitationMapper companyContactInvitationMapper;
 
     public CompanyContactInvitationManager(CompanyContactInvitationDao companyContactInvitationDao,
                                            NotificationService notificationService, SecurityService securityService,
-                                           CompanyContactService companyContactService) {
+                                           CompanyContactService companyContactService, CompanyContactInvitationMapper companyContactInvitationMapper) {
         this.companyContactInvitationDao = companyContactInvitationDao;
         this.notificationService = notificationService;
         this.securityService = securityService;
         this.companyContactService = companyContactService;
+        this.companyContactInvitationMapper = companyContactInvitationMapper;
     }
 
 
@@ -75,12 +79,13 @@ public class CompanyContactInvitationManager implements CompanyContactInvitation
     }
 
     @Override
-    public List<CompanyContactInvitation> getInvitationsByCompany(Company company) {
-        return companyContactInvitationDao.findByCompany(company);
+    public List<CompanyContactInvitation> getInvitationsByCompanyId(UUID companyId) {
+        logger.info("Getting invitations for company with id: {}", companyId);
+        return companyContactInvitationDao.findByCompanyId(companyId);
     }
 
     @Override
-    public CompanyContactInvitation answerToInvitation(UUID invitationId, boolean accepted) {
+    public GetCompanyContactInvitationDto answerToInvitation(UUID invitationId, boolean accepted) {
         logger.info("Answering invitation with id: {} to accepted: {}", invitationId, accepted);
         CompanyContactInvitation invitation = companyContactInvitationDao.findById(invitationId)
                 .orElseThrow(() -> new CompanyContactInvitationNotFoundException(CompanyContactInvitationMessages.COMPANY_CONTACT_INVITATION_NOT_FOUND));
@@ -100,7 +105,7 @@ public class CompanyContactInvitationManager implements CompanyContactInvitation
 
         invitation.setAnsweredAt(LocalDateTime.now());
 
-        companyContactInvitationDao.save(invitation);
+        invitation = companyContactInvitationDao.save(invitation);
 
         if (accepted){
             logger.info("Invitation with id: {} accepted. Adding user to company contacts.", invitationId);
@@ -139,13 +144,36 @@ public class CompanyContactInvitationManager implements CompanyContactInvitation
 
         notificationService.sendEmail(invitedByEmailNotification, DispatchPriority.NORMAL, true);
         logger.info("Notifications about the answered invitation have been sent.");
-        return invitation;
+        return companyContactInvitationMapper.toGetCompanyContactInvitationDto(invitation);
     }
 
     @Override
-    public CompanyContactInvitation getInvitationById(UUID invitationId) {
+    public GetCompanyContactInvitationDto getInvitationById(UUID invitationId) {
         logger.info("Getting invitation with id: {}", invitationId);
-        return companyContactInvitationDao.findById(invitationId)
+        var entity = companyContactInvitationDao.findById(invitationId)
                 .orElseThrow(() -> new CompanyContactInvitationNotFoundException(CompanyContactInvitationMessages.COMPANY_CONTACT_INVITATION_NOT_FOUND));
+
+        return companyContactInvitationMapper.toGetCompanyContactInvitationDto(entity);
     }
+
+    @Override
+    public List<CompanyContactInvitationDto> getCompanyContactInvitationsByCompanyIdDto(UUID companyId) {
+        logger.info("Getting company contact invitations for company with id: {}", companyId);
+        var currentUser = securityService.getAuthenticatedUserFromContext();
+
+        var isAdmin = companyContactService.isUserAdminOfCompany(companyId, currentUser.getId());
+
+        if (!isAdmin){
+            logger.warn("User with id: {} is not a contact of company with id: {}, terminating request!", currentUser.getId(), companyId);
+            throw new UserNotAssosiatedWithCompanyException(CompanyMessages.USER_NOT_ASSOCIATED_WITH_COMPANY);
+        }
+
+        var invitations = getInvitationsByCompanyId(companyId);
+
+        logger.info("Company contact invitations for company with id: {} retrieved successfully.", companyId);
+
+        return companyContactInvitationMapper.toCompanyContactInvitationDtoList(invitations);
+    }
+
+
 }

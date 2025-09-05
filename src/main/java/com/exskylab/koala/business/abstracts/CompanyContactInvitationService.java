@@ -1,5 +1,7 @@
 package com.exskylab.koala.business.abstracts;
 
+import com.exskylab.koala.core.dtos.companyContactInvitation.response.CompanyContactInvitationDto;
+import com.exskylab.koala.core.dtos.companyContactInvitation.response.GetCompanyContactInvitationDto;
 import com.exskylab.koala.entities.Company;
 import com.exskylab.koala.entities.CompanyContactInvitation;
 import com.exskylab.koala.entities.CompanyContactRole;
@@ -11,9 +13,11 @@ import java.util.UUID;
 public interface CompanyContactInvitationService {
     CompanyContactInvitation inviteUserToCompany(User invitedBy, User userToInvite, Company company, CompanyContactRole role);
 
-    List<CompanyContactInvitation> getInvitationsByCompany(Company company);
+    List<CompanyContactInvitation> getInvitationsByCompanyId(UUID companyId);
 
-    CompanyContactInvitation answerToInvitation(UUID invitationId, boolean accepted);
+    GetCompanyContactInvitationDto answerToInvitation(UUID invitationId, boolean accepted);
 
-    CompanyContactInvitation getInvitationById(UUID invitationId);
+    GetCompanyContactInvitationDto getInvitationById(UUID invitationId);
+
+    List<CompanyContactInvitationDto> getCompanyContactInvitationsByCompanyIdDto(UUID companyId);
 }

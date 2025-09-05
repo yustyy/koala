@@ -5,6 +5,8 @@ import com.exskylab.koala.core.constants.JobApplicationMessages;
 import com.exskylab.koala.core.dtos.jobApplication.request.JobApplicationsApplicationIdPatchRequestDto;
 import com.exskylab.koala.core.dtos.jobApplication.request.JobsJobIdApplicationsPostRequestDto;
 import com.exskylab.koala.core.dtos.jobApplication.response.JobApplicationsApplicationIdPatchResponseDto;
+import com.exskylab.koala.core.dtos.jobApplication.response.JobsJobIdApplicationsGetResponseDto;
+import com.exskylab.koala.core.dtos.jobApplication.response.JobsJobIdApplicationsPostResponseDto;
 import com.exskylab.koala.core.exceptions.ResourceNotFoundException;
 import com.exskylab.koala.core.mappers.JobApplicationMapper;
 import com.exskylab.koala.dataAccess.JobApplicationDao;
@@ -44,7 +46,7 @@ public class JobApplicationManager implements JobApplicationService {
 
     @Override
     @Transactional
-    public JobApplication applyToJob(String jobId, JobsJobIdApplicationsPostRequestDto jobsJobIdApplicationsPostRequestDto) {
+    public JobsJobIdApplicationsPostResponseDto applyToJob(String jobId, JobsJobIdApplicationsPostRequestDto jobsJobIdApplicationsPostRequestDto) {
         logger.info("Applying to job with id: {}", jobId);
         var job = jobService.getById(jobId);
 
@@ -55,13 +57,13 @@ public class JobApplicationManager implements JobApplicationService {
             throw new IllegalArgumentException(JobApplicationMessages.USER_CANNOT_APPLY_TO_OWN_JOB);
         }
 
+        if (jobApplicationDao.existsByJobIdAndUserId(UUID.fromString(jobId), authenticatedUser.getId())) {
+            throw new IllegalArgumentException(JobApplicationMessages.USER_ALREADY_APPLIED_TO_JOB);
+        }
+
         if (job.getEmployerType().equals(JobEmployerType.COMPANY)){
             if (companyContactService.isUserAContactOfCompany(job.getCompany().getId(), authenticatedUser.getId())) {
                 throw new IllegalArgumentException(JobApplicationMessages.CONTACT_USER_CANNOT_APPLY_TO_COMPANY_JOB);
-            }
-
-            if (jobApplicationDao.existsByJobIdAndUserId(UUID.fromString(jobId), authenticatedUser.getId())) {
-                throw new IllegalArgumentException(JobApplicationMessages.USER_ALREADY_APPLIED_TO_JOB);
             }
         }
 
@@ -76,12 +78,12 @@ public class JobApplicationManager implements JobApplicationService {
         JobApplication savedJobApplication = jobApplicationDao.save(jobApplication);
         logger.info("Saved job application with id: {}", jobApplication.getId());
 
-        return savedJobApplication;
+        return jobApplicationMapper.toJobsJobIdApplicationsPostResponseDto(savedJobApplication);
 
     }
 
     @Override
-    public List<JobApplication> getJobApplicationsByIdJobId(String jobId) {
+    public List<JobsJobIdApplicationsGetResponseDto> getJobApplicationsByIdJobId(String jobId) {
         logger.info("Fetching job applications for job id: {}", jobId);
         Job job = jobService.getById(jobId);
 
@@ -97,7 +99,7 @@ public class JobApplicationManager implements JobApplicationService {
 
         List<JobApplication> jobApplications = jobApplicationDao.findAllByJobId(UUID.fromString(jobId));
         logger.info("Found {} applications for job id: {}", jobApplications.size(), jobId);
-        return jobApplications;
+        return jobApplicationMapper.toJobsJobIdApplicationsGetResponseDtoList(jobApplications);
     }
 
     @Override
@@ -119,6 +121,12 @@ public class JobApplicationManager implements JobApplicationService {
         });
 
 
+        if (jobApplication.getStatus() == ApplicationStatus.ACCEPTED || jobApplication.getStatus() == ApplicationStatus.REJECTED) {
+            logger.error("Job application with id: {} has already been responded to", applicationId);
+            throw new IllegalArgumentException(JobApplicationMessages.JOB_APPLICATION_ALREADY_RESPONDED);
+        }
+
+
         jobApplication.setStatus(status);
         jobApplication.setAnsweredDateTime(LocalDateTime.now());
         JobAssignment assignmentToReturn = null;
@@ -131,7 +139,7 @@ public class JobApplicationManager implements JobApplicationService {
             jobAssignment.setStatus(AssignmentStatus.PENDING_CONFIRMATION);
             jobAssignment.setPaymentStatus(PaymentStatus.PENDING);
 
-            assignmentToReturn = jobAssignmentService.createJobAssignmentFromApplication(jobAssignment);
+            assignmentToReturn = jobAssignmentService.save(jobAssignment);
             logger.info("Job application with id: {} accepted", applicationId);
 
         }else if (status.equals(ApplicationStatus.REJECTED)){
@@ -142,6 +150,8 @@ public class JobApplicationManager implements JobApplicationService {
             logger.error("Invalid status transition attempted: {}", status);
             throw new IllegalArgumentException(JobApplicationMessages.INVALID_STATUS_TRANSITION);
         }
+
+        jobApplication.setAssignment(assignmentToReturn);
 
         jobApplicationDao.save(jobApplication);
         logger.info("Saved job application with id: {}", jobApplication.getId());

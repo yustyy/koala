@@ -4,8 +4,11 @@ import com.exskylab.koala.business.abstracts.*;
 import com.exskylab.koala.core.constants.JobMessages;
 import com.exskylab.koala.core.dtos.job.request.CompaniesCompanyIdJobsPostRequestDto;
 import com.exskylab.koala.core.dtos.job.request.UsersMeJobsPostRequestDto;
+import com.exskylab.koala.core.dtos.job.response.CompaniesCompanyIdJobsPostResponseDto;
+import com.exskylab.koala.core.dtos.job.response.UsersMeJobsPostResponseDto;
 import com.exskylab.koala.core.exceptions.ResourceNotFoundException;
 import com.exskylab.koala.core.exceptions.UserIsNotEmployerException;
+import com.exskylab.koala.core.mappers.JobMapper;
 import com.exskylab.koala.dataAccess.JobDao;
 import com.exskylab.koala.entities.*;
 import org.slf4j.Logger;
@@ -28,18 +31,20 @@ public class JobManager implements JobService {
     private final JobCategoryService jobCategoryService;
 
     private final AddressService addressService;
+    private final JobMapper jobMapper;
 
-    public JobManager(JobDao jobDao, SecurityService securityService, JobCategoryService jobCategoryService, AddressService addressService, CompanyService companyService) {
+    public JobManager(JobDao jobDao, SecurityService securityService, JobCategoryService jobCategoryService, AddressService addressService, CompanyService companyService, JobMapper jobMapper) {
         this.jobDao = jobDao;
         this.securityService = securityService;
         this.jobCategoryService = jobCategoryService;
         this.addressService = addressService;
         this.companyService = companyService;
+        this.jobMapper = jobMapper;
     }
 
     @Override
     @Transactional
-    public Job createIndividualJob(UsersMeJobsPostRequestDto usersMeJobsPostRequestDto) {
+    public UsersMeJobsPostResponseDto createIndividualJob(UsersMeJobsPostRequestDto usersMeJobsPostRequestDto) {
         logger.info("Creating individual job...");
         User authenticatedUser = securityService.getAuthenticatedUserFromDatabase();
         logger.info("Creating individual job for userId: {}", authenticatedUser.getId());
@@ -102,13 +107,13 @@ public class JobManager implements JobService {
         Job savedJob = jobDao.save(job);
         logger.info("Saved individual job with id: {}", savedJob.getId());
 
-        return savedJob;
+        return jobMapper.toUsersMeJobsPostResponseDto(savedJob);
 
     }
 
     @Override
     @Transactional
-    public Job createCorporateJob(String companyId, CompaniesCompanyIdJobsPostRequestDto companiesCompanyIdJobsPostRequestDto) {
+    public CompaniesCompanyIdJobsPostResponseDto createCorporateJob(String companyId, CompaniesCompanyIdJobsPostRequestDto companiesCompanyIdJobsPostRequestDto) {
         logger.info("Creating corporate job...");
         User authenticatedUser = securityService.getAuthenticatedUserFromDatabase();
         logger.info("Creating corporate job for userId: {}", authenticatedUser.getId());
@@ -177,7 +182,7 @@ public class JobManager implements JobService {
         logger.info("Saved corporate job with id: {}", savedJob.getId());
 
 
-        return savedJob;
+        return jobMapper.toCompaniesCompanyIdJobsPostResponseDto(savedJob);
 
     }
 

@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name ="job_assignments")
-public class JobAssignment {
+public class JobAssignment extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

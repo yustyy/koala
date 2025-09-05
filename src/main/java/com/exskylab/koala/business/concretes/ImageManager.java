@@ -2,10 +2,11 @@ package com.exskylab.koala.business.concretes;
 
 import com.exskylab.koala.business.abstracts.ImageService;
 import com.exskylab.koala.business.abstracts.SecurityService;
-import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.core.configs.r2.FolderType;
 import com.exskylab.koala.core.constants.ImageMessages;
+import com.exskylab.koala.core.dtos.images.response.UploadImageResponseDto;
 import com.exskylab.koala.core.exceptions.ImageUploadError;
+import com.exskylab.koala.core.mappers.ImageMapper;
 import com.exskylab.koala.core.utilities.storage.R2StorageService;
 import com.exskylab.koala.dataAccess.ImageDao;
 import com.exskylab.koala.entities.Image;
@@ -29,12 +30,14 @@ public class ImageManager implements ImageService {
     private final R2StorageService r2StorageService;
     private final SecurityService securityService;
     private final static Logger logger = LoggerFactory.getLogger(ImageManager.class);
+    private final ImageMapper imageMapper;
 
 
-    public ImageManager(ImageDao imageDao, R2StorageService r2StorageService, SecurityService securityService) {
+    public ImageManager(ImageDao imageDao, R2StorageService r2StorageService, SecurityService securityService, ImageMapper imageMapper) {
         this.imageDao = imageDao;
         this.r2StorageService = r2StorageService;
         this.securityService = securityService;
+        this.imageMapper = imageMapper;
     }
 
 
@@ -74,6 +77,11 @@ public class ImageManager implements ImageService {
             logger.error("Image upload failed fileName: {}, errorMessage: {}", image.getOriginalFilename(), e.getMessage());
             throw new ImageUploadError(ImageMessages.IMAGE_UPLOAD_ERROR);
         }
+    }
+
+    @Override
+    public UploadImageResponseDto uploadImageDto(MultipartFile image) {
+        return imageMapper.toUploadImageResponseDto(uploadImage(image));
     }
 
     @Override

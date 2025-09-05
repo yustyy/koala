@@ -2,13 +2,13 @@ package com.exskylab.koala.business.concretes;
 
 
 import com.exskylab.koala.business.abstracts.*;
-
 import com.exskylab.koala.core.constants.UserMessages;
 import com.exskylab.koala.core.dtos.address.request.CreateAddressRequestDto;
 import com.exskylab.koala.core.dtos.user.UpdateUserDto;
 import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UserMePatchRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UsersMeIdentityVerificationRequestDto;
+import com.exskylab.koala.core.dtos.user.response.UserMeResponseDto;
 import com.exskylab.koala.core.dtos.user.response.UserUpdateResponseDto;
 import com.exskylab.koala.core.exceptions.UserNotFoundException;
 import com.exskylab.koala.core.mappers.UserMapper;
@@ -343,6 +343,13 @@ public class UserManager implements UserService {
         userDao.save(currentUser);
         logger.info("Identity verification successful for user with ID: {}", currentUser.getId());
 
+    }
+
+    @Override
+    public UserMeResponseDto getCurrentUserFromDatabaseDto() {
+        logger.info("Getting current user DTO.");
+        var authenticatedUser = securityService.getAuthenticatedUserFromDatabase();
+        return userMapper.toUserMeResponseDto(authenticatedUser);
     }
 
     @Override

@@ -3,8 +3,6 @@ package com.exskylab.koala.business.abstracts;
 import com.exskylab.koala.core.dtos.auth.request.*;
 import com.exskylab.koala.core.dtos.auth.response.AuthSetPasswordDto;
 import com.exskylab.koala.core.dtos.auth.response.TokenResponseDto;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 
 import java.util.UUID;
 

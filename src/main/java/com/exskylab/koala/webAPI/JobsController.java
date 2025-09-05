@@ -35,12 +35,11 @@ public class JobsController {
     @PostMapping("/{jobId}/applications")
     public ResponseEntity<SuccessDataResult<JobsJobIdApplicationsPostResponseDto>> applyToJob(@PathVariable String jobId, @RequestBody JobsJobIdApplicationsPostRequestDto jobsJobIdApplicationsPostResponseDto){
 
-        JobApplication jobApplication = jobApplicationService.applyToJob(jobId, jobsJobIdApplicationsPostResponseDto);
+        JobsJobIdApplicationsPostResponseDto jobApplicationsDto = jobApplicationService.applyToJob(jobId, jobsJobIdApplicationsPostResponseDto);
 
-        JobsJobIdApplicationsPostResponseDto responseDto = jobApplicationMapper.toJobsJobIdApplicationsPostResponseDto(jobApplication);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new SuccessDataResult<JobsJobIdApplicationsPostResponseDto>(
-                responseDto,
+                jobApplicationsDto,
                 JobApplicationMessages.JOB_APPLICATION_CREATED_SUCCESS,
                 HttpStatus.CREATED
         ));
@@ -51,12 +50,10 @@ public class JobsController {
     @GetMapping("/{jobId}/applications")
     public ResponseEntity<SuccessDataResult<List<JobsJobIdApplicationsGetResponseDto>>> getJobApplicationById(@PathVariable String jobId){
 
-        List<JobApplication> jobApplications = jobApplicationService.getJobApplicationsByIdJobId(jobId);
-
-        List<JobsJobIdApplicationsGetResponseDto> dtos = jobApplicationMapper.toJobsJobIdApplicationsGetResponseDtoList(jobApplications);
+        List<JobsJobIdApplicationsGetResponseDto> jobApplicationsDto = jobApplicationService.getJobApplicationsByIdJobId(jobId);
 
         return ResponseEntity.ok(new SuccessDataResult<List<JobsJobIdApplicationsGetResponseDto>>(
-                dtos,
+                jobApplicationsDto,
                 JobApplicationMessages.JOB_APPLICATIONS_RETRIEVED_SUCCESS,
                 HttpStatus.OK
         ));

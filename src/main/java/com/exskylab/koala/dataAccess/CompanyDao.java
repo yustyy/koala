@@ -11,13 +11,6 @@ import java.util.UUID;
 @Repository
 public interface CompanyDao extends JpaRepository<Company, UUID> {
 
-    @EntityGraph(attributePaths = {
-            "contacts",
-            "contacts.user",
-            "contacts.user.profilePicture",
-            "logo",
-            "address"
-    })
     Optional<Company> findById(UUID id);
 
 }

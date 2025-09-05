@@ -12,4 +12,6 @@ public interface CompanyContactService {
     CompanyContact addCompanyContact(Company company, User invitedUser, CompanyContactRole role);
 
     boolean isUserAContactOfCompany(UUID companyId, UUID userId);
+
+    boolean isUserAdminOfCompany(UUID companyId, UUID userId);
 }

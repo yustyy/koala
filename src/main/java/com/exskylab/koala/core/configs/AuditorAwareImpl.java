@@ -1,7 +1,6 @@
 package com.exskylab.koala.core.configs;
 
 import com.exskylab.koala.business.abstracts.SecurityService;
-import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
