@@ -1,0 +1,44 @@
+package com.exskylab.koala.webAPI;
+
+import com.exskylab.koala.business.abstracts.JobAssignmentService;
+import com.exskylab.koala.core.constants.JobAssignmentMessages;
+import com.exskylab.koala.core.dtos.jobAssignment.request.JobAssignmentsAssignmentIdStatusPatchRequestDto;
+import com.exskylab.koala.core.dtos.jobAssignment.response.JobAssignmentsAssignmentIdStatusPatchResponseDto;
+import com.exskylab.koala.core.utilities.results.SuccessDataResult;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/job-assignments")
+public class JobAssignmentsController {
+
+    private final JobAssignmentService jobAssignmentService;
+
+
+    public JobAssignmentsController(JobAssignmentService jobAssignmentService) {
+        this.jobAssignmentService = jobAssignmentService;
+    }
+
+
+
+
+    @PatchMapping("/{assignmentId}/status")
+    public ResponseEntity<SuccessDataResult<JobAssignmentsAssignmentIdStatusPatchResponseDto>> answerToAssignment(@PathVariable UUID assignmentId,
+            @RequestBody @Valid JobAssignmentsAssignmentIdStatusPatchRequestDto jobAssignmentsAssignmentIdStatusPatchRequestDto){
+
+        JobAssignmentsAssignmentIdStatusPatchResponseDto response = jobAssignmentService.answerToAssignment(assignmentId, jobAssignmentsAssignmentIdStatusPatchRequestDto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(
+                        new SuccessDataResult<>(
+                                response,
+                                JobAssignmentMessages.ANSWER_SUCCESS,
+                                HttpStatus.OK
+                        )
+                );
+    }
+}

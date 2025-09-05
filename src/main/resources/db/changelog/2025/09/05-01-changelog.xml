@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1757079243603-2" author="yusssss">
+        <addColumn tableName="job_assignments">
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by_id" type="UUID"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by_id" type="UUID"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1757079243603-3" author="yusssss">
+        <addNotNullConstraint columnName="created_at" tableName="job_assignments"/>
+    </changeSet>
+    <changeSet id="1757079243603-8" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="job_id" baseTableName="job_applications"
+                                 constraintName="FK_JOB_APPLICATIONS_ON_JOB" referencedColumnNames="id"
+                                 referencedTableName="jobs"/>
+    </changeSet>
+    <changeSet id="1757079243603-9" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="job_applications"
+                                 constraintName="FK_JOB_APPLICATIONS_ON_USER" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1757079243603-10" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="job_assignments"
+                                 constraintName="FK_JOB_ASSIGNMENTS_ON_CREATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="1757079243603-11" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="job_assignments"
+                                 constraintName="FK_JOB_ASSIGNMENTS_ON_UPDATED_BY" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+
+</databaseChangeLog>

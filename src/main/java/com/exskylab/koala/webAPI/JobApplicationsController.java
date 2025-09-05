@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/job-applications")
-public class ApplicationsController {
+public class JobApplicationsController {
 
     private final JobApplicationService jobApplicationService;
 
 
-    public ApplicationsController(JobApplicationService jobApplicationService) {
+    public JobApplicationsController(JobApplicationService jobApplicationService) {
         this.jobApplicationService = jobApplicationService;
     }
 

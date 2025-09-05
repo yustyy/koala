@@ -84,6 +84,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/job-applications/{applicationId}").hasAnyRole("USER", "ADMIN")
 
 
+
+                        //job-assignment endpoints
+                        .requestMatchers(HttpMethod.PATCH, "/job-assignments/{assignmentId}/status").hasAnyRole("USER", "ADMIN")
+
+
                         //swagger
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
