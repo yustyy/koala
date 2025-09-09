@@ -137,7 +137,7 @@ public class JobApplicationManager implements JobApplicationService {
             jobAssignment.setWorker(jobApplication.getUser());
             jobAssignment.setApplication(jobApplication);
             jobAssignment.setStatus(AssignmentStatus.PENDING_CONFIRMATION);
-            jobAssignment.setPaymentStatus(PaymentStatus.PENDING);
+            jobAssignment.setPaymentStatus(null);
 
             assignmentToReturn = jobAssignmentService.save(jobAssignment);
             logger.info("Job application with id: {} accepted", applicationId);

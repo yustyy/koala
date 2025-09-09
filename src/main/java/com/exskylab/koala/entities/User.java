@@ -114,4 +114,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "is_employer")
     private boolean isEmployer = false;
 
+    @Column(name = "iyzico_submerchant_key")
+    private String iyzicoSubmerchantKey;
+
+    @Column(name = "iyzico_submerchant_external_id")
+    private String iyzicoSubmerchantExternalId;
+
 }

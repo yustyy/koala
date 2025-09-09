@@ -12,6 +12,7 @@ import com.exskylab.koala.core.mappers.JobAssignmentMapper;
 import com.exskylab.koala.dataAccess.JobAssignmentDao;
 import com.exskylab.koala.entities.AssignmentStatus;
 import com.exskylab.koala.entities.JobAssignment;
+import com.exskylab.koala.entities.PaymentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -64,6 +65,7 @@ public class JobAssigmentManager implements JobAssignmentService {
 
         if (jobAssignmentsAssignmentIdStatusPatchRequestDto.isAccepted()){
             assignment.setStatus(AssignmentStatus.CONFIRMED);
+            assignment.setPaymentStatus(PaymentStatus.PENDING_COLLECTION);
             logger.info("Job assignment with id {} has been accepted", assignmentId);
         }else{
             assignment.setStatus(AssignmentStatus.REJECTED);
