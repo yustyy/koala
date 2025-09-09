@@ -14,6 +14,7 @@ import com.exskylab.koala.core.dtos.user.response.UserUpdateResponseDto;
 import com.exskylab.koala.core.exceptions.UserNotFoundException;
 import com.exskylab.koala.core.mappers.AddressMapper;
 import com.exskylab.koala.core.mappers.UserMapper;
+import com.exskylab.koala.core.producers.user.UserProducerService;
 import com.exskylab.koala.core.utilities.kps.KimlikPaylasimSistemiService;
 import com.exskylab.koala.dataAccess.UserDao;
 import com.exskylab.koala.entities.*;
@@ -46,6 +47,7 @@ public class UserManager implements UserService {
     private final AddressService addressService;
     private final KimlikPaylasimSistemiService kimlikPaylasimSistemiService;
     private final AddressMapper addressMapper;
+    private final UserProducerService userProducerService;
 
     public UserManager(UserDao userDao,
                        EmailVerificationService emailVerificationService,
@@ -55,7 +57,8 @@ public class UserManager implements UserService {
                        ImageService imageService,
                        SecurityService securityService,
                        AddressService addressService,
-                       KimlikPaylasimSistemiService kimlikPaylasimSistemiService, AddressMapper addressMapper) {
+                       KimlikPaylasimSistemiService kimlikPaylasimSistemiService,
+                       AddressMapper addressMapper, UserProducerService userProducerService) {
         this.userDao = userDao;
         this.emailVerificationService = emailVerificationService;
         this.userMapper = userMapper;
@@ -66,6 +69,7 @@ public class UserManager implements UserService {
         this.addressService = addressService;
         this.kimlikPaylasimSistemiService = kimlikPaylasimSistemiService;
         this.addressMapper = addressMapper;
+        this.userProducerService = userProducerService;
     }
 
     @Override
@@ -154,6 +158,7 @@ public class UserManager implements UserService {
             }
             logger.info("Updating first name to: {}, from {}", userMePatchRequestDto.getFirstName(), currentUser.getFirstName());
             currentUser.setFirstName(userMePatchRequestDto.getFirstName());
+
         }
 
         if (userMePatchRequestDto.getLastName() != null) {
@@ -212,7 +217,14 @@ public class UserManager implements UserService {
 
             if (userMePatchRequestDto.getIban() !=null){
                 logger.info("Updating iban to: {}, from {}", userMePatchRequestDto.getIban(), currentUser.getIban());
-                currentUser.setIban(userMePatchRequestDto.getIban());
+
+                boolean isValidIban = validateIban(userMePatchRequestDto.getIban());
+
+                if (!isValidIban){
+                    throw new ValidationException(UserMessages.INVALID_IBAN);
+                }
+
+                currentUser.setIban(userMePatchRequestDto.getIban().replaceAll("\\s", ""));
             }
 
             if (userMePatchRequestDto.getAbout() != null){
@@ -237,10 +249,13 @@ public class UserManager implements UserService {
 
             User savedUser = userDao.save(currentUser);
 
+            userProducerService.publishUserProfileUpdated(savedUser);
+
             logger.info("User with ID: {} patched successfully.", savedUser.getId());
 
             return new UserUpdateResponseDto(userMapper.toUserMeResponseDto(savedUser), pendingVerifications);
     }
+
 
     @Override
     public void updateCurrentUserPassword(UserMeChangePasswordPutRequestDto userMeChangePasswordPutRequestDto, UUID currentSessionId) {
@@ -295,7 +310,8 @@ public class UserManager implements UserService {
         logger.info("Updating phone verification for user with ID: {}", user.getId());
         user.setPhoneNumber(newPhoneNumber);
         user.setPhoneVerified(true);
-        userDao.save(user);
+        var savedUser = userDao.save(user);
+        userProducerService.publishUserProfileUpdated(savedUser);
         logger.info("Phone verification updated successfully for user with ID: {}", user.getId());
     }
 
@@ -304,7 +320,8 @@ public class UserManager implements UserService {
         logger.info("Updating email verification for user with ID: {}", user.getId());
         user.setEmail(newEmail);
         user.setEmailVerified(true);
-        userDao.save(user);
+        var savedUser = userDao.save(user);
+        userProducerService.publishUserProfileUpdated(savedUser);
         logger.info("Email verification updated successfully for user with ID: {}", user.getId());
 
     }
@@ -348,7 +365,8 @@ public class UserManager implements UserService {
         currentUser.setLastName(capitalizeFirstLetter(usersMeIdentityVerificationRequestDto.getLastName()));
         currentUser.setBirthDate(usersMeIdentityVerificationRequestDto.getBirthDate());
         currentUser.setTcIdentityNumber(usersMeIdentityVerificationRequestDto.getTcIdentityNumber());
-        userDao.save(currentUser);
+        var savedUser = userDao.save(currentUser);
+        userProducerService.publishUserProfileUpdated(savedUser);
         logger.info("Identity verification successful for user with ID: {}", currentUser.getId());
 
     }
@@ -369,12 +387,48 @@ public class UserManager implements UserService {
         var address = addressService.createAddress(addressDto);
         logger.info("Created address for user with AddressId: {}, UserId: ", address.getId(), currentUser.getId());
 
+        currentUser.setAddress(address);
+
+        var savedUser = userDao.save(currentUser);
+        logger.info("Address updated successfully for user with ID: {}", currentUser.getId());
+
+        userProducerService.publishUserProfileUpdated(savedUser);
+
         return addressMapper.toAddressDto(address);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return null;
+    }
+
+
+    private boolean validateIban(String iban) {
+
+        iban = iban.replaceAll("\\s", "");
+
+        if (iban.length() != 26) return false;
+
+        if (!iban.substring(0, 2).matches("[A-Z]{2}")) return false;
+
+        String reformantted = iban.substring(4) + iban.substring(0, 4);
+
+        StringBuilder numericIban = new StringBuilder();
+        for (char ch : reformantted.toCharArray()){
+            if (Character.isLetter(ch)){
+                numericIban.append(Character.getNumericValue(ch));
+            }else{
+                numericIban.append(ch);
+            }
+        }
+
+        String num = numericIban.toString();
+        int mod = 0;
+        for (int i = 0; i <num.length() ; i++) {
+            mod = (mod*10 + (num.charAt(i) - '0')) % 97;
+        }
+
+        return mod == 1;
     }
 
     private String capitalizeFirstLetter(String input) {

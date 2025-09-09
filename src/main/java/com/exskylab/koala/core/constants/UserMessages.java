@@ -34,4 +34,5 @@ public class UserMessages {
     public static final String USER_IDENTITY_VERIFICATED_SUCCESSFULLY = "{user.identity.verificated.successfully}";
     public static final String JOB_CREATED_SUCCESSFULLY = "{job.created.successfully}";
     public static final String USER_ADDRESS_UPDATED_SUCCESSFULLY = "{user.address.updated.successfully}";
+    public static final String INVALID_IBAN = "{user.invalid.iban}";
 }

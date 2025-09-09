@@ -3,12 +3,20 @@ package com.exskylab.koala.core.configs;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.config.StatefulRetryOperationsInterceptorFactoryBean;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.backoff.ExponentialBackOffPolicy;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
+import org.springframework.retry.interceptor.StatefulRetryOperationsInterceptor;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
 
 @Configuration
 @EnableRabbit
@@ -24,6 +32,11 @@ public class RabbitMQConfig {
 
     public static final String PUSH_QUEUE = "push.queue";
     public static final String PUSH_ROUTING_KEY = "notification.push";
+
+    public static final String USER_EXCHANGE = "user.exchange";
+    public static final String USER_PROFILE_UPDATED_FOR_SYNC_QUEUE = "user.profile.updated.for.sync.queue";
+    public static final String USER_PROFILE_UPDATED_ROUTING_KEY = "user.profile.updated";
+
 
 
 
@@ -72,6 +85,27 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public TopicExchange usersExchange(){
+        return new TopicExchange(USER_EXCHANGE);
+    }
+
+    @Bean
+    public Queue userProfileUpdatedForSyncQueue(){
+        return QueueBuilder.durable(USER_PROFILE_UPDATED_FOR_SYNC_QUEUE).build();
+    }
+
+    @Bean
+    public Binding userProfileUpdatedBinding(){
+        return BindingBuilder
+                .bind(userProfileUpdatedForSyncQueue())
+                .to(usersExchange())
+                .with(USER_PROFILE_UPDATED_ROUTING_KEY);
+
+    }
+
+
+
+    @Bean
     public Jackson2JsonMessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
@@ -91,6 +125,47 @@ public class RabbitMQConfig {
         factory.setMessageConverter(messageConverter());
         return factory;
     }
+
+
+    @Bean(name = "iyzicoRetryInterceptor")
+    public StatefulRetryOperationsInterceptor iyzicoRetryInterceptor() {
+        RetryTemplate retryTemplate = new RetryTemplate();
+
+        ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
+        backOffPolicy.setInitialInterval(5000);
+        backOffPolicy.setMultiplier(2.0);
+        backOffPolicy.setMaxInterval(30000);
+        retryTemplate.setBackOffPolicy(backOffPolicy);
+
+        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
+        retryPolicy.setMaxAttempts(3);
+        retryTemplate.setRetryPolicy(retryPolicy);
+
+        StatefulRetryOperationsInterceptorFactoryBean factory = new StatefulRetryOperationsInterceptorFactoryBean();
+        factory.setRetryOperations(retryTemplate);
+        factory.setMessageRecoverer(new RejectAndDontRequeueRecoverer());
+
+        try {
+            return factory.getObject();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create retry interceptor", e);
+        }
+    }
+
+    @Bean(name = "iyzicoListenerContainerFactory")
+    public SimpleRabbitListenerContainerFactory iyzicoListenerContainerFactory(
+            ConnectionFactory connectionFactory,
+            StatefulRetryOperationsInterceptor iyzicoRetryInterceptor) {
+
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(messageConverter());
+
+        factory.setAdviceChain(iyzicoRetryInterceptor);
+
+        return factory;
+    }
+
 
 
 }

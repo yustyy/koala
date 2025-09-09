@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -110,6 +107,47 @@ public class IyzicoPaymentService {
         }
 
     }
+
+
+    public SubMerchantUpdateResponseDto updateSubMerchant(SubMerchantUpdateRequestDto request){
+
+        String endpoint = "/onboarding/submerchant";
+        String url = iyzicoProperties.getBaseUrl()+endpoint;
+        logger.info("iyzico: Updating sub-merchant for externalId: {}", request.getSubMerchantKey());
+
+        try{
+
+
+            Map<String, Object> iyzicoRequestBody = convertUpdateRequestToIyzicoMap(request);
+
+            String jsonBody = objectMapper.writeValueAsString(iyzicoRequestBody);
+            HttpHeaders headers = createIyzicoHeaders(endpoint, jsonBody);
+            HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+
+            JsonNode root = objectMapper.readTree(response.getBody());
+
+            if ("success".equals(root.path("status").asText())){
+                SubMerchantUpdateResponseDto responseDto = objectMapper.treeToValue(root, SubMerchantUpdateResponseDto.class);
+                logger.info("iyzico: Sub-merchant with key {} updated successfully.", request.getSubMerchantKey());
+                return responseDto;
+            }else {
+                String errorMessage = root.path("errorMessage").asText();
+                logger.error("iyzico: Failed to update sub-merchant with key {}. Error: {}",
+                        request.getSubMerchantKey(), errorMessage);
+                throw new RuntimeException("Failed to update sub-merchant: " + errorMessage);
+            }
+
+
+        }catch (Exception e){
+            logger.error("iyzico: Exception during sub-merchant update for externalId: {}. Exception: {}", request.getSubMerchantKey(), e.getMessage());
+            throw new RuntimeException("Exception during sub-merchant update: " + e.getMessage(), e);
+        }
+
+    }
+
+
 
     public PaymentSessionResponseDto initiateCheckoutFormPayment(PaymentSessionRequestDto request){
 
@@ -295,6 +333,31 @@ public class IyzicoPaymentService {
         return headers;
 
     }
+
+
+    private Map<String, Object> convertUpdateRequestToIyzicoMap(SubMerchantUpdateRequestDto dto) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("locale", "tr");
+        map.put("conversationId", UUID.randomUUID().toString());
+        map.put("subMerchantKey", dto.getSubMerchantKey());
+
+        map.put("name", dto.getName());
+        map.put("email", dto.getEmail());
+        map.put("gsmNumber", dto.getGsmNumber());
+        map.put("address", dto.getAddress());
+        map.put("iban", dto.getIban());
+        map.put("contactName", dto.getContactName());
+        map.put("contactSurname", dto.getContactSurname());
+        map.put("currency", "TRY");
+        map.put("identityNumber", dto.getIdentityNumber());
+
+        return map;
+
+    }
+
+
+
+
 
     private String generateIyzicoV2Signature(String randomKey, String payload) throws NoSuchAlgorithmException, InvalidKeyException {
         String secretKey = iyzicoProperties.getSecretKey();

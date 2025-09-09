@@ -1,4 +1,4 @@
-package com.exskylab.koala.core.producers;
+package com.exskylab.koala.core.producers.notification;
 
 
 import java.io.Serializable;

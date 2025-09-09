@@ -2,7 +2,7 @@ package com.exskylab.koala.core.consumers;
 
 import com.exskylab.koala.business.abstracts.NotificationService;
 import com.exskylab.koala.core.configs.RabbitMQConfig;
-import com.exskylab.koala.core.producers.EmailTaskDto;
+import com.exskylab.koala.core.producers.notification.EmailTaskDto;
 import com.exskylab.koala.core.properties.AppProperties;
 import com.exskylab.koala.entities.Notification;
 import com.exskylab.koala.entities.NotificationStatus;

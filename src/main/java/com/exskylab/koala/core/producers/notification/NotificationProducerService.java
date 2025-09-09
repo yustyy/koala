@@ -1,4 +1,4 @@
-package com.exskylab.koala.core.producers;
+package com.exskylab.koala.core.producers.notification;
 
 import com.exskylab.koala.core.configs.RabbitMQConfig;
 import com.exskylab.koala.core.constants.NotificationMessages;
