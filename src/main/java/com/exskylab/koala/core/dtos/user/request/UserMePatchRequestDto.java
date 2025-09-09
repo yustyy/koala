@@ -40,4 +40,6 @@ public class UserMePatchRequestDto {
 
     private String interests;
 
+    private String iban;
+
 }

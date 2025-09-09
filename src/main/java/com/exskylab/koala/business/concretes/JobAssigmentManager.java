@@ -56,7 +56,7 @@ public class JobAssigmentManager implements JobAssignmentService {
     @Override
     public JobAssignmentsAssignmentIdStatusPatchResponseDto answerToAssignment(UUID assignmentId, JobAssignmentsAssignmentIdStatusPatchRequestDto jobAssignmentsAssignmentIdStatusPatchRequestDto) {
         logger.info("Answering to job assignment from");
-        var assignment = jobAssignmentDao.findById(assignmentId).orElseThrow(() -> {
+        var assignment = jobAssignmentDao.findWithDetailsForPaymentById(assignmentId).orElseThrow(() -> {
             logger.info("Assignment with id {} not found", assignmentId);
             return new ResourceNotFoundException(JobAssignmentMessages.NOT_FOUND);
         });

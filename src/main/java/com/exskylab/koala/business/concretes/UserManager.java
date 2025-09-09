@@ -4,6 +4,7 @@ package com.exskylab.koala.business.concretes;
 import com.exskylab.koala.business.abstracts.*;
 import com.exskylab.koala.core.constants.UserMessages;
 import com.exskylab.koala.core.dtos.address.request.CreateAddressRequestDto;
+import com.exskylab.koala.core.dtos.address.response.AddressDto;
 import com.exskylab.koala.core.dtos.user.UpdateUserDto;
 import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UserMePatchRequestDto;
@@ -11,6 +12,7 @@ import com.exskylab.koala.core.dtos.user.request.UsersMeIdentityVerificationRequ
 import com.exskylab.koala.core.dtos.user.response.UserMeResponseDto;
 import com.exskylab.koala.core.dtos.user.response.UserUpdateResponseDto;
 import com.exskylab.koala.core.exceptions.UserNotFoundException;
+import com.exskylab.koala.core.mappers.AddressMapper;
 import com.exskylab.koala.core.mappers.UserMapper;
 import com.exskylab.koala.core.utilities.kps.KimlikPaylasimSistemiService;
 import com.exskylab.koala.dataAccess.UserDao;
@@ -43,6 +45,7 @@ public class UserManager implements UserService {
     private final SecurityService securityService;
     private final AddressService addressService;
     private final KimlikPaylasimSistemiService kimlikPaylasimSistemiService;
+    private final AddressMapper addressMapper;
 
     public UserManager(UserDao userDao,
                        EmailVerificationService emailVerificationService,
@@ -52,7 +55,7 @@ public class UserManager implements UserService {
                        ImageService imageService,
                        SecurityService securityService,
                        AddressService addressService,
-                       KimlikPaylasimSistemiService kimlikPaylasimSistemiService) {
+                       KimlikPaylasimSistemiService kimlikPaylasimSistemiService, AddressMapper addressMapper) {
         this.userDao = userDao;
         this.emailVerificationService = emailVerificationService;
         this.userMapper = userMapper;
@@ -62,6 +65,7 @@ public class UserManager implements UserService {
         this.securityService = securityService;
         this.addressService = addressService;
         this.kimlikPaylasimSistemiService = kimlikPaylasimSistemiService;
+        this.addressMapper = addressMapper;
     }
 
     @Override
@@ -206,6 +210,10 @@ public class UserManager implements UserService {
             }
         }
 
+            if (userMePatchRequestDto.getIban() !=null){
+                logger.info("Updating iban to: {}, from {}", userMePatchRequestDto.getIban(), currentUser.getIban());
+                currentUser.setIban(userMePatchRequestDto.getIban());
+            }
 
             if (userMePatchRequestDto.getAbout() != null){
                 logger.info("Updating about to: {}, from {}", userMePatchRequestDto.getAbout(), currentUser.getAbout());
@@ -350,6 +358,18 @@ public class UserManager implements UserService {
         logger.info("Getting current user DTO.");
         var authenticatedUser = securityService.getAuthenticatedUserFromDatabase();
         return userMapper.toUserMeResponseDto(authenticatedUser);
+    }
+
+    @Override
+    public AddressDto updateAddressForCurrentUser(CreateAddressRequestDto addressDto) {
+        logger.info("Updating address for current user.");
+        var currentUser = securityService.getAuthenticatedUserFromContext();
+        logger.info("Updating address for user with ID: {}", currentUser.getId());
+
+        var address = addressService.createAddress(addressDto);
+        logger.info("Created address for user with AddressId: {}, UserId: ", address.getId(), currentUser.getId());
+
+        return addressMapper.toAddressDto(address);
     }
 
     @Override

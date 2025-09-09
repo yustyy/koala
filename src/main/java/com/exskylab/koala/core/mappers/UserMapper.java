@@ -10,12 +10,17 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
 
     private final R2Properties r2Properties;
+    private final AddressMapper addressMapper;
 
-    public UserMapper(R2Properties r2Properties) {
+    public UserMapper(R2Properties r2Properties, AddressMapper addressMapper) {
         this.r2Properties = r2Properties;
+        this.addressMapper = addressMapper;
     }
 
     public SafeUserDto toSafeUserDto(User user) {
+        if (user == null) {
+            return null;
+        }
         var safeUserDto = new SafeUserDto();
         safeUserDto.setId(user.getId());
         safeUserDto.setFirstName(user.getFirstName());
@@ -26,6 +31,9 @@ public class UserMapper {
     }
 
     public UserMeResponseDto toUserMeResponseDto(User user) {
+        if (user == null) {
+            return null;
+        }
 
         UserMeResponseDto userDto = new UserMeResponseDto();
 
@@ -41,6 +49,7 @@ public class UserMapper {
         userDto.setAbout(user.getAbout() != null ? user.getAbout() : null);
         userDto.setQualifications(user.getQualifications() != null ? user.getQualifications() : null);
         userDto.setInterests(user.getInterests() != null ? user.getInterests() : null);
+        userDto.setAddress(user.getAddress() != null ? addressMapper.toAddressDto(user.getAddress()) : null);
         return userDto;
 
     }

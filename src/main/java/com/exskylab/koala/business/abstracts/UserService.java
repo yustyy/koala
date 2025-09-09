@@ -2,6 +2,7 @@ package com.exskylab.koala.business.abstracts;
 
 
 import com.exskylab.koala.core.dtos.address.request.CreateAddressRequestDto;
+import com.exskylab.koala.core.dtos.address.response.AddressDto;
 import com.exskylab.koala.core.dtos.user.UpdateUserDto;
 import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
 import com.exskylab.koala.core.dtos.user.request.UserMePatchRequestDto;
@@ -54,4 +55,5 @@ public interface UserService extends UserDetailsService {
 
     UserMeResponseDto getCurrentUserFromDatabaseDto();
 
+    AddressDto updateAddressForCurrentUser(@Valid CreateAddressRequestDto addressDto);
 }

@@ -4,6 +4,8 @@ import com.exskylab.koala.business.abstracts.JobService;
 import com.exskylab.koala.business.abstracts.SecurityService;
 import com.exskylab.koala.business.abstracts.UserService;
 import com.exskylab.koala.core.constants.UserMessages;
+import com.exskylab.koala.core.dtos.address.request.CreateAddressRequestDto;
+import com.exskylab.koala.core.dtos.address.response.AddressDto;
 import com.exskylab.koala.core.dtos.job.request.UsersMeJobsPostRequestDto;
 import com.exskylab.koala.core.dtos.job.response.UsersMeJobsPostResponseDto;
 import com.exskylab.koala.core.dtos.user.request.UserMeChangePasswordPutRequestDto;
@@ -118,6 +120,18 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new SuccessResult(
                         UserMessages.USER_IDENTITY_VERIFICATED_SUCCESSFULLY,
+                        HttpStatus.OK));
+    }
+
+    @PutMapping("/me/address")
+    public ResponseEntity<SuccessDataResult<AddressDto>> updateAddressForCurrentUser(@RequestBody @Valid CreateAddressRequestDto addressDto){
+
+        AddressDto updatedAddress = userService.updateAddressForCurrentUser(addressDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new SuccessDataResult<AddressDto>(
+                        updatedAddress,
+                        UserMessages.USER_ADDRESS_UPDATED_SUCCESSFULLY,
                         HttpStatus.OK));
     }
 

@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/users/me/profile-picture").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/users/me/identity-verification").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/users/me/jobs").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users/me/address").hasAnyRole("USER", "ADMIN")
 
                         //verification endpoints
                         .requestMatchers(HttpMethod.POST, "/user-verifications/{id}").hasAnyRole("USER", "ADMIN")

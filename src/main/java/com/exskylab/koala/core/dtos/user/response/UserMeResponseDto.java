@@ -1,5 +1,6 @@
 package com.exskylab.koala.core.dtos.user.response;
 
+import com.exskylab.koala.core.dtos.address.response.AddressDto;
 import com.exskylab.koala.entities.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,6 +39,8 @@ public class UserMeResponseDto {
     private String qualifications;
 
     private String interests;
+
+    private AddressDto address;
 
 
 }
