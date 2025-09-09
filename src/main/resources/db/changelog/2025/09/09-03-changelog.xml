@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1757441890853-4" author="yusssss">
+        <dropForeignKeyConstraint baseTableName="users_addresses" constraintName="fk_useadd_on_address"/>
+    </changeSet>
+    <changeSet id="1757441890853-5" author="yusssss">
+        <dropForeignKeyConstraint baseTableName="users_addresses" constraintName="fk_useadd_on_user"/>
+    </changeSet>
+    <changeSet id="1757441890853-1" author="yusssss">
+        <addColumn tableName="users">
+            <column name="address_id" type="UUID"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1757441890853-2" author="yusssss">
+        <addUniqueConstraint columnNames="address_id" constraintName="uc_users_address" tableName="users"/>
+    </changeSet>
+    <changeSet id="1757441890853-3" author="yusssss">
+        <addForeignKeyConstraint baseColumnNames="address_id" baseTableName="users" constraintName="FK_USERS_ON_ADDRESS"
+                                 referencedColumnNames="id" referencedTableName="addresses"/>
+    </changeSet>
+    <changeSet id="1757441890853-6" author="yusssss">
+        <dropTable cascadeConstraints="true" tableName="users_addresses"/>
+    </changeSet>
+
+</databaseChangeLog>

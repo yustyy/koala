@@ -77,13 +77,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "identity_verified")
     private boolean identityVerified;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "users_addresses",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "address_id")
-    )
-    private List<Address> addresses;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    private Address address;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Education> educations;
@@ -114,10 +110,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "is_employer")
     private boolean isEmployer = false;
 
+    @Column(name = "iban")
+    private String iban;
+
     @Column(name = "iyzico_submerchant_key")
     private String iyzicoSubmerchantKey;
-
-    @Column(name = "iyzico_submerchant_external_id")
-    private String iyzicoSubmerchantExternalId;
 
 }

@@ -87,6 +87,7 @@ public class SecurityConfig {
 
                         //job-assignment endpoints
                         .requestMatchers(HttpMethod.PATCH, "/job-assignments/{assignmentId}/status").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/job-assignments/{assignmentId}/payment-session/initiate").hasAnyRole("USER", "ADMIN")
 
 
                         //swagger

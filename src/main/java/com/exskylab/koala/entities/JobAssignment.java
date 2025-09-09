@@ -61,8 +61,4 @@ public class JobAssignment extends BaseEntity{
     @Column(name = "iyzico_submerchant_key")
     private String iyzicoSubmerchantKey;
 
-    @Column(name = "iyzico_submerchant_external_id")
-    private String iyzicoSubmerchantExternalId;
-
-
 }

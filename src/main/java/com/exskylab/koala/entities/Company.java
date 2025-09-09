@@ -64,9 +64,6 @@ public class Company extends BaseEntity{
     @Column(name = "iyzico_submerchant_key")
     private String iyzicoSubmerchantKey;
 
-    @Column(name = "iyzico_submerchant_external_id")
-    private String iyzicoSubmerchantExternalId;
-
     public void addContact(CompanyContact contact){
         this.contacts.add(contact);
         contact.setCompany(this);

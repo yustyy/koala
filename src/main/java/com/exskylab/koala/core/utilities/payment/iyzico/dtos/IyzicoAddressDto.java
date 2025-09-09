@@ -1,5 +1,10 @@
 package com.exskylab.koala.core.utilities.payment.iyzico.dtos;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class IyzicoAddressDto {
 
     private String address;

@@ -1,7 +1,9 @@
 package com.exskylab.koala.core.mappers;
 
+import com.exskylab.koala.core.dtos.jobAssignment.response.JobAssignmentsAssignmentIdPaymentSessionInitiatePostResponseDto;
 import com.exskylab.koala.core.dtos.jobAssignment.response.JobAssignmentsAssignmentIdStatusPatchResponseDto;
 import com.exskylab.koala.core.dtos.jobAssignment.response.ShortJobAssignmentDto;
+import com.exskylab.koala.core.utilities.payment.iyzico.dtos.PaymentSessionResponseDto;
 import com.exskylab.koala.entities.JobAssignment;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +38,14 @@ public class JobAssignmentMapper {
         dto.setWorker(userMapper.toSafeUserDto(jobAssignment.getWorker()));
         dto.setCompany(companyMapper.toOnlyCompanyDto(jobAssignment.getJob().getCompany()));
         return dto;
+    }
+
+    public JobAssignmentsAssignmentIdPaymentSessionInitiatePostResponseDto tojobAssignmentsAssignmentIdPaymentSessionInitiatePostResponseDto(PaymentSessionResponseDto paymentSessionResponseDto){
+        JobAssignmentsAssignmentIdPaymentSessionInitiatePostResponseDto dto = new JobAssignmentsAssignmentIdPaymentSessionInitiatePostResponseDto();
+        dto.setToken(paymentSessionResponseDto.getToken());
+        dto.setPaymentPageUrl(paymentSessionResponseDto.getPaymentPageUrl());
+        return dto;
+
     }
 
 }

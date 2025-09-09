@@ -1,10 +1,9 @@
 package com.exskylab.koala.core.utilities.payment.iyzico.dtos;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,9 +11,9 @@ public class PaymentSessionRequestDto {
 
     private String conversationId; //jobAssignmentID
 
-    private BigDecimal price;
+    private double price;
 
-    private BigDecimal paidPrice;
+    private double paidPrice;
 
     private String currency = "TRY";
 
@@ -27,6 +26,10 @@ public class PaymentSessionRequestDto {
     private IyzicoBuyerDto buyer;
 
     private IyzicoAddressDto shippingAddress;
+
+    private List<IyzicoBasketItemDto> basketItems;
+
+    private IyzicoAddressDto billingAddress;
 
 
 }

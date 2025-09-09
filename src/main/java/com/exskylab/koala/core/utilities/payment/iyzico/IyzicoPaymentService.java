@@ -130,8 +130,8 @@ public class IyzicoPaymentService {
             if ("success".equals(root.path("status").asText())){
                 PaymentSessionResponseDto sessionResponseDto = objectMapper.treeToValue(root, PaymentSessionResponseDto.class);
 
-                logger.info("iyzico: Checkout form payment initiated successfully for conversationId: {}. PaymentPageUrl: {}",
-                        request.getConversationId(), sessionResponseDto.getCheckoutFormContent());
+                logger.info("iyzico: Checkout form payment initiated successfully for conversationId: {}.",
+                        request.getConversationId());
 
 
                 return sessionResponseDto;
@@ -274,38 +274,54 @@ public class IyzicoPaymentService {
 
 
     private HttpHeaders createIyzicoHeaders(String uriPath, String jsonBody) throws Exception {
-        String randomKey = UUID.randomUUID().toString();
-        String signature= generateIyzicoSignature(uriPath, randomKey, jsonBody);
+        String randomKey = String.valueOf(System.currentTimeMillis());
 
-        String authorizationString = Base64.getUrlEncoder().encodeToString(
-                (iyzicoProperties.getApiKey() + ":" + signature).getBytes(StandardCharsets.UTF_8)
+        String payload = (jsonBody == null || jsonBody.isEmpty()) ? uriPath : uriPath+jsonBody;
+
+        String signature= generateIyzicoV2Signature(randomKey, payload);
+
+        String authorizationString = "apiKey:" + iyzicoProperties.getApiKey()
+                + "&randomKey:" + randomKey
+                + "&signature:" + signature;
+
+        String base64EncodedAuth = Base64.getEncoder().encodeToString(
+                authorizationString.getBytes(StandardCharsets.UTF_8)
         );
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "IYZWS " + authorizationString);
-        headers.set("x-iyzi-rnd", randomKey);
+        headers.set("Authorization", "IYZWSv2 " + base64EncodedAuth);
 
         return headers;
 
     }
 
-
-
-    private String generateIyzicoSignature(String uriPath, String randomKey, String requestPayload) throws NoSuchAlgorithmException, InvalidKeyException {
-
-        String apiKey = iyzicoProperties.getApiKey();
+    private String generateIyzicoV2Signature(String randomKey, String payload) throws NoSuchAlgorithmException, InvalidKeyException {
         String secretKey = iyzicoProperties.getSecretKey();
+        String dataToEncrypt = randomKey+payload;
 
-        String dataToEncrypt = apiKey+randomKey+secretKey+requestPayload;
+        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secret_key_spec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        sha256Hmac.init(secret_key_spec);
 
-        Mac sha1HMAC = Mac.getInstance("HmacSHA1");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA1");
-        sha1HMAC.init(secretKeySpec);
+        byte[] hmac_sha256_bytes = sha256Hmac.doFinal(dataToEncrypt.getBytes(StandardCharsets.UTF_8));
 
-        byte[] hmacSHA1Bytes = sha1HMAC.doFinal(dataToEncrypt.getBytes(StandardCharsets.UTF_8));
+        return bytesToHex(hmac_sha256_bytes);
 
-        return Base64.getEncoder().encodeToString(hmacSHA1Bytes);
+    }
+
+    private static String bytesToHex(byte[] hash) {
+
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+
+        return hexString.toString();
 
     }
 

@@ -122,21 +122,6 @@ public class UserController {
     }
 
 
-
-    /*
-    @PostMapping("/me/addresses")
-    public ResponseEntity<SuccessDataResult<AddressDto>> addAddress(@RequestBody @Valid CreateAddressRequestDto createAddressRequestDto){
-
-        var response = userService.addAddressToAuthenticatedUser(createAddressRequestDto);
-
-        return null;
-
-
-    }
-
-     */
-
-
     @PostMapping("/me/jobs")
     public ResponseEntity<SuccessDataResult<UsersMeJobsPostResponseDto>> createJobForCurrentUser(@RequestBody @Valid UsersMeJobsPostRequestDto usersMeJobsPostRequestDto){
 
