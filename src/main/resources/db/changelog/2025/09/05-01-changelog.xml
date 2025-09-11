@@ -16,22 +16,46 @@
     <changeSet id="1757079243603-3" author="yusssss">
         <addNotNullConstraint columnName="created_at" tableName="job_assignments"/>
     </changeSet>
+
+    <!-- HATA VEREN KISIM - DÜZELTİLDİ -->
     <changeSet id="1757079243603-8" author="yusssss">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_JOB_APPLICATIONS_ON_JOB"/>
+            </not>
+        </preConditions>
         <addForeignKeyConstraint baseColumnNames="job_id" baseTableName="job_applications"
                                  constraintName="FK_JOB_APPLICATIONS_ON_JOB" referencedColumnNames="id"
                                  referencedTableName="jobs"/>
     </changeSet>
+
+    <!-- DİĞERLERİ İÇİN DE EN İYİ PRATİK OLARAK EKLENDİ -->
     <changeSet id="1757079243603-9" author="yusssss">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_JOB_APPLICATIONS_ON_USER"/>
+            </not>
+        </preConditions>
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="job_applications"
                                  constraintName="FK_JOB_APPLICATIONS_ON_USER" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
     <changeSet id="1757079243603-10" author="yusssss">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_JOB_ASSIGNMENTS_ON_CREATED_BY"/>
+            </not>
+        </preConditions>
         <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="job_assignments"
                                  constraintName="FK_JOB_ASSIGNMENTS_ON_CREATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
     </changeSet>
     <changeSet id="1757079243603-11" author="yusssss">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="FK_JOB_ASSIGNMENTS_ON_UPDATED_BY"/>
+            </not>
+        </preConditions>
         <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="job_assignments"
                                  constraintName="FK_JOB_ASSIGNMENTS_ON_UPDATED_BY" referencedColumnNames="id"
                                  referencedTableName="users"/>
