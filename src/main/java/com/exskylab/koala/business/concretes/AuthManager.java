@@ -129,7 +129,7 @@ public class AuthManager implements AuthService {
         String passwordSetToken = jwtService.generatePasswordSetToken(pendingRegistration.getId());
         logger.info("Token verified successfully for email: {}", pendingRegistration.getEmail());
 
-        return new AuthSetPasswordDto(passwordSetToken);
+        return new AuthSetPasswordDto(passwordSetToken, pendingRegistration.isEmployer());
     }
 
     @Override
@@ -147,6 +147,7 @@ public class AuthManager implements AuthService {
         newUser.setFirstName(pendingRegistration.getFirstName());
         newUser.setLastName(pendingRegistration.getLastName());
         newUser.setEmail(pendingRegistration.getEmail());
+        newUser.setEmployer(pendingRegistration.isEmployer());
         newUser.setPassword(passwordEncoder.encode(authCompleteRegistrationDto.getPassword()));
         newUser.setAuthorities(Set.of(Role.ROLE_USER));
 

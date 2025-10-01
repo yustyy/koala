@@ -13,4 +13,6 @@ public class AuthSetPasswordDto {
 
     private String setPasswordToken;
 
+    private boolean isEmployer;
+
 }

@@ -24,4 +24,6 @@ public class AuthStartRegistrationDto {
     @Email(message = AuthMessages.INVALID_EMAIL)
     private String email;
 
+    private boolean isEmployer;
+
 }

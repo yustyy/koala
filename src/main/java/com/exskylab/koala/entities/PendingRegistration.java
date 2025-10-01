@@ -31,6 +31,9 @@ public class PendingRegistration extends BaseEntity{
     @Column(name = "email")
     private String email;
 
+    @Column(name = "is_employer")
+    private boolean isEmployer;
+
     @Column(name = "token")
     private UUID token;
 
